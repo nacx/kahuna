@@ -45,12 +45,8 @@ def create_machine(rack):
     return machine
 
 
-def create_infrastructure():
+if __name__ == '__main__':
     datacenter = create_datacenter()
     rack = create_rack(datacenter)
     machine = create_machine(rack)
-
-
-if __name__ == '__main__':
-    create_infrastructure();
 

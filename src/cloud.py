@@ -33,14 +33,10 @@ def create_virtual_appliance(virtual_datacenter):
     return vapp
 
 
-def create_cloud():
+if __name__ == '__main__':
     datacenter = ApiConnection.getConnection().getDatacenters()[0]
     enterprise = ApiConnection.getConnection().getEnterprises()[0]
 
     vdc = create_virtual_datacenter(datacenter, enterprise)
     create_virtual_appliance(vdc)
-
-
-if __name__ == '__main__':
-    create_cloud();
 

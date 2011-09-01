@@ -33,9 +33,9 @@ def create_enterprise():
 
 def create_user(enterprise):
     roles = ApiConnection.getConnection().getGlobalRoles()
-    cloud_admin = filter(lambda r: r.getName() == USR_ROLE, roles)[0]
+    role = filter(lambda r: r.getName() == USR_ROLE, roles)[0]
 
-    user = User(enterprise, cloud_admin, USR_NAME, USR_SURNAME, USR_LOGIN, "", 
+    user = User(enterprise, role, USR_NAME, USR_SURNAME, USR_LOGIN, "", 
             USR_EMAIL, Locale.ENGLISH, USR_PASSWORD, True, AbiquoKeyWords.AuthType.ABIQUO)
 
     user.save()
