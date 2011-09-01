@@ -32,6 +32,7 @@ def create_virtual_appliance(virtual_datacenter):
     vapp.save()
     return vapp
 
+
 def create_cloud():
     datacenter = ApiConnection.getConnection().getDatacenters()[0]
     enterprise = ApiConnection.getConnection().getEnterprises()[0]
