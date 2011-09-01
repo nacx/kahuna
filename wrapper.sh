@@ -2,5 +2,5 @@
 
 export CLASSPATH=`cat lib/CLASSPATH`
 
-jython src/datacenter.py
+jython src/infrastructure.py
 
