@@ -37,7 +37,7 @@ Note on patches/pull requests
 Issue Tracking
 --------------
 
-f you find any issue, please submit it to the [Bug tracking system](https://github.com/nacx/abijy/issues) and we
+If you find any issue, please submit it to the [Bug tracking system](https://github.com/nacx/abijy/issues) and we
 will do our best to fix it.
 
 
