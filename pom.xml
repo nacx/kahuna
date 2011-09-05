@@ -34,6 +34,8 @@
                     <prefix>lib</prefix>
                     <outputDirectory>lib</outputDirectory>
                     <outputFile>lib/CLASSPATH</outputFile>
+                    <overWriteSnapshots>true</overWriteSnapshots>
+                    <overWriteReleases>true</overWriteReleases>
                 </configuration>
                 <executions>
                     <execution>

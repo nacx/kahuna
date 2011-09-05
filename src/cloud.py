@@ -20,6 +20,11 @@ NET_GATEWAY = "192.168.1.1"
 # Virtual appliance configuration
 VAPP_NAME = "XS API"
 
+# External storage configuration
+VOL_NAME = "Ext. Storage"
+VOL_SIZE = 1024     # GB
+VOL_TIER = "Default Tier 1"
+
 
 def create_virtual_datacenter(datacenter, enterprise):
     net = VLANNetwork(NET_NAME, NET_ADDRESS, NET_MASK, NET_GATEWAY, True)
@@ -32,11 +37,19 @@ def create_virtual_appliance(virtual_datacenter):
     vapp.save()
     return vapp
 
+def create_volume(vdc, tier):
+    volume = Volume(VOL_NAME, VOL_SIZE, vdc, tier)
+    volume.save()
+    return volume
+
 
 if __name__ == '__main__':
     datacenter = ApiConnection.getConnection().getDatacenters()[0]
     enterprise = ApiConnection.getConnection().getEnterprises()[0]
 
     vdc = create_virtual_datacenter(datacenter, enterprise)
-    create_virtual_appliance(vdc)
+    vapp = create_virtual_appliance(vdc)
+
+    tier = filter(lambda t: t.getName() == VOL_TIER, datacenter.getTiers())[0]
+    volume = create_volume(vdc, tier)
 
