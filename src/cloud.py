@@ -2,7 +2,9 @@
 
 from com.abiquo.model.enumerator import *
 
-from com.apiclient.wrapper.admin import *
+from com.apiclient.wrapper.infrastructure import *
+from com.apiclient.wrapper.network import *
+from com.apiclient.wrapper.enterprise import *
 from com.apiclient.wrapper.cloud import *
 from com.apiclient.connection import *
 
@@ -44,8 +46,8 @@ def create_volume(vdc, tier):
 
 
 if __name__ == '__main__':
-    datacenter = ApiConnection.getConnection().getDatacenters()[0]
-    enterprise = ApiConnection.getConnection().getEnterprises()[0]
+    datacenter = Admin.getDatacenters()[0]
+    enterprise = Admin.getEnterprises()[0]
 
     vdc = create_virtual_datacenter(datacenter, enterprise)
     vapp = create_virtual_appliance(vdc)
