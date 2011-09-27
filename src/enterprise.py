@@ -2,7 +2,8 @@
 
 from java.util import Locale
 
-from com.apiclient.wrapper.admin import *
+from com.apiclient.wrapper.infrastructure import *
+from com.apiclient.wrapper.enterprise import *
 from com.apiclient.connection import *
 from com.apiclient.connection.constants import *
 
@@ -24,15 +25,14 @@ def create_enterprise():
     enterprise.save()
 
     # Add a datacenter to the enterprise, if any
-    datacenters = ApiConnection.getConnection().getDatacenters()
+    datacenters = Admin.getDatacenters()
     if datacenters:
-        datacenter_limits = DatacenterLimits(datacenters[0], enterprise)
-        datacenter_limits.save()
+	enterprise.allowDatacenter(datacenters[0])
 
     return enterprise
 
 def create_user(enterprise):
-    roles = ApiConnection.getConnection().getGlobalRoles()
+    roles = Admin.getGlobalRoles()
     role = filter(lambda r: r.getName() == USR_ROLE, roles)[0]
 
     user = User(enterprise, role, USR_NAME, USR_SURNAME, USR_LOGIN, "", 
