@@ -2,7 +2,8 @@
 
 from com.abiquo.model.enumerator import *
 
-from com.apiclient.wrapper.admin import *
+from com.apiclient.wrapper.infrastructure import *
+from com.apiclient.wrapper.enterprise import *
 from com.apiclient.connection.constants import *
 
 

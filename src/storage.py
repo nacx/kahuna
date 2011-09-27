@@ -2,7 +2,7 @@
 
 from com.abiquo.model.enumerator import *
 
-from com.apiclient.wrapper.admin import *
+from com.apiclient.wrapper.infrastructure import *
 from com.apiclient.connection import *
 
 
@@ -38,7 +38,7 @@ def create_pool(device):
     
 
 if __name__ == '__main__':
-    datacenter = ApiConnection.getConnection().getDatacenters()[0]
+    datacenter = Admin.getDatacenters()[0]
 
     device = create_device(datacenter)
     pool = create_pool(device)
