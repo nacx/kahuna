@@ -1,4 +1,5 @@
 lib
 .project
+*.class
 catalina.base_IS_UNDEFINED
 
