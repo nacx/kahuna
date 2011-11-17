@@ -9,7 +9,3 @@ ARGS="-Dabiquo.contextbuilder=$CONTEXT_BUILDER -Dabiquo.propertiesbuilder=$PROPS
 
 jython $ARGS src/infrastructure.py
 
-#jython src/storage.py
-#jython src/cloud.py
-#jython src/enterprise.py
-
