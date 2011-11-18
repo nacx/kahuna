@@ -7,6 +7,13 @@ PROPS_BUILDER="org.jclouds.abiquo.AbiquoPropertiesBuilder"
 
 ARGS="-Dabiquo.contextbuilder=$CONTEXT_BUILDER -Dabiquo.propertiesbuilder=$PROPS_BUILDER"
 
-jython $ARGS src/infrastructure.py
-jython $ARGS src/tenants.py
+if [ $# -eq 0 ]; then
+    jython $ARGS src/infrastructure.py
+    jython $ARGS src/tenants.py
+elif [ "$1" = "clean" ]; then
+    jython $ARGS src/cleanup.py
+else
+    echo "Usage: $0 [clean]"
+    exit 1
+fi
 
