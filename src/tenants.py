@@ -3,9 +3,7 @@
 from config import *
 from constants import *
 
-from com.abiquo.model.enumerator import *
 from org.jclouds.abiquo.domain.enterprise import *
-from org.jclouds.abiquo.domain.infrastructure import *
 from org.jclouds.abiquo.predicates.enterprise import *
 from org.jclouds.abiquo.predicates.infrastructure import *
 
