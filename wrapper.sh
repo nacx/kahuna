@@ -8,4 +8,5 @@ PROPS_BUILDER="org.jclouds.abiquo.AbiquoPropertiesBuilder"
 ARGS="-Dabiquo.contextbuilder=$CONTEXT_BUILDER -Dabiquo.propertiesbuilder=$PROPS_BUILDER"
 
 jython $ARGS src/infrastructure.py
+jython $ARGS src/tenants.py
 

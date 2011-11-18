@@ -1,29 +1,14 @@
 #!/usr/bin/env jython
 
 from config import *
+from constants import *
 
-from com.abiquo.model.enumerator import *
 from org.jclouds.abiquo.domain.infrastructure import *
 from org.jclouds.abiquo.reference import *
 
-# Datacenter configuration
-DC_NAME = "Datacenter"
-DC_LOCATION = "Honolulu"
-DC_ADDRESS = "10.60.21.34"
-
-# Rack configuration
-RACK_NAME = "API rack"
-
-# Machine configuration
-PM_ADDRESS = "10.60.1.79"
-PM_TYPE = HypervisorType.XENSERVER
-PM_USER = "root"
-PM_PASSWORD = "temporal"
-PM_VSWITCH = "eth1"
-PM_DATASTORE = "Local storage"
-
 
 def create_datacenter(context):
+    print "Creating datacenter %s at %s..." % (DC_NAME, DC_ADDRESS)
     datacenter = Datacenter.builder(context) \
                  .name(DC_NAME) \
                  .location(DC_LOCATION) \
@@ -33,11 +18,18 @@ def create_datacenter(context):
     return datacenter
 
 def create_rack(datacenter):
-    rack = Rack.builder(context, datacenter).name(RACK_NAME).build()
+    print "Adding rack %s..." % RACK_NAME
+    rack = Rack.builder(context, datacenter) \
+           .name(RACK_NAME) \
+           .vlanIdMin(RACK_VLAN_MIN) \
+           .vlanIdMax(RACK_VLAN_MAX) \
+           .nrsq(RACK_NRSQ) \
+           .build()
     rack.save()
     return rack
 
 def create_machine(rack):
+    print "Adding %s hypervisor at %s..." % (PM_TYPE, PM_ADDRESS)
     datacenter = rack.getDatacenter()
 
     # Discover machine info with the Discovery Manager remote service
