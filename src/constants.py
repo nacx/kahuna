@@ -35,8 +35,8 @@ ENT_RAM_SOFT = 2048             # Soft limit for the available RAM in MB
 ENT_RAM_HARD = 4096             # Maximum available RAM in MB
 ENT_IPS_SOFT = 5                # Soft limit for the number of public IPs
 ENT_IPS_HARD = 10               # Maximum number of available public IPs
-ENT_STORAGE_SOFT = 5120         # Soft limit for external storage in MB
-ENT_STORAGE_HARD = 10240        # Maximum available external storage in MB
+ENT_STORAGE_SOFT = 5120 * 1024 * 1024         # Soft limit for external storage in bytes
+ENT_STORAGE_HARD = 10240 * 1024 * 1024        # Maximum available external storage in bytes
 
 # User configuration
 USR_ROLE = "ENTERPRISE_ADMIN"           # The role for the user
