@@ -1,7 +1,6 @@
 #!/usr/bin/env jython
 
 from config import *
-from constants import *
 
 from org.jclouds.abiquo.predicates.enterprise import *
 from org.jclouds.abiquo.predicates.infrastructure import *
@@ -16,13 +15,19 @@ def cleanup_tenants(context):
     # This will remove the enterprise and all users (if none of them is a Cloud Admin)
     enterprise.delete()
 
+def cleanup_storage(datacenter):
+    print "Removing storage_device %s..." % DEV_NAME
+    device = datacenter.findStorageDevice(StorageDevicePredicates.storageDeviceName(DEV_NAME))
+    device.delete()
+
 def cleanup_infrastructure(context):
-    print "Removing datacenter %s..." % DC_NAME
     admin = context.getAdministrationService()
-    
     datacenter = admin.findDatacenter(DatacenterPredicates.datacenterName(DC_NAME))
 
+    cleanup_storage(datacenter)
+
     # This will remove the datacenter and all hypervisors (if they don't contain deplopyed VMs)
+    print "Removing datacenter %s..." % DC_NAME
     datacenter.delete()
 
 

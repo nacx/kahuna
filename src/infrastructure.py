@@ -1,13 +1,12 @@
 #!/usr/bin/env jython
 
 from config import *
-from constants import *
 
 from org.jclouds.abiquo.domain.infrastructure import *
 from org.jclouds.abiquo.reference import *
 
 
-def create_datacenter(context):
+def create_datacenter():
     print "Creating datacenter %s at %s..." % (DC_NAME, DC_ADDRESS)
     datacenter = Datacenter.builder(context) \
                  .name(DC_NAME) \
@@ -52,7 +51,7 @@ if __name__ == '__main__':
 
     # Context variable is initialised in config.py
 
-    datacenter = create_datacenter(context)
+    datacenter = create_datacenter()
     rack = create_rack(datacenter)
     machine = create_machine(rack)
 

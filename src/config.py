@@ -1,12 +1,10 @@
 #!/usr/bin/env jython
 
+from constants import *
+
 from java.util import Properties
 from org.jclouds.abiquo import *
 
-# Abiquo configuration
-ABQ_USER = "admin"
-ABQ_PASS = "xabiquo"
-ABQ_ENDPOINT = "http://10.60.21.33/api"
 
 config = Properties()
 config.put("abiquo.endpoint", ABQ_ENDPOINT)
