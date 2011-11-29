@@ -36,15 +36,15 @@ PM_DATASTORE = "Local storage"          # Datastore where VM disks will be deplo
 ## Storage ##
 
 # Tier configuration
-TIER_NAME = "LVM Storage"
+TIER_NAME = "LVM Storage"               # The name of the tier where the pool will be added
 
 # Device configuration
-DEV_NAME = "LVM Mothership"
-DEV_TYPE = StorageTechnologyType.LVM
-DEV_ADDRESS = "10.60.21.177"
+DEV_NAME = "LVM Mothership"             # The name of the device
+DEV_TYPE = StorageTechnologyType.LVM    # The device type
+DEV_ADDRESS = "10.60.21.177"            # The device address
 
 # Pool configuration
-POOL_NAME = "abiquo"
+POOL_NAME = "abiquo"                    # The storage pool to use in the storage device
 
 
 ## Enterprise ##

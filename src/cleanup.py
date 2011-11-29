@@ -7,6 +7,7 @@ from org.jclouds.abiquo.predicates.infrastructure import *
 
 
 def cleanup_tenants(context):
+    print "### Cleaning up tenants ###"
     print "Removing enterprise %s and all users..." % ENT_NAME
     admin = context.getAdministrationService()
 
@@ -21,6 +22,7 @@ def cleanup_storage(datacenter):
     device.delete()
 
 def cleanup_infrastructure(context):
+    print "### Cleaning up infrastructure ###"
     admin = context.getAdministrationService()
     datacenter = admin.findDatacenter(DatacenterPredicates.datacenterName(DC_NAME))
 
@@ -36,6 +38,7 @@ if __name__ == '__main__':
     # Context variable is initialised in config.py
 
     cleanup_tenants(context)
+    print
     cleanup_infrastructure(context)
 
     # Close the connection to the Abiquo API

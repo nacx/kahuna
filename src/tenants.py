@@ -47,6 +47,7 @@ def create_user(enterprise):
 
 
 if __name__ == '__main__':
+    print "### Configuring tenants ###"
 
     # Context variable is initialised in config.py
 

@@ -9,8 +9,8 @@ ARGS="-Dabiquo.contextbuilder=$CONTEXT_BUILDER -Dabiquo.propertiesbuilder=$PROPS
 
 if [ $# -eq 0 ]; then
     jython $ARGS src/infrastructure.py
-    jython $ARGS src/tenants.py
-    jython $ARGS src/storage.py
+    echo && jython $ARGS src/tenants.py
+    echo && jython $ARGS src/storage.py
 elif [ "$1" = "clean" ]; then
     jython $ARGS src/cleanup.py
 else

@@ -40,6 +40,7 @@ def create_pool(device, tier):
 
 
 if __name__ == '__main__':
+    print "### Configuring storage ###"
 
     # Context variable is initialised in config.py
 
