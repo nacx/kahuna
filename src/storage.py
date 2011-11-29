@@ -7,6 +7,7 @@ from org.jclouds.abiquo.predicates.infrastructure import *
 
 
 def configure_tiers(datacenter):
+    print "Enabling tier %s..." % TIER_NAME
     tiers = datacenter.listTiers()
 
     tiers[0].setName(TIER_NAME)
