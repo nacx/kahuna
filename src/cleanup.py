@@ -11,20 +11,20 @@ def cleanup_tenants(context):
     print "Removing enterprise %s and all users..." % ENT_NAME
     admin = context.getAdministrationService()
 
-    enterprise = admin.findEnterprise(EnterprisePredicates.enterpriseName(ENT_NAME))
+    enterprise = admin.findEnterprise(EnterprisePredicates.name(ENT_NAME))
 
     # This will remove the enterprise and all users (if none of them is a Cloud Admin)
     enterprise.delete()
 
 def cleanup_storage(datacenter):
     print "Removing storage_device %s..." % DEV_NAME
-    device = datacenter.findStorageDevice(StorageDevicePredicates.storageDeviceName(DEV_NAME))
+    device = datacenter.findStorageDevice(StorageDevicePredicates.name(DEV_NAME))
     device.delete()
 
 def cleanup_infrastructure(context):
     print "### Cleaning up infrastructure ###"
     admin = context.getAdministrationService()
-    datacenter = admin.findDatacenter(DatacenterPredicates.datacenterName(DC_NAME))
+    datacenter = admin.findDatacenter(DatacenterPredicates.name(DC_NAME))
 
     cleanup_storage(datacenter)
 

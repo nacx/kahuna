@@ -33,7 +33,7 @@ def create_device(datacenter):
 
 def create_pool(device, tier):
     print "Adding pool %s..." % POOL_NAME
-    pool = device.findRemoteStoragePool(StoragePoolPredicates.storagePoolName(POOL_NAME))
+    pool = device.findRemoteStoragePool(StoragePoolPredicates.name(POOL_NAME))
     pool.setTier(tier)
     pool.save()
     return pool
@@ -45,7 +45,7 @@ if __name__ == '__main__':
     # Context variable is initialised in config.py
 
     admin = context.getAdministrationService()
-    datacenter = admin.findDatacenter(DatacenterPredicates.datacenterName(DC_NAME))
+    datacenter = admin.findDatacenter(DatacenterPredicates.name(DC_NAME))
 
     tier = configure_tiers(datacenter)
     device = create_device(datacenter)

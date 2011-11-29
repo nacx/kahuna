@@ -23,7 +23,7 @@ def create_enterprise(context):
 
     # Allow the enterprise to use a Datacenter
     admin = context.getAdministrationService()
-    datacenter = admin.findDatacenter(DatacenterPredicates.datacenterName(DC_NAME))
+    datacenter = admin.findDatacenter(DatacenterPredicates.name(DC_NAME))
     enterprise.allowDatacenter(datacenter)
 
     return enterprise
@@ -32,7 +32,7 @@ def create_user(enterprise):
     print "Adding user %s as %s" % (USR_NAME, USR_ROLE)
 
     admin = context.getAdministrationService()
-    role = admin.findRole(RolePredicates.roleName(USR_ROLE))
+    role = admin.findRole(RolePredicates.name(USR_ROLE))
 
     user = User.builder(context, enterprise, role) \
            .name(USR_NAME, USR_SURNAME) \
