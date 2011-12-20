@@ -5,10 +5,10 @@ from com.abiquo.model.enumerator import *
 ## Abiquo ##
 
 # Abiquo configuration
-ABQ_ADDRESS = "10.60.1.222"
-ABQ_USER = "admin"
-ABQ_PASS = "xabiquo"
-ABQ_ENDPOINT = "http://" + ABQ_ADDRESS + "/api"
+ABQ_ADDRESS = "10.60.1.222"                         # The address of the exposed Abiquo API
+ABQ_USER = "admin"                                  # The user used to connect to the API
+ABQ_PASS = "xabiquo"                                # The password used to connect to the API
+ABQ_ENDPOINT = "http://" + ABQ_ADDRESS + "/api"     # The location of the API
 
 
 ## Infrastructure ##
@@ -36,7 +36,7 @@ PM_DATASTORE = "Local storage"          # Datastore where VM disks will be deplo
 ## Storage ##
 
 # Tier configuration
-TIER_NAME = "LVM Storage"               # The name of the tier where the pool will be added
+TIER_NAME = "Seaside Storage"           # The name of the tier where the pool will be added
 
 # Device configuration
 DEV_NAME = "LVM Mothership"             # The name of the device
@@ -45,6 +45,22 @@ DEV_ADDRESS = "10.60.21.177"            # The device address
 
 # Pool configuration
 POOL_NAME = "abiquo"                    # The storage pool to use in the storage device
+
+
+## Cloud ##
+
+# Virtual datacenter configuration
+VDC_NAME = "Kaahumanu"                  # The name of the virtual datacenter
+VDC_ENTERPRISE = "Abiquo"               # The enterprise where the virtual datacenter will be created
+
+# Private network configuration
+NET_NAME = "Kaahumanu Network"          # The name of the private network for the virtual datacenter
+NET_ADDRESS = "192.168.1.0"             # The network address of the network
+NET_MASK = 24                           # The mask of the network
+NET_GATEWAY = "192.168.1.1"             # The default gateway for the network
+
+# Virtual appliance configuration
+VAPP_NAME = "Kalakaua"                  # The name of the virtual appliance
 
 
 ## Enterprise ##

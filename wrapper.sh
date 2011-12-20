@@ -11,6 +11,7 @@ if [ $# -eq 0 ]; then
     jython $ARGS src/compute.py
     echo && jython $ARGS src/tenants.py
     echo && jython $ARGS src/storage.py
+    echo && jython $ARGS src/cloud.py
 elif [ "$1" = "clean" ]; then
     jython $ARGS src/cleanup.py
 else

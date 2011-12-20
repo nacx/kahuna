@@ -7,7 +7,7 @@ from org.jclouds.abiquo.predicates.enterprise import *
 from org.jclouds.abiquo.predicates.infrastructure import *
 
 
-def create_enterprise(context):
+def create_enterprise():
     print "Creating enterprise %s..." % ENT_NAME
 
     # Create the enterprise with the limits
@@ -51,7 +51,7 @@ if __name__ == '__main__':
 
     # Context variable is initialised in config.py
 
-    enterprise = create_enterprise(context)
+    enterprise = create_enterprise()
     user = create_user(enterprise)
 
     # Close the connection to the Abiquo API
