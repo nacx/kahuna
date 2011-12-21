@@ -7,6 +7,7 @@ from org.jclouds.abiquo.domain.network import *
 from org.jclouds.abiquo.predicates.enterprise import *
 from org.jclouds.abiquo.predicates.infrastructure import *
 
+
 def create_virtual_datacenter(datacenter, enterprise, type):
     print "Creating virtual datacenter %s of type %s..." % (VDC_NAME, type)
     network = PrivateNetwork.builder(context) \

@@ -2,6 +2,7 @@
 
 from com.abiquo.model.enumerator import *
 
+
 ## Abiquo ##
 
 # Abiquo configuration
@@ -78,9 +79,9 @@ ENT_STORAGE_HARD = 10240 * 1024 * 1024        # Maximum available external stora
 
 # User configuration
 USR_ROLE = "ENTERPRISE_ADMIN"               # The role for the user
-USR_NAME = "Enterprise"                     # Name of the user
+USR_NAME = "Aloha"                          # Name of the user
 USR_SURNAME = "Administrator"               # Surname of the user
 USR_EMAIL = "eadmin@surfingcloud.com"       # Surname of the user
-USR_LOGIN = "eadmin"                        # The login name
-USR_PASS = "eadmin"                         # The password
+USR_LOGIN = "aloha"                         # The login name
+USR_PASS = "aloha"                          # The password
 
