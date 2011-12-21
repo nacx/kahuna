@@ -50,7 +50,7 @@ def create_machine(rack):
 if __name__ == '__main__':
     print "### Configuring infrastructure ###"
 
-# Context variable is initialised in config.py
+    # Context variable is initialised in config.py
 
     datacenter = create_datacenter()
     rack = create_rack(datacenter)

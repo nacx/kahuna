@@ -36,6 +36,9 @@ def create_virtual_appliance(vdc):
 
     return vapp
 
+def refresh_template_repository(enterprise, datacenter):
+    print "Refreshing template repository..."
+    enterprise.refreshTemplateRepository(datacenter)
 
 if __name__ == '__main__':
     print "### Configuring the cloud ###"
@@ -48,6 +51,7 @@ if __name__ == '__main__':
 
     vdc = create_virtual_datacenter(datacenter, enterprise, PM_TYPE)
     vapp = create_virtual_appliance(vdc)
+    refresh_template_repository(enterprise, datacenter)
 
     # Close the connection to the Abiquo API
     context.close()
