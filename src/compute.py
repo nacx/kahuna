@@ -34,6 +34,10 @@ def create_machine(rack):
     # Discover machine info with the Discovery Manager remote service
     machine = datacenter.discoverSingleMachine(PM_ADDRESS, PM_TYPE, PM_USER, PM_PASSWORD)
 
+    # Credentials are not returned by the API; bust be set manually
+    machine.setUser(PM_USER)
+    machine.setPassword(PM_PASSWORD)
+
     # Verify that the desired datastore and virtual switch exist
     datastore = machine.findDatastore(PM_DATASTORE)
     vswitch = machine.findAvailableVirtualSwitch(PM_VSWITCH)
