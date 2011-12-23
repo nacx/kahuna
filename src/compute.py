@@ -41,7 +41,8 @@ def create_machine(rack):
     datastore.setEnabled(True)
     machine.setVirtualSwitch(vswitch)
     machine.setRack(rack)
-
+    machine.setPassword(PM_PASSWORD)
+    machine.setUser(PM_USER)
     machine.save()
 
     return machine
