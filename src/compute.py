@@ -4,6 +4,7 @@ from config import *
 
 from org.jclouds.abiquo.domain.infrastructure import *
 from org.jclouds.abiquo.reference import *
+from org.jclouds.abiquo.domain.network import *
 
 
 def create_datacenter():
@@ -43,8 +44,20 @@ def create_machine(rack):
     machine.setRack(rack)
 
     machine.save()
-
     return machine
+
+def create_public_network(datacenter):
+    print "Adding %s the public network %s at %s..." % (DC_NAME, PN_NAME, PN_ADDRESS)
+    network = PublicNetwork.builder(context, datacenter) \
+              .name(PN_NAME) \
+              .address(PN_ADDRESS) \
+              .mask(PN_MASK) \
+              .gateway(PN_GATEWAY) \
+	      .tag(PN_TAG) \
+	      .primaryDNS(PN_DNS) \
+              .build()
+    network.save()
+    return network
 
 
 if __name__ == '__main__':
@@ -55,6 +68,7 @@ if __name__ == '__main__':
     datacenter = create_datacenter()
     rack = create_rack(datacenter)
     machine = create_machine(rack)
+    network = create_public_network(datacenter)
 
     # Close the connection to the Abiquo API
     context.close()

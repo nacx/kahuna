@@ -33,6 +33,13 @@ PM_PASSWORD = "temporal"                # Hypervisor password
 PM_VSWITCH = "eth1"                     # Virtual switch where VLANs will be attached
 PM_DATASTORE = "Local storage"          # Datastore where VM disks will be deployed
 
+# Public network configuration
+PN_NAME = "Coconet"         		# The name of the public network
+PN_TAG =  5				# Public network tag
+PN_ADDRESS = "80.12.96.0"             	# The network address of the network
+PN_MASK = 25                           	# The mask of the network
+PN_GATEWAY = "80.12.96.1"		# The default gateway for the network
+PN_DNS = "8.8.8.8"			# Primary DNS
 
 ## Storage ##
 
