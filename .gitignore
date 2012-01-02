@@ -1,5 +1,6 @@
-lib
+*.pth
 .project
 *.class
+*.pyc
 catalina.base_IS_UNDEFINED
 
