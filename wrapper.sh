@@ -1,4 +1,4 @@
 #!/bin/bash
 
-CLASSPATH=`cat abicli/abiquo-jars.pth` jython wrapper.py $*
+CLASSPATH=`cat abicli/abiquo-jars.pth` jython main.py $*
 
