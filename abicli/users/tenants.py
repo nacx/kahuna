@@ -1,14 +1,15 @@
 #!/usr/bin/env jython
+
+from abicli.constants import *
 from org.jclouds.abiquo.domain.enterprise import *
 from org.jclouds.abiquo.predicates.enterprise import *
 from org.jclouds.abiquo.predicates.infrastructure import *
-from abicli.constants import *
 
-class TenantCreator:
-    """ Sets the methods for the 'tenant' entities.
 
-    This class creates and manages all the 'user' elements
-    of the cloud.
+class Tenant:
+    """ Provices access to tenant management features.
+
+    This class creates and manages the tenants of the cloud.
     """
 
     def __init__(self, context):
@@ -18,8 +19,10 @@ class TenantCreator:
     def create_enterprise(self, dc, name=ENT_NAME, cpusoft=ENT_CPU_SOFT, cpuhard=ENT_CPU_HARD, ramsoft=ENT_RAM_SOFT, ramhard=ENT_RAM_HARD, ipsoft=ENT_IPS_SOFT, iphard=ENT_IPS_HARD, storagesoft=ENT_STORAGE_SOFT, storagehard=ENT_STORAGE_HARD):
         """ Creates a new enterprise.
 
-        If the parameters are not specified, it will use the 
-        ENT_*_SOFT and ENT_*_HARD limits from the 'constants' module.
+        This method will create a new enterprise and assign a datacenter
+        to it, so users of that enterprise can start consuming the cloud.
+        If the parameters are not specified, the 'ENT_NAME', 'ENT_*_SOFT'
+        and 'ENT_*_HARD' limits from the 'constants' module will be used.
         """
         print "Creating enterprise %s..." % name
 
@@ -40,11 +43,11 @@ class TenantCreator:
         return enterprise
 
     def create_user(self, enterprise, name=USR_NAME, surname=USR_SURNAME, role=USR_ROLE, email=USR_EMAIL, nick=USR_LOGIN, password=USR_PASS):
-        """ Creates a new user.
+        """ Creates a new user int he given enterprise.
 
-        If the paramters are not specified, it will use the 'USR_NAME', 'USR_SURNAME',
+        If the paramters are not specified, the 'USR_NAME', 'USR_SURNAME',
         'USR_ROLE', 'USR_EMAIL', 'USR_LOGIN' and 'USR_PASSWORD' from the 
-        'constants' module.
+        'constants' module will be used.
         """
         print "Adding user %s as %s" % (name, role)
 
@@ -63,21 +66,22 @@ class TenantCreator:
         return user;
 
 def create_standard_tenants(context, dc):
-    """ Creates a standard tenant entities.
+    """ Creates the standard tenants.
     
-    Creates a standard tenant entities using the 'constants' module properties
-    and is is useful as an example of how to use this class.
+    Creates the standard tenants using the 'constants' module properties
+    This is just an example of how to use this class.
     """
     print "### Configuring tenants ###"
-    ten = TenantCreator(context)
+    ten = Tenant(context)
     enterprise= ten.create_enterprise(dc)
     ten.create_user(enterprise)
 
 def cleanup_tenants(context):
     """ Cleans up a previously created standard tenants. """
-    print "\n### Cleaning up tenants ###"
+    print "### Cleaning up tenants ###"
     admin = context.getAdministrationService()
     enterprise = admin.findEnterprise(EnterprisePredicates.name(ENT_NAME))
     # This will remove the enterprise and all users (if none of them is a Cloud Admin)
     print "Removing enterprise %s and all users..." % enterprise.getName()
     enterprise.delete()
+

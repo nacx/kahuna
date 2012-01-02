@@ -6,7 +6,7 @@ from com.abiquo.model.enumerator import *
 ## Abiquo ##
 
 # Abiquo configuration
-ABQ_ADDRESS = "10.60.21.181"
+ABQ_ADDRESS = "10.60.1.222"
 ABQ_USER = "admin"
 ABQ_PASS = "xabiquo"
 ABQ_ENDPOINT = "http://" + ABQ_ADDRESS + "/api"

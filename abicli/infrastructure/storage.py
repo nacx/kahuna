@@ -1,26 +1,27 @@
 #!/usr/bin/env jython
 
+from abicli.constants import *
 from org.jclouds.abiquo.domain.infrastructure import *
 from org.jclouds.abiquo.predicates.infrastructure import *
-from abicli.constants import *
 
-class StorageCreator:
-    """ Class that sets the methods for the storage entities.
 
-    This class creates and manages all the 'storage' infrastructure
-    elements of the cloud.
+class InfrastructureStorage:
+    """ Provides access to infrastructure storage features.
+
+    This class creates and manages the storage resources of the
+    infrastructure that will be exposed as a cloud.
     """
 
-    def __init__(self, loaded_context):
+    def __init__(self, context):
         """ Initialize with an existent context. """
-        self.__context = loaded_context
+        self.__context = context
 
     def configure_tiers(self, datacenter, tname=TIER_NAME):
-        """ Configure the default Tiers of the datacenter. 
+        """ Configure the default tiers of the datacenter. 
 
-        It set a friendly name for a single tier and disables the rest.
-        If the parameter 'tname' is not specified, it will use
-        the 'TIER_NAME' from the 'constants' module.
+        It sets af riendly name for the first tier and disables the rest.
+        If the parameter 'tname' is not specified, the 'TIER_NAME' variable
+        from the 'constants' module will be used.
         """
         print "Enabling tier %s..." % tname 
         tiers = datacenter.listTiers()
@@ -35,12 +36,12 @@ class StorageCreator:
         return tiers[0]
 
     def create_device(self, datacenter, devname=DEV_NAME, devtype=DEV_TYPE,devaddress=DEV_ADDRESS, devmanaddress=DEV_ADDRESS):
-        """ Discovers and registers a Storage Device.
+        """ Discovers and registers a storage device.
 
-        It discover a remote Storage Device and registers it into the
-        specified datacenter. If parameters are not set, it will use the
-        variables 'DEV_NAME', 'DEV_ADDRESS' and 'DEV_TYPE' from 'constants'
-        module.
+        It discovers a remote storage device and registers it into the
+        given datacenter. If parameters are not set, the 'DEV_NAME',
+        'DEV_ADDRESS' and 'DEV_TYPE' variables from the 'constants'
+        module will be used.
         """
         print "Creating storage device %s at %s..." % (devname, devaddress)
         device = StorageDevice.builder(self.__context, datacenter) \
@@ -55,9 +56,10 @@ class StorageCreator:
     def create_pool(self, device, tier, poolname=POOL_NAME): 
         """ Discovers and registers a StoragePool.
 
-        Inside a StorageDevice and set as 'tier' parameter QoS, discovers
-        and registers a storage pool. If parameter 'poolname' is not specified,
-        it will use the 'POOL_NAME' variable from 'constants' module.
+        Discovers the information of the given pool from the given
+        storage device, and adds it to the given tier.
+        If parameter 'poolname' is not specified, the 'POOL_NAME'
+        variable from the 'constants' module will be used.
         """
         print "Adding pool %s..." % poolname
         pool = device.findRemoteStoragePool(StoragePoolPredicates.name(poolname))
@@ -66,19 +68,21 @@ class StorageCreator:
         return pool
 
 def create_standard_storage(context, dc):
-    """ Creates a standard storage entities.
+    """ Creates the standard infrastructure storage entities.
     
-    Creates a standard storage entities using the 'constants' module properties
-    and is is useful as an example of how to use this class.
+    Creates the standard infrastructure storage entities using
+    the 'constants' module properties.
+    This is just an example of how to use this class.
     """
     print "### Configuring storage ###"
-    stor = StorageCreator(context)
+    stor = InfrastructureStorage(context)
     tier = stor.configure_tiers(dc)
     device = stor.create_device(dc)
     stor.create_pool(device, tier)
 
 def cleanup_storage(datacenter):
-    """ Cleans up a previously created standard storage entities. """
+    """ Cleans up previously created infrastructure storage entities. """
     print "Removing storage devices in datacenter %s..." % datacenter.getName()
     for device in datacenter.listStorageDevices():
         device.delete()
+
