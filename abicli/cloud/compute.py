@@ -4,7 +4,6 @@ from abicli.constants import *
 from org.jclouds.abiquo.domain.cloud import *
 from org.jclouds.abiquo.domain.network import *
 from org.jclouds.abiquo.predicates.enterprise import *
-from org.jclouds.abiquo.predicates.infrastructure import *
 
 
 class CloudCompute:
@@ -57,7 +56,7 @@ class CloudCompute:
         print "Refreshing template repository..."
         enterprise.refreshTemplateRepository(datacenter)
 
-def create_standard_cloud(context, dc):
+def create_cloud_compute(context, dc):
     """ Creates the standard cloud compute entities.
     
     Creates the standard cloud compute entities using the 'constants'
@@ -73,7 +72,7 @@ def create_standard_cloud(context, dc):
     cloud.create_virtual_appliance(vdc)
     cloud.refresh_template_repository(enterprise, dc)
 
-def cleanup_cloud(context):
+def cleanup_cloud_compute(context):
     """ Cleans up a previously created cloud compute resources. """
     print "### Cleaning up the cloud ###"
     cloud = context.getCloudService()

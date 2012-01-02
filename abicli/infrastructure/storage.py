@@ -67,7 +67,7 @@ class InfrastructureStorage:
         pool.save()
         return pool
 
-def create_standard_storage(context, dc):
+def create_infrastructure_storage(context, dc):
     """ Creates the standard infrastructure storage entities.
     
     Creates the standard infrastructure storage entities using
@@ -80,7 +80,7 @@ def create_standard_storage(context, dc):
     device = stor.create_device(dc)
     stor.create_pool(device, tier)
 
-def cleanup_storage(datacenter):
+def cleanup_infrastructure_storage(datacenter):
     """ Cleans up previously created infrastructure storage entities. """
     print "Removing storage devices in datacenter %s..." % datacenter.getName()
     for device in datacenter.listStorageDevices():

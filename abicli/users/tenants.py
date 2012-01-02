@@ -65,7 +65,7 @@ class Tenant:
 
         return user;
 
-def create_standard_tenants(context, dc):
+def create_default_tenants(context, dc):
     """ Creates the standard tenants.
     
     Creates the standard tenants using the 'constants' module properties
@@ -76,7 +76,7 @@ def create_standard_tenants(context, dc):
     enterprise= ten.create_enterprise(dc)
     ten.create_user(enterprise)
 
-def cleanup_tenants(context):
+def cleanup_default_tenants(context):
     """ Cleans up a previously created standard tenants. """
     print "### Cleaning up tenants ###"
     admin = context.getAdministrationService()

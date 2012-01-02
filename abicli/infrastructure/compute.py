@@ -1,7 +1,8 @@
 #!/usr/bin/env jython
 
 from abicli.constants import *
-from abicli.infrastructure.storage import cleanup_storage
+from abicli.infrastructure.network import cleanup_infrastructure_network
+from abicli.infrastructure.storage import cleanup_infrastructure_storage
 from org.jclouds.abiquo.domain.infrastructure import *
 from org.jclouds.abiquo.reference import *
 
@@ -76,7 +77,7 @@ class InfrastructureCompute:
 
         return machine
 
-def create_standard_compute(context):
+def create_infrastructure_compute(context):
     """ Creates the standard infrastructure compute entities.
     
     Creates the standard infrastructure compute entities using the
@@ -90,12 +91,13 @@ def create_standard_compute(context):
     comp.create_machine(rack)
     return dc
 
-def cleanup_infrastructure(context):
+def cleanup_infrastructure_compute(context):
     """ Cleans up previously created infrastructure compute resources. """
     print "### Cleaning up infrastructure ###"
     admin = context.getAdministrationService()
     for datacenter in admin.listDatacenters():
-        cleanup_storage(datacenter)
+        cleanup_infrastructure_storage(datacenter)
+        cleanup_infrastructure_network(datacenter)
         # This will remove the datacenter and all hypervisors (if they don't contain deplopyed VMs)
         print "Removing datacenter %s..." % datacenter.getName()
         datacenter.delete()

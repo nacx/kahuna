@@ -48,6 +48,18 @@ DEV_ADDRESS = "10.60.21.177"            # The device address
 POOL_NAME = "abiquo"                    # The storage pool to use in the storage device
 
 
+## Networking ##
+
+# Public network configuration
+# Public network configuration
+PN_NAME = "Coconet"                     # The name of the public network
+PN_TAG =  5                             # Public network tag
+PN_ADDRESS = "80.12.96.0"               # The network address of the network
+PN_MASK = 25                            # The mask of the network
+PN_GATEWAY = "80.12.96.1"               # The default gateway for the network
+PN_DNS = "8.8.8.8"                      # Primary DNS
+
+
 ## Cloud ##
 
 # Virtual datacenter configuration
