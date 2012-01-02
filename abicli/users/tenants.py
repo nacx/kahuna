@@ -81,7 +81,8 @@ def cleanup_default_tenants(context):
     print "### Cleaning up tenants ###"
     admin = context.getAdministrationService()
     enterprise = admin.findEnterprise(EnterprisePredicates.name(ENT_NAME))
-    # This will remove the enterprise and all users (if none of them is a Cloud Admin)
-    print "Removing enterprise %s and all users..." % enterprise.getName()
-    enterprise.delete()
+    if enterprise is not None:
+        # This will remove the enterprise and all users (if none of them is a Cloud Admin)
+        print "Removing enterprise %s and all users..." % enterprise.getName()
+        enterprise.delete()
 

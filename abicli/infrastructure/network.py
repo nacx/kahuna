@@ -23,7 +23,7 @@ class InfrastructureNetwork:
         'constants' module will be used.
         """
         print "Adding public network %s (%s) to datacenter %s..." % (netname, netaddress, datacenter.getName())
-        network = PublicNetwork.builder(context, datacenter) \
+        network = PublicNetwork.builder(self.__context, datacenter) \
                   .name(netname) \
                   .address(netaddress) \
                   .mask(netmask) \

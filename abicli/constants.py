@@ -6,7 +6,7 @@ from com.abiquo.model.enumerator import *
 ## Abiquo ##
 
 # Abiquo configuration
-ABQ_ADDRESS = "10.60.1.222"
+ABQ_ADDRESS = "10.60.1.249"
 ABQ_USER = "admin"
 ABQ_PASS = "xabiquo"
 ABQ_ENDPOINT = "http://" + ABQ_ADDRESS + "/api"
@@ -79,15 +79,15 @@ VAPP_NAME = "Kalakaua"                  # The name of the virtual appliance
 ## Enterprise ##
 
 # Enterprise configuration
-ENT_NAME = "Surfing Cloud"      # Enterprise name
-ENT_CPU_SOFT = 5                # Soft limut for the number of CPU
-ENT_CPU_HARD = 10               # Maximum CPU available
-ENT_RAM_SOFT = 2048             # Soft limit for the available RAM in MB
-ENT_RAM_HARD = 4096             # Maximum available RAM in MB
-ENT_IPS_SOFT = 5                # Soft limit for the number of public IPs
-ENT_IPS_HARD = 10               # Maximum number of available public IPs
-ENT_STORAGE_SOFT = 5120 * 1024 * 1024         # Soft limit for external storage in bytes
-ENT_STORAGE_HARD = 10240 * 1024 * 1024        # Maximum available external storage in bytes
+ENT_NAME = "Surfing Cloud"                  # Enterprise name
+ENT_CPU_SOFT = 5                            # Soft limut for the number of CPU
+ENT_CPU_HARD = 10                           # Maximum CPU available
+ENT_RAM_SOFT = 2048                         # Soft limit for the available RAM in MB
+ENT_RAM_HARD = 4096                         # Maximum available RAM in MB
+ENT_IPS_SOFT = 5                            # Soft limit for the number of public IPs
+ENT_IPS_HARD = 10                           # Maximum number of available public IPs
+ENT_STORAGE_SOFT = 5120 * 1024 * 1024       # Soft limit for external storage in bytes
+ENT_STORAGE_HARD = 10240 * 1024 * 1024      # Maximum available external storage in bytes
 
 # User configuration
 USR_ROLE = "ENTERPRISE_ADMIN"               # The role for the user
