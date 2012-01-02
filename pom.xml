@@ -32,18 +32,12 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <configuration>
-                    <prefix>lib</prefix>
-                    <outputDirectory>lib</outputDirectory>
-                    <outputFile>lib/CLASSPATH</outputFile>
+                    <outputFile>abicli/abiquo-jars.pth</outputFile>
                     <overWriteSnapshots>true</overWriteSnapshots>
                     <overWriteReleases>true</overWriteReleases>
+                    <outputAbsoluteArtifactFilename>true</outputAbsoluteArtifactFilename>
                 </configuration>
                 <executions>
-                    <execution>
-                        <id>copy</id>
-                        <phase>process-resources</phase>
-                        <goals><goal>copy-dependencies</goal></goals>
-                    </execution>
                     <execution>
                         <id>build-classpath</id>
                         <phase>process-resources</phase>

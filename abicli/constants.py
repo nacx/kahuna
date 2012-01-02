@@ -6,10 +6,10 @@ from com.abiquo.model.enumerator import *
 ## Abiquo ##
 
 # Abiquo configuration
-ABQ_ADDRESS = "10.60.1.222"                         # The address of the exposed Abiquo API
-ABQ_USER = "admin"                                  # The user used to connect to the API
-ABQ_PASS = "xabiquo"                                # The password used to connect to the API
-ABQ_ENDPOINT = "http://" + ABQ_ADDRESS + "/api"     # The location of the API
+ABQ_ADDRESS = "10.60.21.181"
+ABQ_USER = "admin"
+ABQ_PASS = "xabiquo"
+ABQ_ENDPOINT = "http://" + ABQ_ADDRESS + "/api"
 
 
 ## Infrastructure ##
