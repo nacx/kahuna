@@ -3,9 +3,8 @@ Abiquo API Jython client
 
 This project is a Jython client for the Abiquo Cloud Platform API, using
 Jython as a wrapper to the [Official Java client](https://github.com/abiquo/jclouds-abiquo).
-
-To understand the code and adapt it to your needs, you may want to take
-a look at the Official Java client project page:
+To understand the code and adapt it to your needs, you may want to take a
+look at the official Java client project page:
 
  * [jclouds-abiquo Source code](https://github.com/abiquo/jclouds-abiquo)
  * [jclouds-abiquo Documentation](https://github.com/abiquo/jclouds-abiquo/wiki)
