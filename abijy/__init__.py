@@ -1,5 +1,5 @@
 # Set the initial configuration needed to load the classpath
-# and the the first time we load the package 'abicli'
+# and the the first time we load the package 'abijy'
 import sys
 
 # Set and parse the classpath with the jars we need to call

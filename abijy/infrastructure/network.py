@@ -1,6 +1,6 @@
 #!/usr/bin/env jython
 
-from abicli.constants import *
+from abijy.constants import *
 from org.jclouds.abiquo.domain.network import *
 
 

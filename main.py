@@ -2,15 +2,15 @@
 
 import sys
 
-from abicli.cloud.compute import cleanup_cloud_compute
-from abicli.cloud.compute import create_cloud_compute
-from abicli.infrastructure.compute import cleanup_infrastructure_compute
-from abicli.infrastructure.compute import create_infrastructure_compute
-from abicli.infrastructure.network import create_infrastructure_network
-from abicli.infrastructure.storage import create_infrastructure_storage
-from abicli.users.tenants import cleanup_default_tenants
-from abicli.users.tenants import create_default_tenants
-from abicli.session import ContextLoader
+from abijy.cloud.compute import cleanup_cloud_compute
+from abijy.cloud.compute import create_cloud_compute
+from abijy.infrastructure.compute import cleanup_infrastructure_compute
+from abijy.infrastructure.compute import create_infrastructure_compute
+from abijy.infrastructure.network import create_infrastructure_network
+from abijy.infrastructure.storage import create_infrastructure_storage
+from abijy.users.tenants import cleanup_default_tenants
+from abijy.users.tenants import create_default_tenants
+from abijy.session import ContextLoader
 
 
 context = ContextLoader().load_context()
