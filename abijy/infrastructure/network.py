@@ -41,7 +41,7 @@ def create_infrastructure_network(context, dc):
     'constants' module properties.
     This is just an example of how to use this class.
     """
-    print "### Configuring  networking ###"
+    print "### Configuring networking ###"
     networking = InfrastructureNetwork(context)
     pubnet = networking.create_public_network(dc)
     return pubnet
