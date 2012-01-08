@@ -22,6 +22,7 @@ class Lookup:
             print "Found virtual machine in: "
             print "  %s" % vm.getVirtualAppliance()
             print "  %s" % vm.getVirtualDatacenter()
+            print "  %s" % vm.getEnterprise()
             if vm.getVdrpIP():
                 admin = self.__context.getAdministrationService()
                 machine = admin.findMachine(MachinePredicates.ip(vm.getVdrpIP()))
