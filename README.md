@@ -9,6 +9,8 @@ look at the official Java client project page:
  * [jclouds-abiquo Source code](https://github.com/abiquo/jclouds-abiquo)
  * [jclouds-abiquo Documentation](https://github.com/abiquo/jclouds-abiquo/wiki)
 
+You can also find some usage examples in the [Project Wiki](https://github.com/nacx/abijy/wiki).
+
 
 Prerequisites
 -------------
