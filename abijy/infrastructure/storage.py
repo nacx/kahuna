@@ -68,17 +68,17 @@ class InfrastructureStorage:
         return pool
 
 def create_infrastructure_storage(context, dc):
-    """ Creates the standard infrastructure storage entities.
+    """ Creates the default infrastructure storage entities.
     
-    Creates the standard infrastructure storage entities using
+    Creates the default infrastructure storage entities using
     the 'constants' module properties.
     This is just an example of how to use this class.
     """
     print "### Configuring storage ###"
-    stor = InfrastructureStorage(context)
-    tier = stor.configure_tiers(dc)
-    device = stor.create_device(dc)
-    stor.create_pool(device, tier)
+    storage = InfrastructureStorage(context)
+    tier = storage.configure_tiers(dc)
+    device = storage.create_device(dc)
+    storage.create_pool(device, tier)
 
 def cleanup_infrastructure_storage(datacenter):
     """ Cleans up previously created infrastructure storage entities. """

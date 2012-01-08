@@ -35,9 +35,9 @@ class InfrastructureNetwork:
         return network
 
 def create_infrastructure_network(context, dc):
-    """ Creates the standard infrastructure network entities.
+    """ Creates the default infrastructure network entities.
     
-    Creates the standard infrastructure network entities using the
+    Creates the default infrastructure network entities using the
     'constants' module properties.
     This is just an example of how to use this class.
     """
@@ -48,8 +48,7 @@ def create_infrastructure_network(context, dc):
 
 def cleanup_infrastructure_network(dc):
     """ Cleans up previously created infrastructure networking resources. """
-    print "### Cleaning up networking ###"
+    print "Removing networks in datacenter %s..." % dc.getName()
     for network in dc.listNetworks():
-        print "Removing network %s (%s)..." % (network.getName(), network.getAddress())
         network.delete()
 

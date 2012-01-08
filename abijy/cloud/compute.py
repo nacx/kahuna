@@ -1,6 +1,7 @@
 #!/usr/bin/env jython
 
 from abijy.constants import *
+from abijy.cloud.storage import cleanup_cloud_storage
 from org.jclouds.abiquo.domain.cloud import *
 from org.jclouds.abiquo.domain.network import *
 from org.jclouds.abiquo.predicates.enterprise import *
@@ -57,9 +58,9 @@ class CloudCompute:
         enterprise.refreshTemplateRepository(datacenter)
 
 def create_cloud_compute(context, dc):
-    """ Creates the standard cloud compute entities.
+    """ Creates the default cloud compute entities.
     
-    Creates the standard cloud compute entities using the 'constants'
+    Creates the default cloud compute entities using the 'constants'
     module properties.
     This is just an example of how to use this class.
     """
@@ -71,14 +72,17 @@ def create_cloud_compute(context, dc):
     vdc = cloud.create_virtual_datacenter(dc, enterprise, PM_TYPE)
     cloud.create_virtual_appliance(vdc)
     cloud.refresh_template_repository(enterprise, dc)
+    return vdc
 
 def cleanup_cloud_compute(context):
     """ Cleans up a previously created cloud compute resources. """
     print "### Cleaning up the cloud ###"
     cloud = context.getCloudService()
-    for virtualdc in cloud.listVirtualDatacenters():
-        for virtualapp in virtualdc.listVirtualAppliances():
-            virtualapp.delete()
-        print "Removing virtual datacenter %s..." % virtualdc.getName()
-        virtualdc.delete()
+    for vdc in cloud.listVirtualDatacenters():
+        cleanup_cloud_storage(context, vdc)
+        print "Removing virtual appliances in virtual datacenter %s..." % vdc.getName()
+        for vapp in vdc.listVirtualAppliances():
+            vapp.delete()
+        print "Removing virtual datacenter %s..." % vdc.getName()
+        vdc.delete()
 

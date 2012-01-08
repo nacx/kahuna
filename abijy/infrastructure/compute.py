@@ -78,9 +78,9 @@ class InfrastructureCompute:
         return machine
 
 def create_infrastructure_compute(context):
-    """ Creates the standard infrastructure compute entities.
+    """ Creates the default infrastructure compute entities.
     
-    Creates the standard infrastructure compute entities using the
+    Creates the default infrastructure compute entities using the
     'constants' module properties.
     This is just an example of how to use this class.
     """

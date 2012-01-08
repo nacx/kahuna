@@ -47,6 +47,10 @@ DEV_ADDRESS = "10.60.21.177"            # The device address
 # Pool configuration
 POOL_NAME = "abiquo"                    # The storage pool to use in the storage device
 
+# Volume configuration
+VOL_NAME = "Cocovol"                    # The name of the volume
+VOL_SIZE = 16                           # Size of the volume in MB
+
 
 ## Networking ##
 

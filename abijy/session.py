@@ -1,11 +1,12 @@
 #!/usr/bin/env jython
 
+import atexit
+
 from abijy.constants import *
 from java.lang import System
 from java.util import Properties
 from org.jclouds.abiquo import *
 
-import atexit
 
 class ContextLoader:
     """ Sets the context to call Abiquo's API.
