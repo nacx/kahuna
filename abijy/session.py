@@ -5,6 +5,7 @@ from java.lang import System
 from java.util import Properties
 from org.jclouds.abiquo import *
 
+import atexit
 
 class ContextLoader:
     """ Sets the context to call Abiquo's API.
@@ -22,6 +23,11 @@ class ContextLoader:
         System.setProperty("abiquo.propertiesbuilder", props_builder)
         self.__context = None
 
+    def __del__(self):
+        """ Closes the context before destroying. """
+        if self.__context:
+            self.__context.close()
+
     def load_context(self, endpoint=ABQ_ENDPOINT, user=ABQ_USER, password=ABQ_PASS):
         """ Creates and configures the context.
 
@@ -32,5 +38,6 @@ class ContextLoader:
             config = Properties()
             config.put("abiquo.endpoint", endpoint)
             self.__context = AbiquoContextFactory().createContext(user, password, config);
+            atexit.register(self.__del__)  # Close context automatically when exiting
         return self.__context
 
