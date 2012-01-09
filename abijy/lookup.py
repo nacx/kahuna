@@ -25,7 +25,7 @@ class Lookup:
             print "  %s" % vm.getEnterprise()
             if vm.getState().existsInHypervisor():
                 admin = self.__context.getAdministrationService()
-                machine = admin.findMachine(MachinePredicates.ip(vm.getVdrpIP()))
+                machine = admin.findMachine(MachinePredicates.ip(vm.getVncAddress()))
                 print "  %s" % machine
             else:
                 print "  Machine [None (VM not deployed)]"
