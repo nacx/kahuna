@@ -23,12 +23,12 @@ class Lookup:
             print "  %s" % vm.getVirtualAppliance()
             print "  %s" % vm.getVirtualDatacenter()
             print "  %s" % vm.getEnterprise()
-            if vm.getVdrpIP():
+            if vm.getState().existsInHypervisor():
                 admin = self.__context.getAdministrationService()
                 machine = admin.findMachine(MachinePredicates.ip(vm.getVdrpIP()))
                 print "  %s" % machine
             else:
-                print "  Machine: None (VM not deployed)"
+                print "  Machine [None (VM not deployed)]"
         else:
             print "No virtual machine found with name: %s" % name
         

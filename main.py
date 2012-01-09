@@ -30,7 +30,7 @@ try:
         cleanup_default_tenants(context)
         cleanup_infrastructure_compute(context)
     else:
-        print "Usage: " + sys.argv[0] + " [clean]"
+        print "Usage: %s [clean]" % sys.argv[0]
 finally:
     context.close()
 
