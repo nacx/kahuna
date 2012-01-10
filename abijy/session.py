@@ -38,6 +38,7 @@ class ContextLoader:
         if not self.__context:     # Avoid loading the same context twice
             config = Properties()
             config.put("abiquo.endpoint", endpoint)
+            print "Using endpoint: %s" % endpoint
             self.__context = AbiquoContextFactory().createContext(user, password, config);
             atexit.register(self.__del__)  # Close context automatically when exiting
         return self.__context

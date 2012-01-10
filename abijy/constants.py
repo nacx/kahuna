@@ -1,12 +1,13 @@
 #!/usr/bin/env jython
 
 from com.abiquo.model.enumerator import *
+from java.lang import System
 
 
 ## Abiquo ##
 
 # Abiquo configuration
-ABQ_ADDRESS = "10.60.12.11"
+ABQ_ADDRESS = System.getProperty("abiquo.address", "10.60.12.11")
 ABQ_USER = "admin"
 ABQ_PASS = "xabiquo"
 ABQ_ENDPOINT = "http://" + ABQ_ADDRESS + "/api"
