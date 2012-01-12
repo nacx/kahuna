@@ -7,7 +7,7 @@ from java.lang import System
 ## Abiquo ##
 
 # Abiquo configuration
-ABQ_ADDRESS = System.getProperty("abiquo.address", "10.60.1.222")
+ABQ_ADDRESS = System.getProperty("abiquo.address", "10.60.12.11")
 ABQ_USER = "admin"
 ABQ_PASS = "xabiquo"
 ABQ_ENDPOINT = "http://" + ABQ_ADDRESS + "/api"
@@ -41,7 +41,7 @@ PM_DATASTORE = "Local storage"          # Datastore where VM disks will be deplo
 TIER_NAME = "Seaside Storage"           # The name of the tier where the pool will be added
 
 # Device configuration
-DEV_NAME = "LVM Mothership"             # The name of the device
+DEV_NAME = "Kai"                        # The name of the device
 DEV_TYPE = StorageTechnologyType.LVM    # The device type
 DEV_ADDRESS = "10.60.21.177"            # The device address
 
