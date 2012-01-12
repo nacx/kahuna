@@ -2,6 +2,7 @@
 
 from kahuna.constants import *
 from org.jclouds.abiquo.domain.network import *
+from org.jclouds.abiquo.predicates.enterprise import *
 
 
 class InfrastructureNetwork:
@@ -34,6 +35,25 @@ class InfrastructureNetwork:
         network.save()
         return network
 
+    def create_external_network(self, datacenter, enterprise, netname=EXT_NAME, netaddress=EXT_ADDRESS, netmask=EXT_MASK, netgateway=EXT_GATEWAY, nettag=EXT_TAG, netdns=EXT_DNS):
+        """ Creates a new external network .  
+
+        If the parameters are not specified, the 'EXT_NAME', 'EXT_ADDRESS',
+        'EXT_MASK', 'EXT_GATEWAY', 'EXT_TAG', and 'EXT_DNS' variables from the
+        'constants' module will be used.
+        """
+        print "Adding external network %s (%s) to enterprise %s..." % (netname, netaddress, enterprise.getName())
+        network = ExternalNetwork.builder(self.__context, datacenter, enterprise) \
+                  .name(netname) \
+                  .address(netaddress) \
+                  .mask(netmask) \
+                  .gateway(netgateway) \
+                  .tag(nettag) \
+                  .primaryDNS(netdns) \
+                  .build()
+        network.save()
+        return network
+
 def create_infrastructure_network(context, dc):
     """ Creates the default infrastructure network entities.
     
@@ -42,8 +62,11 @@ def create_infrastructure_network(context, dc):
     This is just an example of how to use this class.
     """
     print "### Configuring networking ###"
+    admin = context.getAdministrationService()
+    enterprise = admin.findEnterprise(EnterprisePredicates.name("Abiquo"))
     networking = InfrastructureNetwork(context)
     pubnet = networking.create_public_network(dc)
+    external = networking.create_external_network(dc, enterprise)
     return pubnet
 
 def cleanup_infrastructure_network(dc):

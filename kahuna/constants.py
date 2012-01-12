@@ -63,6 +63,14 @@ PN_MASK = 25                            # The mask of the network
 PN_GATEWAY = "80.12.96.1"               # The default gateway for the network
 PN_DNS = "8.8.8.8"                      # Primary DNS
 
+# External network configuration
+EXT_NAME = "Kainet"                      # The name of the external network
+EXT_TAG =  6                             # External network tag
+EXT_ADDRESS = "10.60.30.0"               # The network address of the network
+EXT_MASK = 25                            # The mask of the network
+EXT_GATEWAY = "10.60.30.1"             # The default gateway for the network
+EXT_DNS = "8.8.8.8"                      # Primary DNS
+
 
 ## Cloud ##
 
