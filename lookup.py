@@ -2,8 +2,8 @@
 
 import sys
 
-from abijy.lookup import Lookup
-from abijy.session import ContextLoader
+from kahuna.lookup import Lookup
+from kahuna.session import ContextLoader
 
 
 if len(sys.argv) == 2:

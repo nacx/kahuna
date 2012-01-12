@@ -1,8 +1,8 @@
 #!/usr/bin/env jython
 
-from abijy.constants import *
-from abijy.infrastructure.network import cleanup_infrastructure_network
-from abijy.infrastructure.storage import cleanup_infrastructure_storage
+from kahuna.constants import *
+from kahuna.infrastructure.network import cleanup_infrastructure_network
+from kahuna.infrastructure.storage import cleanup_infrastructure_storage
 from org.jclouds.abiquo.domain.infrastructure import *
 from org.jclouds.abiquo.reference import *
 

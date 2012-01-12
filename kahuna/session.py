@@ -2,7 +2,7 @@
 
 import atexit
 
-from abijy.constants import *
+from kahuna.constants import *
 from java.lang import System
 from java.util import Properties
 from org.jclouds.abiquo import *

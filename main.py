@@ -2,17 +2,17 @@
 
 import sys
 
-from abijy.cloud.compute import cleanup_cloud_compute
-from abijy.cloud.compute import create_cloud_compute
-from abijy.cloud.storage import cleanup_cloud_storage
-from abijy.cloud.storage import create_cloud_storage
-from abijy.infrastructure.compute import cleanup_infrastructure_compute
-from abijy.infrastructure.compute import create_infrastructure_compute
-from abijy.infrastructure.network import create_infrastructure_network
-from abijy.infrastructure.storage import create_infrastructure_storage
-from abijy.users.tenants import cleanup_default_tenants
-from abijy.users.tenants import create_default_tenants
-from abijy.session import ContextLoader
+from kahuna.cloud.compute import cleanup_cloud_compute
+from kahuna.cloud.compute import create_cloud_compute
+from kahuna.cloud.storage import cleanup_cloud_storage
+from kahuna.cloud.storage import create_cloud_storage
+from kahuna.infrastructure.compute import cleanup_infrastructure_compute
+from kahuna.infrastructure.compute import create_infrastructure_compute
+from kahuna.infrastructure.network import create_infrastructure_network
+from kahuna.infrastructure.storage import create_infrastructure_storage
+from kahuna.users.tenants import cleanup_default_tenants
+from kahuna.users.tenants import create_default_tenants
+from kahuna.session import ContextLoader
 
 
 context = ContextLoader().load_context()
