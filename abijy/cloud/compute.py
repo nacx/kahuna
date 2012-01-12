@@ -52,10 +52,28 @@ class CloudCompute:
         vapp.save()
         return vapp
 
+    def create_virtual_machine(self, vapp, template):
+        """ Create a virtual machine based on the given template. """
+        print "Creating virtual machine from template: %s..." % template.getName()
+        vm = VirtualMachine.builder(self.__context, vapp, template).build()
+        vm.save()
+        return vm
+
     def refresh_template_repository(self, enterprise, datacenter):
         """ Refresh the virtual machines templates in the given repository. """
         print "Refreshing template repository..."
         enterprise.refreshTemplateRepository(datacenter)
+
+def find_smallest_template(context, vdc):
+    """ Finds the smallest template available to the given virtual datacenter. """
+    print "Looking for the smallest available template..."
+    templates = sorted(vdc.listAvailableTemplates(), key=lambda t: t.getDiskFileSize())
+    if len(templates) > 0:
+        print "Found compatible template: %s" % templates[0].getName()
+        return templates[0]
+    else:
+        print "No compatible template found"
+        return None
 
 def create_cloud_compute(context, dc):
     """ Creates the default cloud compute entities.
@@ -70,8 +88,11 @@ def create_cloud_compute(context, dc):
     admin = context.getAdministrationService()
     enterprise = admin.findEnterprise(EnterprisePredicates.name("Abiquo"))
     vdc = cloud.create_virtual_datacenter(dc, enterprise, PM_TYPE)
-    cloud.create_virtual_appliance(vdc)
+    vapp = cloud.create_virtual_appliance(vdc)
     cloud.refresh_template_repository(enterprise, dc)
+    template = find_smallest_template(context, vdc)
+    if template:
+        vm = cloud.create_virtual_machine(vapp, template)
     return vdc
 
 def cleanup_cloud_compute(context):
