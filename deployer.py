@@ -4,8 +4,6 @@ import sys
 import time
 
 from kahuna.session import ContextLoader
-from org.jclouds.abiquo.domain.cloud import VirtualMachine
-from org.jclouds.abiquo.predicates.cloud import VirtualDatacenterPredicates
 
 
 if len(sys.argv) == 2:
