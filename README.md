@@ -40,13 +40,13 @@ first time, and can be done by running the following command:
     mvn compile
 
 This will generate a *pth* file containing the classpath needed to run the Jython
-client. Once the classpath file has been generated, you can run the Jython code by
-invoking the main script as follows:
+client. Once the classpath file has been generated, you can run the provided Jython
+scripts as shown in the following example:
 
-    jython main.py           # To run all examples
-    jython main.py clean     # To cleanup all data
-    jython -Dabiquo.address=<address> main.py         # To run all examples on the given host
-    jython -Dabiquo.address=<address> main.py clean   # To cleanup all data on the given host
+    jython env.py           # Create a default environment
+    jython env.py clean     # Cleanup all data
+    jython -Dabiquo.address=<address> env.py         # Create a default environment in the given hsot
+    jython -Dabiquo.address=<address> env.py clean   # Cleanup all data on the given host
 
 Use it interactively
 --------------------
