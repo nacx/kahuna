@@ -1,13 +1,19 @@
 #!/usr/bin/env jython
 
 import sys
+import time
 
 from kahuna.session import ContextLoader
+from org.jclouds.abiquo.domain.cloud import VirtualMachine
 from org.jclouds.abiquo.predicates.cloud import VirtualDatacenterPredicates
 
 
 if len(sys.argv) == 2:
     max = int(sys.argv[1])
+    if max < 1:
+        print "The number of deployments must be > 0"
+        exit()
+
     context = ContextLoader().load_context()
 
     try:
@@ -20,16 +26,21 @@ if len(sys.argv) == 2:
             exit()
 
         vm = vms[0]
-        print "Starting %s deployments for: %s" % (max, vm.getName())
+        print "Starting %s deployment iterations for %s" % (max, vm.getName())
 
         for i in range(0, max):
-            print "Deploying #%s %s" % (i + 1, vm.getName())
+            print "Iteration #%s" % (i + 1)
+            print "  Deploying %s" % vm.getName()
             vm.deploy()
             monitor.awaitCompletionDeploy(vm)
 
-            print "Undeploying #%s %s" % (i + 1, vm.getName())
+            print "  Undeploying %s" % vm.getName()
             vm.undeploy()
             monitor.awaitCompletionUndeploy(vm)
+
+            # Currently there is a minor issue when undeploying that puts the vm in state
+            # UNKNOWN. Wait a bit so it gets in NOT_ALLOCATED state before deploying again
+            time.sleep(1)
 
     finally:
         context.close()
