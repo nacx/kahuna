@@ -32,13 +32,15 @@ if len(sys.argv) == 2:
             vm.deploy()
             monitor.awaitCompletionDeploy(vm)
 
+            time.sleep(5)
+
             print "  Undeploying %s" % vm.getName()
             vm.undeploy()
             monitor.awaitCompletionUndeploy(vm)
 
             # Currently there is a minor issue when undeploying that puts the vm in state
             # UNKNOWN. Wait a bit so it gets in NOT_ALLOCATED state before deploying again
-            time.sleep(1)
+            time.sleep(5)
 
     finally:
         context.close()
