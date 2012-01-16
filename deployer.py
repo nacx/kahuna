@@ -29,13 +29,16 @@ if len(sys.argv) == 2:
             vapp.deploy()
             monitor.awaitCompletionDeploy(vapp)
 
+            # Bypass current issues with state by waiting a bit before undeploying
+            time.sleep(3)
+
             print "  Undeploying %s" % vapp.getName()
             vapp.undeploy()
             monitor.awaitCompletionUndeploy(vapp)
 
             # Currently there is a minor issue when undeploying that puts the vm in state
             # UNKNOWN. Wait a bit so it gets in NOT_ALLOCATED state before deploying again
-            # time.sleep(5)
+            time.sleep(3)
 
     finally:
         context.close()
