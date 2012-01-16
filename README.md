@@ -22,7 +22,7 @@ and ***Jython >= 2.5.2***.
 Configuration
 -------------
 
-Since this project is currently in deep development process and we don't have any egg 
+Since this project is currently in development process and we don't have any egg 
 package ready, the *$JYHTONPATH* environment variable needs to be set manually:
 
     export JYTHONPATH=$(YOUR_PROJECT_HOME_DIRECTORY)
@@ -53,12 +53,13 @@ You can also perform actions against the Api in an interactive way. You just nee
 open a Jython shell from anywhere and load the context. The following example shows
 how to edit a virtual datacenter interactively:
 
-    nacx@laptop:~ $ jython
+    nacx@laptop:~ $ jython -Dabiquo.address=10.60.1.222
     Jython 2.5.2 (Release_2_5_2:7206, Mar 2 2011, 23:12:06) 
     [Java HotSpot(TM) Server VM (Sun Microsystems Inc.)] on java1.6.0_18
     Type "help", "copyright", "credits" or "license" for more information.
     >>> from kahuna.session import ContextLoader
     >>> ctx = ContextLoader().load_context()
+    Using endpoint: http://10.60.1.222/api
     >>> cloud = ctx.getCloudService()         
     >>> cloud.listVirtualDatacenters()
     [VirtualDatacenter [id=11, type=XENSERVER, name=Kaahumanu]]
