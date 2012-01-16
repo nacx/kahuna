@@ -16,31 +16,26 @@ if len(sys.argv) == 2:
 
     try:
         cloud = context.getCloudService()
-        monitor = context.getMonitoringService()
-        vms = cloud.listVirtualMachines()
+        monitor = context.getMonitoringService().getVirtualApplianceMonitor()
+        
+        vdc = cloud.listVirtualDatacenters()[0]
+        vapp = vdc.listVirtualAppliances()[0]
 
-        if len(vms) == 0:
-            print "There are no virtual machines to deploy"
-            exit()
-
-        vm = vms[0]
-        print "Starting %s deployment iterations for %s" % (max, vm.getName())
+        print "Starting %s deployment iterations for %s" % (max, vapp.getName())
 
         for i in range(0, max):
             print "Iteration #%s" % (i + 1)
-            print "  Deploying %s" % vm.getName()
-            vm.deploy()
-            monitor.awaitCompletionDeploy(vm)
+            print "  Deploying %s" % vapp.getName()
+            vapp.deploy()
+            monitor.awaitCompletionDeploy(vapp)
 
-            time.sleep(5)
-
-            print "  Undeploying %s" % vm.getName()
-            vm.undeploy()
-            monitor.awaitCompletionUndeploy(vm)
+            print "  Undeploying %s" % vapp.getName()
+            vapp.undeploy()
+            monitor.awaitCompletionUndeploy(vapp)
 
             # Currently there is a minor issue when undeploying that puts the vm in state
             # UNKNOWN. Wait a bit so it gets in NOT_ALLOCATED state before deploying again
-            time.sleep(5)
+            # time.sleep(5)
 
     finally:
         context.close()
