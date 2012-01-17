@@ -41,10 +41,10 @@ first time, and can be done by running the following command:
 
 This will generate a *pth* file containing the classpath needed to run the Jython
 client. Once the classpath file has been generated, you can run the provided Jython
-scripts as shown in the following example:
+scripts using the wrapper, as shown in the following example:
 
-    jython -Dabiquo.address=<address> env.py         # Create a default environment in the given hsot
-    jython -Dabiquo.address=<address> env.py clean   # Cleanup all data on the given host
+    sh wrapper.sh <address> env.py         # Create a default environment in the given hsot
+    sh wrapper.sh <address> env.py clean   # Cleanup all data on the given host
 
 Use it interactively
 --------------------
@@ -53,7 +53,7 @@ You can also perform actions against the Api in an interactive way. You just nee
 open a Jython shell from anywhere and load the context. The following example shows
 how to edit a virtual datacenter interactively:
 
-    nacx@laptop:~ $ jython -Dabiquo.address=10.60.1.222
+    nacx@laptop:~ $ sh wrapper.sh 10.60.1.222
     Jython 2.5.2 (Release_2_5_2:7206, Mar 2 2011, 23:12:06) 
     [Java HotSpot(TM) Server VM (Sun Microsystems Inc.)] on java1.6.0_18
     Type "help", "copyright", "credits" or "license" for more information.
