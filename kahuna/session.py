@@ -38,6 +38,8 @@ class ContextLoader:
         if not self.__context:     # Avoid loading the same context twice
             config = Properties()
             config.put("abiquo.endpoint", endpoint)
+            config.put("jclouds.max-retries", "0")     # Do not retry on 5xx errors
+            config.put("jclouds.max-redirects", "0")   # Do not follow redirects on 3xx responses
             print "Using endpoint: %s" % endpoint
             self.__context = AbiquoContextFactory().createContext(user, password, config);
             atexit.register(self.__del__)  # Close context automatically when exiting
