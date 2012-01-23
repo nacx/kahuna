@@ -1,7 +1,7 @@
 #!/usr/bin/env jython
 
 import sys
-from kahuna.pluginmanager import PluginManager
+from pluginmanager import PluginManager
 
 
 class CLI:
