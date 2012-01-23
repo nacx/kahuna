@@ -2,5 +2,6 @@
 .project
 *.class
 *.pyc
+*.swp
 catalina.base_IS_UNDEFINED
 
