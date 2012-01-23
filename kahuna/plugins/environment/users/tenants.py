@@ -1,6 +1,6 @@
 #!/usr/bin/env jython
 
-from kahuna.constants import *
+from kahuna.plugins.environment.constants import *
 from org.jclouds.abiquo.domain.enterprise import *
 from org.jclouds.abiquo.predicates.enterprise import *
 from org.jclouds.abiquo.predicates.infrastructure import *

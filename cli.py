@@ -9,14 +9,15 @@ class CLI:
     def __init__(self):
         """ Initialize the main command line interface. """
         self.__pluginmanager = PluginManager()
-        self.__pluginmanager.load_plugins()
 
     def parse_input(self):
         """ Validates user input. """
         if len(sys.argv) < 3:
             print "Usage: %s <plugin> <command> [<options>]" % sys.argv[0]
-            exit()
+            print
+            self.__pluginmanager.help_all()
         else:
+            # Call the command in the given plugin with the remaining of the arguments
             self.__pluginmanager.call(sys.argv[1], sys.argv[2], sys.argv[3:])
 
 if __name__ == "__main__":

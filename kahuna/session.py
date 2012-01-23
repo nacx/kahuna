@@ -2,7 +2,6 @@
 
 import atexit
 
-from kahuna.constants import *
 from java.lang import System
 from java.util import Properties
 from org.jclouds.abiquo import *
@@ -29,12 +28,8 @@ class ContextLoader:
         if self.__context:
             self.__context.close()
 
-    def load_context(self, endpoint=ABQ_ENDPOINT, user=ABQ_USER, password=ABQ_PASS):
-        """ Creates and configures the context.
-
-        If no parameters are given, the ABQ_ENDPOINT, ABQ_USER, ABQ_PASS
-        constants from the 'constants.py' module will be used.
-        """
+    def load_context(self, endpoint, user, password):
+        """ Creates and configures the context. """
         if not self.__context:     # Avoid loading the same context twice
             config = Properties()
             config.put("abiquo.endpoint", endpoint)
