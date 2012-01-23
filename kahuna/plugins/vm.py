@@ -13,14 +13,14 @@ class VmPlugin:
         pass
 
     def info(self):
-        """ Get the information of the plugin. """
+        """ Returns the information of the plugin. """
         info = {}
         info['name'] = "vm"
         info['description'] = "Virtual machine plugin"
         return info
 
     def commands(self):
-        """ Get the commands provided by the plugin, mapped to the handler methods. """
+        """ Returns the commands provided by the plugin, mapped to the handler methods. """
         commands = {}
         commands['list'] = self.list
         commands['find'] = self.find

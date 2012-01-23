@@ -7,7 +7,7 @@ from java.lang import System
 ## Abiquo ##
 
 # Abiquo configuration
-ABQ_ADDRESS = System.getProperty("abiquo.address")
+ABQ_ADDRESS = "10.60.1.222"
 ABQ_USER = "admin"
 ABQ_PASS = "xabiquo"
 ABQ_ENDPOINT = "http://" + ABQ_ADDRESS + "/api"
