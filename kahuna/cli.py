@@ -13,7 +13,7 @@ class CLI:
     def parse_input(self):
         """ Validates user input. """
         if len(sys.argv) < 3:
-            print "Usage: %s <plugin> <command> [<options>]" % sys.argv[0]
+            print "Usage: kahuna.sh <plugin> <command> [<options>]"
             print
             self.__pluginmanager.help_all()
         else:
