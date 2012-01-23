@@ -24,7 +24,7 @@ class PluginManager:
             plugin = self.__plugins[plugin_name]
             try:
                 command = plugin.commands()[command_name]
-                command(args)
+                return command(args)
             except KeyError:
                 # Command not found in plugin. Print only plugin help
                 self.help(plugin)

@@ -18,9 +18,13 @@ class CLI:
             self.__pluginmanager.help_all()
         else:
             # Call the command in the given plugin with the remaining of the arguments
-            self.__pluginmanager.call(sys.argv[1], sys.argv[2], sys.argv[3:])
+            return self.__pluginmanager.call(sys.argv[1], sys.argv[2], sys.argv[3:])
 
 if __name__ == "__main__":
     cli = CLI()
-    cli.parse_input()
+    ret = cli.parse_input()
+    if ret:
+        exit(ret)
+    else:
+        exit()
 
