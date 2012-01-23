@@ -36,7 +36,7 @@ class DeployerPlugin:
 
         # Once user input has been read, find the VM
         max = int(options.num)
-        context = ContextLoader().load_context("http://10.60.1.222/api", "admin", "xabiquo")
+        context = ContextLoader().load_context()
         try:
             cloud = context.getCloudService()
             monitor = context.getMonitoringService().getVirtualApplianceMonitor()

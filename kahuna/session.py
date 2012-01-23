@@ -2,6 +2,7 @@
 
 import atexit
 
+from config import Config
 from java.lang import System
 from java.util import Properties
 from org.jclouds.abiquo import *
@@ -21,6 +22,7 @@ class ContextLoader:
         props_builder="org.jclouds.abiquo.AbiquoPropertiesBuilder"
         System.setProperty("abiquo.contextbuilder", context_builder)
         System.setProperty("abiquo.propertiesbuilder", props_builder)
+        self.__config = Config()
         self.__context = None
 
     def __del__(self):
@@ -28,9 +30,10 @@ class ContextLoader:
         if self.__context:
             self.__context.close()
 
-    def load_context(self, endpoint, user, password):
+    def load_context(self):
         """ Creates and configures the context. """
         if not self.__context:     # Avoid loading the same context twice
+            endpoint = "http://" + self.__config.address + "/api"
             config = Properties()
             config.put("abiquo.endpoint", endpoint)
             config.put("jclouds.max-retries", "0")     # Do not retry on 5xx errors
@@ -39,7 +42,8 @@ class ContextLoader:
             config.put("jclouds.timeouts.InfrastructureClient.discoverSingleMachine", "120000");
             config.put("jclouds.timeouts.InfrastructureClient.discoverMultipleMachines", "120000");
             print "Using endpoint: %s" % endpoint
-            self.__context = AbiquoContextFactory().createContext(user, password, config);
+            self.__context = AbiquoContextFactory().createContext(self.__config.user,
+                    self.__config.password, config);
             atexit.register(self.__del__)  # Close context automatically when exiting
         return self.__context
 

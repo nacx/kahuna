@@ -27,6 +27,9 @@ package ready, the *$JYHTONPATH* environment variable needs to be set manually:
 
     export JYTHONPATH=$(YOUR_PROJECT_HOME_DIRECTORY)
 
+You must also copy the **kahuna.conf** file to **/etc/kahuna.conf** and edit
+it to configure the connection to your Abiquo Platform.
+
 
 Running
 -------

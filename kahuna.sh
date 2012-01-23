@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # Exit code to be used when opening an interactive shell
 EXIT_OPEN_SHELL=10

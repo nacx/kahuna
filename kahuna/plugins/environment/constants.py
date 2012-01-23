@@ -1,16 +1,6 @@
 #!/usr/bin/env jython
 
 from com.abiquo.model.enumerator import *
-from java.lang import System
-
-
-## Abiquo ##
-
-# Abiquo configuration
-ABQ_ADDRESS = "10.60.1.222"
-ABQ_USER = "admin"
-ABQ_PASS = "xabiquo"
-ABQ_ENDPOINT = "http://" + ABQ_ADDRESS + "/api"
 
 
 ## Infrastructure ##
@@ -18,7 +8,6 @@ ABQ_ENDPOINT = "http://" + ABQ_ADDRESS + "/api"
 # Datacenter configuration
 DC_NAME = "Hawaii"              # The name of the datacenter
 DC_LOCATION = "Honolulu"        # The location of the datacenter
-DC_ADDRESS = ABQ_ADDRESS        # The address of the remote services
 
 # Rack configuration
 RACK_NAME = "Coconut rack"

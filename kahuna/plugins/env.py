@@ -34,7 +34,7 @@ class EnvironmentPlugin:
 
     def create(self, args):
         """ Creates the environment. """
-        context = ContextLoader().load_context("http://10.60.1.222/api", "admin", "xabiquo")
+        context = ContextLoader().load_context()
         try:
             dc = create_infrastructure_compute(context)
             create_infrastructure_storage(context, dc)
@@ -47,7 +47,7 @@ class EnvironmentPlugin:
 
     def cleanup(self, args):
         """ Cleans up the environment. """
-        context = ContextLoader().load_context("http://10.60.1.222/api", "admin", "xabiquo")
+        context = ContextLoader().load_context()
         try:
             cleanup_cloud_compute(context)
             cleanup_default_tenants(context)

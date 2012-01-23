@@ -18,13 +18,14 @@ class InfrastructureCompute:
         """ Initialize with an existent context. """
         self.__context = context
 
-    def create_datacenter(self, name=DC_NAME, location=DC_LOCATION, rs_address=DC_ADDRESS):
+    def create_datacenter(self, name=DC_NAME, location=DC_LOCATION):
         """ Creates a new datacenter.  
 
-        If the parameters are not specified, the 'DC_NAME', 'DC_LOCATION'
-        and 'DC_ADDRESS' variables from the 'constants' module will be used.
+        If the parameters are not specified, the 'DC_NAME' and 'DC_LOCATION'
+        variables from the 'constants' module will be used.
         """
         print "Creating datacenter %s at %s..." % (name, location)
+        rs_address = self.__context.getEndpoint().getHost()
         datacenter = Datacenter.builder(self.__context) \
                      .name(name) \
                      .location(location) \

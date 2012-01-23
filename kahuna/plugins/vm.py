@@ -28,7 +28,7 @@ class VmPlugin:
 
     def list(self, args):
         """ List all virtual machines. """
-        context = ContextLoader().load_context("http://10.60.1.222/api", "admin", "xabiquo")
+        context = ContextLoader().load_context()
         try:
             cloud = context.getCloudService()
             vms = cloud.listVirtualMachines()
@@ -48,7 +48,7 @@ class VmPlugin:
             return
 
         # Once user input has been read, find the VM
-        context = ContextLoader().load_context("http://10.60.1.222/api", "admin", "xabiquo")
+        context = ContextLoader().load_context()
         try:
             cloud = context.getCloudService()
             vm = cloud.findVirtualMachine(VirtualMachinePredicates.name(name))
