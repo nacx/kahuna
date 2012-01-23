@@ -1,5 +1,5 @@
-Abiquo API Command Line Tools
-=============================
+Abiquo API Command Line Tool
+============================
 
 This project is a simple command line tool for the Abiquo Cloud Platform API, using
 Jython as a wrapper to the [Official Java client](https://github.com/abiquo/jclouds-abiquo).
