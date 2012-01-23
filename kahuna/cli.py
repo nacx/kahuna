@@ -14,7 +14,7 @@ class CLI:
         """ Validates user input. """
         if len(sys.argv) < 3:
             print "Usage: kahuna.sh <plugin> <command> [<options>]"
-            print
+            print "The following plugins are available:\n"
             self.__pluginmanager.help_all()
         else:
             # Call the command in the given plugin with the remaining of the arguments

@@ -42,7 +42,7 @@ class PluginManager:
 
     def help_all(self):
         """ Prints the help for all registered plugins. """
-        for name, plugin in self.__plugins.iteritems():
+        for name, plugin in sorted(self.__plugins.iteritems()):
             self.help(plugin)
             print
 
