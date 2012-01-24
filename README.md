@@ -28,7 +28,12 @@ package ready, the *$JYHTONPATH* environment variable needs to be set manually:
     export JYTHONPATH=$(YOUR_PROJECT_HOME_DIRECTORY)
 
 You must also copy the **kahuna.conf** file to **/etc/kahuna.conf** and edit
-it to configure the connection to your Abiquo Platform.
+it to configure the connection to your Abiquo Platform. It is also a good choice
+to add the script to your PATH. You could simply create a symlink to the kahuna script
+in */usr/local/bin*:
+
+    cp kahuna.conf /etc/kahuna.conf
+    ln -s /usr/local/bin/kahuna <absolute path to kahuna.sh>
 
 
 Running
@@ -37,7 +42,7 @@ Running
 You can run the command line using the **kahuna.sh** script. If you run it without
 parameters, it will print the help with all the available options:
 
-    $ sh kahuna.sh
+    $ kahuna
     
     Usage: kahuna.sh <plugin> <command> [<options>]
     The following plugins are available:
@@ -59,7 +64,7 @@ Use it interactively
 You can also perform actions against the Api in an interactive way. You just need to
 use the 'shell' plugin as follows:
 
-    $ sh kahuna.sh shell open
+    $ kahuna shell open
     Jython 2.5.2 (Release_2_5_2:7206, Mar 2 2011, 23:12:06) 
     [Java HotSpot(TM) Server VM (Sun Microsystems Inc.)] on java1.6.0_18
     Type "help", "copyright", "credits" or "license" for more information.
