@@ -39,8 +39,8 @@ in */usr/local/bin*:
 Running
 -------
 
-You can run the command line using the **kahuna.sh** script. If you run it without
-parameters, it will print the help with all the available options:
+You can run now the command line as follows. If you run it without parameters, it will
+print the help with all the available options:
 
     $ kahuna
     
