@@ -11,7 +11,8 @@ class Config:
         if not os.path.exists(file):
             file = '/etc/kahuna.conf'
             if not os.path.exists(file):
-                raise IOError("Configuration file not found")
+                raise IOError("Configuration file not found. " +
+                        "Please, make sure /etc/kahuna.conf exists");
         config.read(file)
         self.address = config.get("connection", "address")
         self.user = config.get("connection", "user")
