@@ -2,9 +2,9 @@
 
 import time
 from optparse import OptionParser
-
 from kahuna.session import ContextLoader
-
+from org.jclouds.abiquo.domain.exception import AbiquoException
+from org.jclouds.rest import AuthorizationException
 
 class DeployerPlugin:
     """ Massive deployer plugin. """
@@ -63,6 +63,8 @@ class DeployerPlugin:
                 # Currently there is a minor issue when undeploying that puts the vm in state
                 # UNKNOWN. Wait a bit so it gets in NOT_ALLOCATED state before deploying again
                 time.sleep(5)
+        except (AbiquoException, AuthorizationException), ex:
+            print "Error: %s" % ex.getMessage()
         finally:
             context.close()
 

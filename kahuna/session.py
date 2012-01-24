@@ -7,7 +7,6 @@ from java.lang import System
 from java.util import Properties
 from org.jclouds.abiquo import *
 
-
 class ContextLoader:
     """ Sets the context to call Abiquo's API.
 

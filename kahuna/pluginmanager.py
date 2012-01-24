@@ -3,7 +3,6 @@
 from plugins import *
 from plugins import __all__
 
-
 class PluginManager:
     """ Manages available plugins. """
     def __init__(self):

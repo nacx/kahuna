@@ -2,8 +2,8 @@
 
 import os
 
-# Automatically set the __all__ with all the available
-# plugins in the folder
+# Automatically set the __all__ variable with all
+# the available plugins.
 
 plugin_dir = "kahuna/plugins"
 

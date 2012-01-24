@@ -2,6 +2,9 @@
 
 # This is an example plugin that can be used as a
 # skeleton for new plugins.
+# To test it just rename it as desired, place it in the
+# kahuna/plugins folder and run kahuna. You will see the
+# new plugin in the help.
 
 class SkeletonPlugin:
     """ An example plugin that prints dummy messages. """
@@ -18,7 +21,7 @@ class SkeletonPlugin:
     def commands(self):
         """ Returns the commands provided by the plugin, mapped to the handler methods. """
         commands = {}
-        # Bind the 'show' plugin command to the 'show_handler' method
+        # Bind the 'print' plugin command to the 'print_handler' method
         commands['print'] = self.print_handler
         return commands
 

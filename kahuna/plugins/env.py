@@ -11,7 +11,8 @@ from environment.infrastructure.storage import create_infrastructure_storage
 from environment.users.tenants import cleanup_default_tenants
 from environment.users.tenants import create_default_tenants
 from kahuna.session import ContextLoader
-
+from org.jclouds.abiquo.domain.exception import AbiquoException
+from org.jclouds.rest import AuthorizationException
 
 class EnvironmentPlugin:
     """ Environment generator plugin. """
@@ -22,7 +23,7 @@ class EnvironmentPlugin:
         """ Returns the plugin information. """
         info = {}
         info['name'] = "env"
-        info['description'] = "Environment generator plugin"
+        info['description'] = "Environment generator"
         return info
 
     def commands(self):
@@ -42,6 +43,8 @@ class EnvironmentPlugin:
             create_default_tenants(context, dc)
             vdc = create_cloud_compute(context, dc)
             create_cloud_storage(context, vdc)
+        except (AbiquoException, AuthorizationException), ex:
+            print "Error: %s" % ex.getMessage()
         finally:
             context.close()
 
@@ -52,6 +55,8 @@ class EnvironmentPlugin:
             cleanup_cloud_compute(context)
             cleanup_default_tenants(context)
             cleanup_infrastructure_compute(context)
+        except (AbiquoException, AuthorizationException), ex:
+            print "Error: %s" % ex.getMessage()
         finally:
             context.close()
     

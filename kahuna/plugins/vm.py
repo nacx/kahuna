@@ -1,11 +1,11 @@
 #!/usr/bin/env jython
 
 from optparse import OptionParser
-
 from kahuna.session import ContextLoader
 from org.jclouds.abiquo.predicates.cloud import VirtualMachinePredicates
 from org.jclouds.abiquo.predicates.infrastructure import MachinePredicates
-
+from org.jclouds.abiquo.domain.exception import AbiquoException
+from org.jclouds.rest import AuthorizationException
 
 class VmPlugin:
     """ Virtual machine plugin. """
@@ -16,7 +16,7 @@ class VmPlugin:
         """ Returns the information of the plugin. """
         info = {}
         info['name'] = "vm"
-        info['description'] = "Virtual machine plugin"
+        info['description'] = "Virtual machine management"
         return info
 
     def commands(self):
@@ -33,6 +33,8 @@ class VmPlugin:
             cloud = context.getCloudService()
             vms = cloud.listVirtualMachines()
             print vms
+        except (AbiquoException, AuthorizationException), ex:
+            print "Error: %s" % ex.getMessage()
         finally:
             context.close()
 
@@ -67,6 +69,8 @@ class VmPlugin:
                 print "No virtual machine found with name: %s" % name
                 vms = cloud.listVirtualMachines()
                 print vms
+        except (AbiquoException, AuthorizationException), ex:
+            print "Error: %s" % ex.getMessage()
         finally:
             context.close()
 

@@ -14,7 +14,7 @@ class ShellPlugin:
         """ Returns the information of the plugin. """
         info = {}
         info['name'] = "shell"
-        info['description'] = "Interactive shell plugin"
+        info['description'] = "Interactive shell"
         return info
 
     def commands(self):
