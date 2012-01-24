@@ -34,6 +34,7 @@ in */usr/local/bin*:
 
     cd <kahuna source directory>
     cp examples/kahuna.conf /etc/kahuna.conf  # The edit the /etc/kahuna.conf accordingly
+    chmod u+x kahuna.sh
     ln -s $(pwd)/kahuna.sh /usr/local/bin/kahuna
 
 
