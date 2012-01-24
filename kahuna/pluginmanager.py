@@ -25,7 +25,6 @@ class PluginManager:
             if not command_name:
                 self.help(plugin)
             else:
-                print "Command name: %s" % command_name
                 try:
                     command = plugin.commands()[command_name]
                     return command(args)

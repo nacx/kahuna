@@ -41,7 +41,7 @@ class ContextLoader:
             # Wait at most 2 minutes in Machine discovery
             config.put("jclouds.timeouts.InfrastructureClient.discoverSingleMachine", "120000");
             config.put("jclouds.timeouts.InfrastructureClient.discoverMultipleMachines", "120000");
-            print "Using endpoint: %s" % endpoint
+            print "Connecting to: %s" % endpoint
             self.__context = AbiquoContextFactory().createContext(self.__config.user,
                     self.__config.password, config);
             atexit.register(self.__del__)  # Close context automatically when exiting
