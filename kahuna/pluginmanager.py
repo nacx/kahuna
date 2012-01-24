@@ -22,12 +22,16 @@ class PluginManager:
         """ Calls the given command on the given plugin. """
         try:
             plugin = self.__plugins[plugin_name]
-            try:
-                command = plugin.commands()[command_name]
-                return command(args)
-            except KeyError:
-                # Command not found in plugin. Print only plugin help
+            if not command_name:
                 self.help(plugin)
+            else:
+                print "Command name: %s" % command_name
+                try:
+                    command = plugin.commands()[command_name]
+                    return command(args)
+                except KeyError:
+                    # Command not found in plugin. Print only plugin help
+                    self.help(plugin)
         except KeyError:
             # Plugin not found, pring generic help
             self.help_all()
@@ -36,7 +40,7 @@ class PluginManager:
         """ Prints the help for the given plugin. """
         info = plugin.info()
         commands = plugin.commands()
-        print "%s usage:" % info['description']
+        print "%s:" % info['description']
         for name, callback in commands.iteritems():
             print "  %s %s\t%s" % (info['name'], name, callback.__doc__)
 
