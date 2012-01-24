@@ -6,6 +6,8 @@
 # kahuna/plugins folder and run kahuna. You will see the
 # new plugin in the help.
 
+# The documentation string in the plugin class will be used to
+# print the help of the plugin.
 class SkeletonPlugin:
     """ An example plugin that prints dummy messages. """
     def __init__(self):
