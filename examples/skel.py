@@ -20,6 +20,7 @@ class SkeletonPlugin:
 
     # The documentation string in command methods will be used to
     # print the help of the command.
+    # The arguments are the options given to the command itself
     def print_handler(self, args):
         """ Prints a dummy message. """
         print "This is the print_handler in the example plugin"
