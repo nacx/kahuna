@@ -19,13 +19,6 @@ class EnvironmentPlugin:
     def __init__(self):
         pass
     
-    def info(self):
-        """ Returns the plugin information. """
-        info = {}
-        info['name'] = "env"
-        info['description'] = "Environment generator"
-        return info
-
     def commands(self):
         """ Returns the available commands in this plugin. """
         commands = {}

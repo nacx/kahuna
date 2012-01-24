@@ -12,13 +12,6 @@ class VmPlugin:
     def __init__(self):
         pass
 
-    def info(self):
-        """ Returns the information of the plugin. """
-        info = {}
-        info['name'] = "vm"
-        info['description'] = "Virtual machine management"
-        return info
-
     def commands(self):
         """ Returns the commands provided by the plugin, mapped to the handler methods. """
         commands = {}

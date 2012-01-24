@@ -11,13 +11,6 @@ class DeployerPlugin:
     def __init__(self):
         pass
 
-    def info(self):
-        """ Returns the plugin information. """
-        info = {}
-        info['name'] = "deployer"
-        info['description'] = "Massive virtual machine deployer"
-        return info
-
     def commands(self):
         """ Returns the available commands for this plugin. """
         commands = {}
