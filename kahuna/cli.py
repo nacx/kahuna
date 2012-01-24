@@ -12,11 +12,11 @@ class CLI:
     def parse_input(self):
         """ Validates user input and delegates execution to the plugin manager. """
         if len(sys.argv) < 2:
-            print "Usage: kahuna.sh <plugin> <command> [<options>]"
+            print "Usage: kahuna <plugin> <command> [<options>]"
             print "The following plugins are available:\n"
             self.__pluginmanager.help_all()
         elif len(sys.argv) == 2:
-            print "Usage: kahuna.sh <plugin> <command> [<options>]"
+            print "Usage: kahuna <plugin> <command> [<options>]"
             # Call the given pugin without command to print the help of the plugin
             return self.__pluginmanager.call(sys.argv[1], None, None)
         else:
