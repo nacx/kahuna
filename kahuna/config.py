@@ -13,7 +13,7 @@ class Config:
             if not os.path.exists(file):
                 raise IOError("Configuration file not found")
         config.read(file)
-        self.address = config.get("abiquo", "address")
-        self.user = config.get("abiquo", "user")
-        self.password = config.get("abiquo", "pass")
+        self.address = config.get("connection", "address")
+        self.user = config.get("connection", "user")
+        self.password = config.get("connection", "pass")
 
