@@ -33,7 +33,7 @@ to add the script to your PATH. You could simply create a symlink to the kahuna 
 in */usr/local/bin*:
 
     cd <kahuna source directory>
-    cp examples/kahuna.conf /etc/kahuna.conf
+    cp examples/kahuna.conf /etc/kahuna.conf  # The edit the /etc/kahuna.conf accordingly
     ln -s $(pwd)/kahuna.sh /usr/local/bin/kahuna
 
 
