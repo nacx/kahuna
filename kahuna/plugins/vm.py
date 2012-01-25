@@ -44,7 +44,7 @@ class VmPlugin:
             parser.print_help()
             return
 
-        # Once user input has been read, find the VM
+        # Once user input has been read, find the virtual machine
         context = ContextLoader().load_context()
         try:
             cloud = context.getCloudService()
@@ -106,7 +106,7 @@ class VmPlugin:
             parser.print_help()
             return
 
-        # Once user input has been read, find the VM
+        # Once user input has been read, find the virtual machine 
         context = ContextLoader().load_context()
         try:
             cloud = context.getCloudService()
