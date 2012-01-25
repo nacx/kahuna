@@ -33,6 +33,8 @@ TIER_NAME = "Seaside Storage"           # The name of the tier where the pool wi
 DEV_NAME = "Kai"                        # The name of the device
 DEV_TYPE = StorageTechnologyType.LVM    # The device type
 DEV_ADDRESS = "10.60.21.177"            # The device address
+DEV_USER = None                         # The admin user of the storage device (used in NetApp)
+DEV_PASS = None                         # The admin pass of the storage device (used in NetApp)
 
 # Pool configuration
 POOL_NAME = "abiquo"                    # The storage pool to use in the storage device

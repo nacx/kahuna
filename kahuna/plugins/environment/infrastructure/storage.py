@@ -35,7 +35,7 @@ class InfrastructureStorage:
 
         return tiers[0]
 
-    def create_device(self, datacenter, devname=DEV_NAME, devtype=DEV_TYPE,devaddress=DEV_ADDRESS, devmanaddress=DEV_ADDRESS):
+    def create_device(self, datacenter, devname=DEV_NAME, devtype=DEV_TYPE,devaddress=DEV_ADDRESS, devmanaddress=DEV_ADDRESS, user=DEV_USER, password=DEV_PASS):
         """ Discovers and registers a storage device.
 
         It discovers a remote storage device and registers it into the
@@ -49,6 +49,8 @@ class InfrastructureStorage:
                  .type(devtype) \
                  .iscsiIp(devaddress) \
                  .managementIp(devmanaddress) \
+                 .username(user) \
+                 .password(password) \
                  .build()
         device.save()
         return device
