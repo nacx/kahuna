@@ -38,6 +38,7 @@ class VmPlugin:
         # Parse user input to get the name of the virtual machine
         parser = OptionParser(usage="vm find <options>")
         parser.add_option("-n", "--name", help="The name of the virtual machine to find", action="store", dest="name")
+        parser.add_option("-v", "--verbose", help="Show virtual machine extended information", action="store_true", dest="verbose")
         (options, args) = parser.parse_args(args)
         name = options.name
         if not name:
@@ -50,16 +51,18 @@ class VmPlugin:
             cloud = context.getCloudService()
             vm = cloud.findVirtualMachine(VirtualMachinePredicates.name(name))
             if vm:
-                print "Found virtual machine in: "
-                print "  %s" % vm.getVirtualAppliance()
-                print "  %s" % vm.getVirtualDatacenter()
-                print "  %s" % vm.getEnterprise()
-                if vm.getState().existsInHypervisor():
-                    admin = context.getAdministrationService()
-                    machine = admin.findMachine(MachinePredicates.ip(vm.getVncAddress()))
-                    print "  %s" % machine
-                else:
-                    print "  Machine [None (VM not deployed)]"
+                if options.verbose:
+                    print "Found virtual machine in: "
+                    print "  %s" % vm.getVirtualAppliance()
+                    print "  %s" % vm.getVirtualDatacenter()
+                    print "  %s" % vm.getEnterprise()
+                    if vm.getState().existsInHypervisor():
+                        admin = context.getAdministrationService()
+                        machine = admin.findMachine(MachinePredicates.ip(vm.getVncAddress()))
+                        print "  %s" % machine
+                    else:
+                        print "  Machine [None (VM not deployed)]"
+                print vm
             else:
                 print "No virtual machine found with name: %s" % name
         except (AbiquoException, AuthorizationException), ex:
