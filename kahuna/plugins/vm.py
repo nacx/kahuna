@@ -53,15 +53,13 @@ class VmPlugin:
                 print "  %s" % vm.getVirtualDatacenter()
                 print "  %s" % vm.getEnterprise()
                 if vm.getState().existsInHypervisor():
-                    admin = self.__context.getAdministrationService()
+                    admin = context.getAdministrationService()
                     machine = admin.findMachine(MachinePredicates.ip(vm.getVncAddress()))
                     print "  %s" % machine
                 else:
                     print "  Machine [None (VM not deployed)]"
             else:
                 print "No virtual machine found with name: %s" % name
-                vms = cloud.listVirtualMachines()
-                print vms
         except (AbiquoException, AuthorizationException), ex:
             print "Error: %s" % ex.getMessage()
         finally:
