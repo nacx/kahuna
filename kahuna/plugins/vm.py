@@ -17,6 +17,8 @@ class VmPlugin:
         commands = {}
         commands['list'] = self.list
         commands['find'] = self.find
+        commands['deploy'] = self.deploy
+        commands['undeploy'] = self.undeploy
         return commands
 
     def list(self, args):
@@ -58,6 +60,62 @@ class VmPlugin:
                     print "  %s" % machine
                 else:
                     print "  Machine [None (VM not deployed)]"
+            else:
+                print "No virtual machine found with name: %s" % name
+        except (AbiquoException, AuthorizationException), ex:
+            print "Error: %s" % ex.getMessage()
+        finally:
+            context.close()
+    
+    def deploy(self, args):
+        """ Deploy an existing virtual machine given its name. """
+        # Parse user input to get the name of the virtual machine
+        parser = OptionParser(usage="vm deploy <options>")
+        parser.add_option("-n", "--name", help="The name of the virtual machine to deploy", action="store", dest="name")
+        (options, args) = parser.parse_args(args)
+        name = options.name
+        if not name:
+            parser.print_help()
+            return
+
+        # Once user input has been read, find the VM
+        context = ContextLoader().load_context()
+        try:
+            cloud = context.getCloudService()
+            monitor = context.getMonitoringService().getVirtualMachineMonitor()
+            vm = cloud.findVirtualMachine(VirtualMachinePredicates.name(name))
+            if vm:
+                print "Deploying virtual machine %s... This may take some time." % name
+                vm.deploy()
+                monitor.awaitCompletionDeploy(vm)
+            else:
+                print "No virtual machine found with name: %s" % name
+        except (AbiquoException, AuthorizationException), ex:
+            print "Error: %s" % ex.getMessage()
+        finally:
+            context.close()
+    
+    def undeploy(self, args):
+        """ Undeploy an existing virtual machine given its name. """
+        # Parse user input to get the name of the virtual machine
+        parser = OptionParser(usage="vm undeploy <options>")
+        parser.add_option("-n", "--name", help="The name of the virtual machine to undeploy", action="store", dest="name")
+        (options, args) = parser.parse_args(args)
+        name = options.name
+        if not name:
+            parser.print_help()
+            return
+
+        # Once user input has been read, find the VM
+        context = ContextLoader().load_context()
+        try:
+            cloud = context.getCloudService()
+            monitor = context.getMonitoringService().getVirtualMachineMonitor()
+            vm = cloud.findVirtualMachine(VirtualMachinePredicates.name(name))
+            if vm:
+                print "Uneploying virtual machine %s..." % name
+                vm.undeploy()
+                monitor.awaitCompletionUndeploy(vm)
             else:
                 print "No virtual machine found with name: %s" % name
         except (AbiquoException, AuthorizationException), ex:

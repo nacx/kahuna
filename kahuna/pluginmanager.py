@@ -49,8 +49,8 @@ class PluginManager:
         tokens = plugin.__module__.split('.')
         plugin_name = tokens[len(tokens) - 1]
         print "%s" % plugin.__doc__
-        for command, callback in commands.iteritems():
-            print "   %s %s\t%s" % (plugin_name, command, callback.__doc__)
+        for command in sorted(commands.iterkeys()):
+            print "   %s %s\t%s" % (plugin_name, command, commands[command].__doc__)
 
     def help_all(self):
         """ Prints the help for all registered plugins. """
