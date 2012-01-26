@@ -32,15 +32,16 @@ def pprint_table(table):
 
 def pprint_vms(vms):
     """ Pretty prints the given virtual machine list. """
-    table = [["id", "name", "cpu", "ram", "hd", "state", "vnc"]]
+    table = [["id", "name", "cpu", "ram", "hd", "state", "vnc", "template"]]
     for vm in vms:
         state = vm.getState()
-        row = [vm.getId(), vm.getName(), vm.getCpu(), str(vm.getRam()) + " MB", state,
-                str(vm.getHdInBytes() / 1024 / 1024) + " MB"]
+        row = [vm.getId(), vm.getName(), vm.getCpu(), str(vm.getRam()) + " MB",
+                str(vm.getHdInBytes() / 1024 / 1024) + " MB", state]
         if not state.existsInHypervisor():
             row.append("-")
         else:
             row.append(vm.getVncAddress() + ":" + str(vm.getVncPort()))
+        row.append(vm.getTemplate().getName())
         table.append(row)
     pprint_table(table)
 
