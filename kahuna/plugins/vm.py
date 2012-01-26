@@ -37,8 +37,10 @@ class VmPlugin:
         """ Find a virtual machine given its name. """
         # Parse user input to get the name of the virtual machine
         parser = OptionParser(usage="vm find <options>")
-        parser.add_option("-n", "--name", help="The name of the virtual machine to find", action="store", dest="name")
-        parser.add_option("-v", "--verbose", help="Show virtual machine extended information", action="store_true", dest="verbose")
+        parser.add_option("-n", "--name", help="The name of the virtual machine to find",
+                action="store", dest="name")
+        parser.add_option("-v", "--verbose", help="Show virtual machine extended information",
+                action="store_true", dest="verbose")
         (options, args) = parser.parse_args(args)
         name = options.name
         if not name:
@@ -74,7 +76,8 @@ class VmPlugin:
         """ Deploy an existing virtual machine given its name. """
         # Parse user input to get the name of the virtual machine
         parser = OptionParser(usage="vm deploy <options>")
-        parser.add_option("-n", "--name", help="The name of the virtual machine to deploy", action="store", dest="name")
+        parser.add_option("-n", "--name", help="The name of the virtual machine to deploy",
+                action="store", dest="name")
         (options, args) = parser.parse_args(args)
         name = options.name
         if not name:
@@ -102,7 +105,8 @@ class VmPlugin:
         """ Undeploy an existing virtual machine given its name. """
         # Parse user input to get the name of the virtual machine
         parser = OptionParser(usage="vm undeploy <options>")
-        parser.add_option("-n", "--name", help="The name of the virtual machine to undeploy", action="store", dest="name")
+        parser.add_option("-n", "--name", help="The name of the virtual machine to undeploy",
+                action="store", dest="name")
         (options, args) = parser.parse_args(args)
         name = options.name
         if not name:

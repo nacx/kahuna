@@ -21,7 +21,8 @@ class DeployerPlugin:
         """ Deploys and undeploys the first virtual appliance N times. """
         # Parse user input to get the number of deployments and undeployments
         parser = OptionParser(usage="deployer start <options>")
-        parser.add_option("-n", "--num", help="The number of deployments to execute", action="store", dest="num")
+        parser.add_option("-n", "--num", help="The number of deployments to execute",
+                action="store", dest="num")
         (options, args) = parser.parse_args(args)
         if not options.num:
             parser.print_help()

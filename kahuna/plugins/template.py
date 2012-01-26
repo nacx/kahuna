@@ -36,7 +36,8 @@ class TemplatePlugin:
         """ Find a template given its name. """
         # Parse user input to get the name of the template
         parser = OptionParser(usage="template find <options>")
-        parser.add_option("-n", "--name", help="The name of the template to find", action="store", dest="name")
+        parser.add_option("-n", "--name", help="The name of the template to find",
+                action="store", dest="name")
         (options, args) = parser.parse_args(args)
         name = options.name
         if not name:
