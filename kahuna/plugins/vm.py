@@ -2,6 +2,7 @@
 
 from optparse import OptionParser
 from kahuna.session import ContextLoader
+from kahuna.utils.prettyprint import pprint_vms
 from org.jclouds.abiquo.predicates.cloud import VirtualMachinePredicates
 from org.jclouds.abiquo.predicates.infrastructure import MachinePredicates
 from org.jclouds.abiquo.domain.exception import AbiquoException
@@ -27,7 +28,7 @@ class VmPlugin:
         try:
             cloud = context.getCloudService()
             vms = cloud.listVirtualMachines()
-            print vms
+            pprint_vms(vms)
         except (AbiquoException, AuthorizationException), ex:
             print "Error: %s" % ex.getMessage()
         finally:
@@ -53,6 +54,7 @@ class VmPlugin:
             cloud = context.getCloudService()
             vm = cloud.findVirtualMachine(VirtualMachinePredicates.name(name))
             if vm:
+                pprint_vms([vm])
                 if options.verbose:
                     print "Found virtual machine in: "
                     print "  %s" % vm.getVirtualAppliance()
@@ -64,7 +66,6 @@ class VmPlugin:
                         print "  %s" % machine
                     else:
                         print "  Machine [None (VM not deployed)]"
-                print vm
             else:
                 print "No virtual machine found with name: %s" % name
         except (AbiquoException, AuthorizationException), ex:

@@ -2,6 +2,7 @@
 
 from optparse import OptionParser
 from kahuna.session import ContextLoader
+from kahuna.utils.prettyprint import pprint_templates
 from org.jclouds.abiquo.predicates.cloud import VirtualMachineTemplatePredicates
 from org.jclouds.abiquo.domain.exception import AbiquoException
 from org.jclouds.rest import AuthorizationException
@@ -26,7 +27,7 @@ class TemplatePlugin:
             user = admin.getCurrentUserInfo()
             enterprise = user.getEnterprise()
             templates = enterprise.listTemplates()
-            print templates
+            pprint_templates(templates)
         except (AbiquoException, AuthorizationException), ex:
             print "Error: %s" % ex.getMessage()
         finally:
@@ -52,7 +53,7 @@ class TemplatePlugin:
             enterprise = user.getEnterprise()
             template = enterprise.findTemplate(VirtualMachineTemplatePredicates.name(name))
             if template:
-                print template
+                pprint_templates([template])
             else:
                 print "No template found with name: %s" % name
         except (AbiquoException, AuthorizationException), ex:
