@@ -1,6 +1,7 @@
 #!/usr/bin/env jython
 
 from kahuna.plugins.environment.constants import *
+from com.google.common.base import Predicates
 from org.jclouds.abiquo.domain.enterprise import *
 from org.jclouds.abiquo.predicates.enterprise import *
 from org.jclouds.abiquo.predicates.infrastructure import *
@@ -80,8 +81,8 @@ def cleanup_default_tenants(context):
     """ Cleans up a previously created default tenants. """
     print "### Cleaning up tenants ###"
     admin = context.getAdministrationService()
-    enterprise = admin.findEnterprise(EnterprisePredicates.name(ENT_NAME))
-    if enterprise:
+    enterprises = admin.listEnterprises(Predicates.not(EnterprisePredicates.name("Abiquo")))
+    for enterprise in enterprises:
         # This will remove the enterprise and all users (if none of them is a Cloud Admin)
         print "Removing enterprise %s and all users..." % enterprise.getName()
         enterprise.delete()
