@@ -8,11 +8,6 @@ class PluginManager:
         """ Initialize the plugin list. """
         self.__plugins = {}
     
-    def load_plugins(self):
-        """ Loads all declared plugins in the plugins directory. """
-        for name in __all__:
-            self.load_plugin(name)
-
     def load_plugin(self, plugin_name):
         """ Loads a single plugin given its name. """
         if not plugin_name in __all__:
@@ -54,8 +49,8 @@ class PluginManager:
 
     def help_all(self):
         """ Prints the help for all registered plugins. """
-        self.load_plugins()
-        for name, plugin in sorted(self.__plugins.iteritems()):
+        for name in sorted(__all__):
+            plugin = self.load_plugin(name)
             self.help(plugin)
             print
 
