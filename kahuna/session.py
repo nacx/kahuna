@@ -21,8 +21,8 @@ class ContextLoader:
         props_builder="org.jclouds.abiquo.AbiquoPropertiesBuilder"
         System.setProperty("abiquo.contextbuilder", context_builder)
         System.setProperty("abiquo.propertiesbuilder", props_builder)
-        self.__config = Config()
         self.__context = None
+        self.__config = Config()
 
     def __del__(self):
         """ Closes the context before destroying. """
@@ -33,16 +33,16 @@ class ContextLoader:
         """ Creates and configures the context. """
         if not self.__context:     # Avoid loading the same context twice
             endpoint = "http://" + self.__config.address + "/api"
-            config = Properties()
-            config.put("abiquo.endpoint", endpoint)
-            config.put("jclouds.max-retries", "0")     # Do not retry on 5xx errors
-            config.put("jclouds.max-redirects", "0")   # Do not follow redirects on 3xx responses
+            props = Properties()
+            props.put("abiquo.endpoint", endpoint)
+            props.put("jclouds.max-retries", "0")     # Do not retry on 5xx errors
+            props.put("jclouds.max-redirects", "0")   # Do not follow redirects on 3xx responses
             # Wait at most 2 minutes in Machine discovery
-            config.put("jclouds.timeouts.InfrastructureClient.discoverSingleMachine", "120000");
-            config.put("jclouds.timeouts.InfrastructureClient.discoverMultipleMachines", "120000");
+            props.put("jclouds.timeouts.InfrastructureClient.discoverSingleMachine", "120000");
+            props.put("jclouds.timeouts.InfrastructureClient.discoverMultipleMachines", "120000");
             print "Connecting to: %s" % endpoint
             self.__context = AbiquoContextFactory().createContext(self.__config.user,
-                    self.__config.password, config);
+                    self.__config.password, props);
             atexit.register(self.__del__)  # Close context automatically when exiting
         return self.__context
 

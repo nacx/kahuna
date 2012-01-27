@@ -27,8 +27,7 @@ def pprint_table(table):
         col_paddings.append(max_width(table, i))
 
     pprint_header(table, col_paddings)
-    for row in table[1:]:
-        pprint_row(row, col_paddings)
+    [pprint_row(row, col_paddings) for row in table[1:]]
 
 def pprint_vms(vms):
     """ Pretty prints the given virtual machine list. """
@@ -46,7 +45,7 @@ def pprint_vms(vms):
     pprint_table(table)
 
 def pprint_templates(templates):
-    """ pretty prints the given template list. """
+    """ Pretty prints the given template list. """
     table = [["id", "name", "disk type", "cpu", "ram", "hd", "disk file size"]]
     for template in templates:
         row = [template.getId(), template.getName(), template.getDiskFormatType(),

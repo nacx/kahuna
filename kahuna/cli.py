@@ -26,8 +26,5 @@ class CLI:
 if __name__ == "__main__":
     cli = CLI()
     ret = cli.parse_input()
-    if ret:
-        exit(ret)
-    else:
-        exit()
+    exit(ret) if ret else exit()
 
