@@ -8,7 +8,7 @@ EXIT_OPEN_SHELL=10
 if [ -h $0 ]; then
     BASEDIR=`readlink $0 | xargs dirname`
 else
-    BASEDIR=`DIRNAME $0`
+    BASEDIR=`dirname $0`
 fi
 
 # Enter the real directori before performing any operation
