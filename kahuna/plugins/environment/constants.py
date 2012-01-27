@@ -15,13 +15,21 @@ RACK_VLAN_MIN = 3       # Minimum VLAN tag
 RACK_VLAN_MAX = 500     # Maximum VLAN tag
 RACK_NRSQ = 10          # VLAN pool size for VDC that exceed reservation
 
-# Machine configuration
-PM_ADDRESS = "10.60.1.79"               # Hypervisor address
-PM_TYPE = HypervisorType.XENSERVER      # Hypervisor type
-PM_USER = "root"                        # Hypervisor login
-PM_PASSWORD = "temporal"                # Hypervisor password
-PM_VSWITCH = "eth1"                     # Virtual switch where VLANs will be attached
-PM_DATASTORE = "Local storage"          # Datastore where VM disks will be deployed
+# Machine configuration constants
+PM_ADDRESS = "10.60.1.79"                 # Hypervisor 1 address
+PM2_ADDRESS = "10.60.1.97"                # Hypervisor 2 address
+PM_TYPE = HypervisorType.XENSERVER        # Hypervisor type
+PM_USER = "root"                          # Hypervisor login
+PM_PASSWORD = "temporal"                  # Hypervisor password
+PM_VSWITCH = "eth1"                       # Virtual switch where VLANs will be attached
+PM_DATASTORE = "Local storage"            # Datastore where VM disks will be deployed
+
+# Machine definitions. Format: HypervisorType, IpAddress, user, password, datastore, virtual switch
+MACHINE1 = PM_TYPE, PM_ADDRESS, PM_USER, PM_PASSWORD, PM_DATASTORE, PM_VSWITCH
+MACHINE2 = PM_TYPE, PM2_ADDRESS, PM_USER, PM_PASSWORD, PM_DATASTORE, PM_VSWITCH
+
+# Machine list
+MACHINES = [ MACHINE1, MACHINE2]
 
 
 ## Storage ##

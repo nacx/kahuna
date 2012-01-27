@@ -78,6 +78,14 @@ class InfrastructureCompute:
 
         return machine
 
+    def create_machines(self, comp, rack):
+	""" Iterates machine creation
+	"""
+	
+	print "Adding physical machines"
+	for machine in MACHINES:
+   		comp.create_machine(rack, machine[0], machine[1], machine[2], machine[3], machine[4], machine[5])
+
 def create_infrastructure_compute(context):
     """ Creates the default infrastructure compute entities.
     
@@ -89,7 +97,7 @@ def create_infrastructure_compute(context):
     comp = InfrastructureCompute(context)
     dc = comp.create_datacenter()
     rack = comp.create_rack(dc)
-    comp.create_machine(rack)
+    comp.create_machines(comp, rack)
     return dc
 
 def cleanup_infrastructure_compute(context):
