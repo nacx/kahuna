@@ -16,7 +16,7 @@ class Config:
             if os.path.exists(file):
                 #some debugging
                 log.debug("Config found in %s" % file)
-                configFound = configFound
+                configFound = file
                 break
 
         if not os.path.exists(configFound):
