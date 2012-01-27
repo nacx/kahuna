@@ -11,7 +11,7 @@ log.setLevel(logging.INFO)
 
 class ConfigLoader:
     """ Loads configuration files from a given location. """
-    def __init__(self, basedir):
+    def __init__(self, basedir = "kahuna"):
         """ Initializes the ConfigLoader. """
         self.user_dir = os.environ['HOME'] + "/." + basedir
         self.sys_dir = "/etc/" + basedir
@@ -50,7 +50,7 @@ class ConfigLoader:
 class Config:
     """ Main configuration. """
     def __init__(self):
-        loader = ConfigLoader("kahuna")
+        loader = ConfigLoader()
         config = loader.load("kahuna.conf", "config/kahuna.conf")
 
         self.address = config.get("connection", "address")
