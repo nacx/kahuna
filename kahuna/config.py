@@ -9,7 +9,7 @@ class Config:
     """ Main configuration. """
     def __init__(self):
         config = ConfigParser.SafeConfigParser()
-        configFound = "/tmp/kahuna.conf"
+        configFound = os.environ['HOME'] + "/tmp/kahuna.conf"
         # User config has precedence, then system then /usr/local
         files = [os.environ['HOME'] + '/.kahuna.conf', '/etc/kahuna.conf', '/usr/local/etc/kahuna.conf']
         for file in files:
@@ -24,8 +24,6 @@ class Config:
             raise IOError("Configuration file not found. " +
                     "Please, make sure that $HOME/.kahuna.conf or /etc/kahuna.conf exists");
 
-        log.debug(str(os.path.exists(configFound)))
-        
         config.read(file)
         self.address = config.get("connection", "address")
         self.user = config.get("connection", "user")
