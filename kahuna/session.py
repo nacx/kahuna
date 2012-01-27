@@ -1,11 +1,14 @@
 #!/usr/bin/env jython
 
 import atexit
+import logging
 
 from config import Config
 from java.lang import System
 from java.util import Properties
 from org.jclouds.abiquo import *
+
+log = logging.getLogger('kahuna')
 
 class ContextLoader:
     """ Sets the context to call Abiquo's API.
@@ -40,7 +43,7 @@ class ContextLoader:
             # Wait at most 2 minutes in Machine discovery
             props.put("jclouds.timeouts.InfrastructureClient.discoverSingleMachine", "120000");
             props.put("jclouds.timeouts.InfrastructureClient.discoverMultipleMachines", "120000");
-            print "Connecting to: %s" % endpoint
+            log.debug("Connecting to: %s" % endpoint)
             self.__context = AbiquoContextFactory().createContext(self.__config.user,
                     self.__config.password, props);
             atexit.register(self.__del__)  # Close context automatically when exiting

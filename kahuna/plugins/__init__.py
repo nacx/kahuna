@@ -1,5 +1,3 @@
-#!/usr/bin/env jython
-
 import os
 
 # Automatically set the __all__ variable with all

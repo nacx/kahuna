@@ -27,13 +27,13 @@ package ready, the *$JYHTONPATH* environment variable needs to be set manually:
 
     export JYTHONPATH=$(YOUR_PROJECT_HOME_DIRECTORY)
 
-You must also copy the **examples/kahuna.conf** file to **/etc/kahuna.conf** and edit
-it to configure the connection to your Abiquo Platform. It is also a good choice
+You must also copy the **examples/kahuna.conf** file to **$HOME/.kahuna/kahuna.conf**
+and edit it to configure the connection to your Abiquo Platform. It is also a good choice
 to add the script to your PATH. You could simply create a symlink to the kahuna script
 in */usr/local/bin*:
 
     cd <kahuna source directory>
-    cp examples/kahuna.conf /etc/kahuna.conf  # The edit the /etc/kahuna.conf accordingly
+    cp config/kahuna.conf ~/.kahuna/kahuna.conf  # The edit the file accordingly
     chmod u+x kahuna.sh
     ln -s $(pwd)/kahuna.sh /usr/local/bin/kahuna
 

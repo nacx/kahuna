@@ -1,5 +1,6 @@
 #!/usr/bin/env jython
 
+import logging
 from optparse import OptionParser
 from kahuna.session import ContextLoader
 from kahuna.utils.prettyprint import pprint_vms
@@ -14,6 +15,8 @@ from org.jclouds.abiquo.predicates.cloud import VirtualMachineTemplatePredicates
 from org.jclouds.abiquo.predicates.infrastructure import MachinePredicates
 from org.jclouds.abiquo.domain.exception import AbiquoException
 from org.jclouds.rest import AuthorizationException
+
+log = logging.getLogger('kahuna')
 
 class VmPlugin:
     """ Virtual machine plugin. """
@@ -157,15 +160,18 @@ class VmPlugin:
             if not template:
                 print "No template was found with id %s" % options.template
                 return
+            log.debug("Using template: %s" % template.getName())
 
             vdc = helper.find_compatible_virtual_datacenter(context, template)
             if not vdc:
                 print "No virtual datacenter found for: %s" % template.getDiskFormatType()
                 return
+            log.debug("Using virtual datacenter: %s" % vdc.getName())
 
             name = "Kahuna-" + context.getIdentity()
             vapp = vdc.findVirtualAppliance(VirtualAppliancePredicates.name(name))
             if not vapp:
+                log.debug("Virtual appliance %s not found. Creating it..." % name)
                 vapp = VirtualAppliance.builder(context, vdc).name(name).build()
                 vapp.save()
 
