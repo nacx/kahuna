@@ -87,7 +87,7 @@ Adding more plugins
 -------------------
 
 Plugins are easy to create. Take a look at the [Project Wiki](https://github.com/nacx/kahuna/wiki)
-to see how to create and add them.
+to see how to create and add your own plugins.
 
 
 Note on patches/pull requests
