@@ -11,6 +11,7 @@ from environment.infrastructure.network import create_infrastructure_network
 from environment.infrastructure.storage import create_infrastructure_storage
 from environment.users.tenants import cleanup_default_tenants
 from environment.users.tenants import create_default_tenants
+from kahuna.config import ConfigLoader
 from kahuna.session import ContextLoader
 from org.jclouds.abiquo.domain.exception import AbiquoException
 from org.jclouds.rest import AuthorizationException
@@ -29,15 +30,16 @@ class EnvironmentPlugin:
 
     def create(self, args):
         """ Creates the environment. """
+        config = ConfigLoader().load("env.conf", "config/env.conf")
         context = ContextLoader().load_context()
         try:
-            apply_default_configuration(context)
-            dc = create_infrastructure_compute(context)
-            create_infrastructure_storage(context, dc)
-            create_infrastructure_network(context, dc)
-            create_default_tenants(context, dc)
-            vdc = create_cloud_compute(context, dc)
-            create_cloud_storage(context, vdc)
+            apply_default_configuration(config, context)
+            dc = create_infrastructure_compute(config, context)
+            create_infrastructure_storage(config, context, dc)
+            create_infrastructure_network(config, context, dc)
+            create_default_tenants(config, context, dc)
+            vdc = create_cloud_compute(config, context, dc)
+            create_cloud_storage(config, context, vdc)
         except (AbiquoException, AuthorizationException), ex:
             print "Error: %s" % ex.getMessage()
         finally:
@@ -47,9 +49,9 @@ class EnvironmentPlugin:
         """ Cleans up the environment. """
         context = ContextLoader().load_context()
         try:
-            cleanup_cloud_compute(context)
-            cleanup_default_tenants(context)
-            cleanup_infrastructure_compute(context)
+            cleanup_cloud_compute(config, context)
+            cleanup_default_tenants(config, context)
+            cleanup_infrastructure_compute(config, context)
         except (AbiquoException, AuthorizationException), ex:
             print "Error: %s" % ex.getMessage()
         finally:

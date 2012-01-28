@@ -23,7 +23,7 @@ class SystemConfig:
         prop.setValue(property_value)
         prop.update()
 
-def apply_default_configuration(context):
+def apply_default_configuration(config, context):
     """ Applies the default platform configuration. """
     print "### Applying default configuration ###"
     sysconf = SystemConfig(context)

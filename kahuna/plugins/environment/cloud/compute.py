@@ -1,29 +1,21 @@
 #!/usr/bin/env jython
 
-from kahuna.plugins.environment.constants import *
 from kahuna.plugins.environment.cloud.storage import cleanup_cloud_storage
+from com.abiquo.model.enumerator import *
 from org.jclouds.abiquo.domain.cloud import *
 from org.jclouds.abiquo.domain.network import *
 from org.jclouds.abiquo.predicates.enterprise import *
 
-
 class CloudCompute:
-    """ Provides access to cloud compute features.
-
-    This class creates and manages the compute resources of the cloud.
-    """
+    """ Provides access to cloud compute features. """
 
     def __init__(self, context):
         """ Initialize the cloud creator with an existent context. """
         self.__context = context
 
-    def create_virtual_datacenter(self, datacenter, enterprise, type, name=VDC_NAME, netname=NET_NAME, netaddress=NET_ADDRESS, netmask=NET_MASK, netgateway=NET_GATEWAY):
-        """ Creates a new virtual datacenter. 
-
-        If the parameters are not specified the 'VDC_NAME', 'NET_NAME',
-        'NET_ADDRESS', 'NET_MASK' and 'NET_GATEWAY' variables from the
-        'constants' module will be used.
-        """
+    def create_virtual_datacenter(self, datacenter, enterprise, type,
+            name,netname, netaddress, netmask, netgateway):
+        """ Creates a new virtual datacenter. """
         print "Creating virtual datacenter %s of type %s..." % (name, type)
         network = PrivateNetwork.builder(self.__context) \
                   .name(netname) \
@@ -39,12 +31,8 @@ class CloudCompute:
         vdc.save()
         return vdc
 
-    def create_virtual_appliance(self, vdc, name=VAPP_NAME):
-        """ Creates a new virtual appliance inside a virtual datacenter.  
-
-        If the parameter is not specified, the 'VAPP_NAME' variable
-        from the 'constants' module will be used.
-        """
+    def create_virtual_appliance(self, vdc, name):
+        """ Creates a new virtual appliance inside a virtual datacenter. """ 
         print "Creating virtual appliance %s..." % name
         vapp = VirtualAppliance.builder(self.__context, vdc) \
                .name(name) \
@@ -75,32 +63,32 @@ def find_smallest_template(context, vdc):
         print "No compatible template found"
         return None
 
-def create_cloud_compute(context, dc):
-    """ Creates the default cloud compute entities.
-    
-    Creates the default cloud compute entities using the 'constants'
-    module properties.
-    This is just an example of how to use this class.
-    """
+def create_cloud_compute(config, context, dc):
+    """ Creates the default cloud compute entities using the plugin config values. """
     print "### Configuring the cloud ###"
     cloud = CloudCompute(context)
     # Create it into the 'abiquo' enterprise, to make it easier to use
     admin = context.getAdministrationService()
     enterprise = admin.findEnterprise(EnterprisePredicates.name("Abiquo"))
-    vdc = cloud.create_virtual_datacenter(dc, enterprise, PM_TYPE)
-    vapp = cloud.create_virtual_appliance(vdc)
+    vdc = cloud.create_virtual_datacenter(dc, enterprise,
+            HypervisorType.valueOf(config.get("machine", "type")),
+            config.get("private network", "name"),
+            config.get("private network", "address"),
+            config.get("private network", "mask"),
+            config.get("private network", "gateway"))
+    vapp = cloud.create_virtual_appliance(vdc, config.get("virtual appliance", "name"))
     cloud.refresh_template_repository(enterprise, dc)
     template = find_smallest_template(context, vdc)
     if template:
         vm = cloud.create_virtual_machine(vapp, template)
     return vdc
 
-def cleanup_cloud_compute(context):
+def cleanup_cloud_compute(config, context):
     """ Cleans up a previously created cloud compute resources. """
     print "### Cleaning up the cloud ###"
     cloud = context.getCloudService()
     for vdc in cloud.listVirtualDatacenters():
-        cleanup_cloud_storage(context, vdc)
+        cleanup_cloud_storage(config, context, vdc)
         print "Removing virtual appliances in virtual datacenter %s..." % vdc.getName()
         for vapp in vdc.listVirtualAppliances():
             vapp.delete()
