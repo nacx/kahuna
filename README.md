@@ -9,8 +9,6 @@ look at the official Java client project page:
  * [jclouds-abiquo Source code](https://github.com/abiquo/jclouds-abiquo)
  * [jclouds-abiquo Documentation](https://github.com/abiquo/jclouds-abiquo/wiki)
 
-You can also find some usage examples in the [Project Wiki](https://github.com/nacx/kahuna/wiki).
-
 
 Prerequisites
 -------------
@@ -83,6 +81,13 @@ use the 'shell' plugin as follows:
     [VirtualDatacenter [id=11, type=XENSERVER, name=Updated VDC]]
     >>> ctx.close()
     >>> exit()
+
+
+Adding more plugins
+-------------------
+
+Plugins are easy to create. Take a look at the [Project Wiki](https://github.com/nacx/kahuna/wiki)
+to see how to create and add them.
 
 
 Note on patches/pull requests
