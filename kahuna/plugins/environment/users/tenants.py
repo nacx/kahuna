@@ -1,30 +1,20 @@
 #!/usr/bin/env jython
 
-from kahuna.plugins.environment.constants import *
 from com.google.common.base import Predicates
 from org.jclouds.abiquo.domain.enterprise import *
 from org.jclouds.abiquo.predicates.enterprise import *
 from org.jclouds.abiquo.predicates.infrastructure import *
 
-
 class Tenant:
-    """ Provices access to tenant management features.
-
-    This class creates and manages the tenants of the cloud.
-    """
+    """ Provices access to tenant management features. """
 
     def __init__(self, context):
         """ Initialize with an existent context. """
         self.__context = context
 
-    def create_enterprise(self, dc, name=ENT_NAME, cpusoft=ENT_CPU_SOFT, cpuhard=ENT_CPU_HARD, ramsoft=ENT_RAM_SOFT, ramhard=ENT_RAM_HARD, ipsoft=ENT_IPS_SOFT, iphard=ENT_IPS_HARD, storagesoft=ENT_STORAGE_SOFT, storagehard=ENT_STORAGE_HARD):
-        """ Creates a new enterprise.
-
-        This method will create a new enterprise and assign a datacenter
-        to it, so users of that enterprise can start consuming the cloud.
-        If the parameters are not specified, the 'ENT_NAME', 'ENT_*_SOFT'
-        and 'ENT_*_HARD' limits from the 'constants' module will be used.
-        """
+    def create_enterprise(self, dc, name, cpusoft, cpuhard, ramsoft, ramhard,
+            ipsoft, iphard, storagesoft, storagehard):
+        """ Creates a new enterprise. """
         print "Creating enterprise %s..." % name
 
         # Create the enterprise with the limits
@@ -43,13 +33,8 @@ class Tenant:
 
         return enterprise
 
-    def create_user(self, enterprise, name=USR_NAME, surname=USR_SURNAME, role=USR_ROLE, email=USR_EMAIL, nick=USR_LOGIN, password=USR_PASS):
-        """ Creates a new user int he given enterprise.
-
-        If the paramters are not specified, the 'USR_NAME', 'USR_SURNAME',
-        'USR_ROLE', 'USR_EMAIL', 'USR_LOGIN' and 'USR_PASSWORD' from the 
-        'constants' module will be used.
-        """
+    def create_user(self, enterprise, name, surname, role, email, nick, password):
+        """ Creates a new user int he given enterprise. """
         print "Adding user %s as %s" % (name, role)
 
         admin = self.__context.getAdministrationService()
@@ -66,18 +51,27 @@ class Tenant:
 
         return user;
 
-def create_default_tenants(context, dc):
-    """ Creates the default tenants.
-    
-    Creates the default tenants using the 'constants' module properties
-    This is just an example of how to use this class.
-    """
+def create_default_tenants(config, context, dc):
+    """ Creates the default tenants using the plugin config values. """
     print "### Configuring tenants ###"
     ten = Tenant(context)
-    enterprise= ten.create_enterprise(dc)
-    ten.create_user(enterprise)
+    enterprise= ten.create_enterprise(dc, config.get("enterprise", "name"),
+            config.getint("enterprise", "cpu-soft"),
+            config.getint("enterprise", "cpu-hard"),
+            config.getint("enterprise", "ram-soft"),
+            config.getint("enterprise", "ram-hard"),
+            config.getint("enterprise", "public-ips-soft"),
+            config.getint("enterprise", "public-ips-hard"),
+            config.getint("enterprise", "storage-soft"),
+            config.getint("enterprise", "storage-hard"))
+    ten.create_user(enterprise, config.get("user", "name"),
+            config.get("user", "surname"),
+            config.get("user", "role"),
+            config.get("user", "email"),
+            config.get("user", "login"),
+            config.get("user", "password"))
 
-def cleanup_default_tenants(context):
+def cleanup_default_tenants(config, context):
     """ Cleans up a previously created default tenants. """
     print "### Cleaning up tenants ###"
     admin = context.getAdministrationService()

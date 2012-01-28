@@ -57,11 +57,6 @@ class InfrastructureCompute:
 
         return machine
 
-    #def create_machines(self, comp, rack):
-	#""" Iterates machine creation. """
-    #	for machine in MACHINES:
-   	#    	comp.create_machine(rack, machine[0], machine[1], machine[2], machine[3], machine[4], machine[5])
-
 def create_infrastructure_compute(config, context):
     """ Creates the default infrastructure compute entities using the plugin config values. """
     print "### Configuring infrastructure ###"
@@ -72,8 +67,7 @@ def create_infrastructure_compute(config, context):
             config.get("rack", "vlan-min"),
             config.get("rack", "vlan-max"),
             config.get("rack", "nrsq"))
-    comp.create_machines(comp, rack,
-            HypervisorType.valueOf(config.get("machine", "type"),
+    comp.create_machine(rack, HypervisorType.valueOf(config.get("machine", "type")),
             config.get("machine", "address"),
             config.get("machine", "user"),
             config.get("machine", "password"),

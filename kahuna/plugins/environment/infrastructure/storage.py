@@ -1,32 +1,23 @@
 #!/usr/bin/env jython
 
-from kahuna.plugins.environment.constants import *
+from ConfigParser import NoOptionError
+from com.abiquo.model.enumerator import *
 from org.jclouds.abiquo.domain.infrastructure import *
 from org.jclouds.abiquo.predicates.infrastructure import *
 
-
 class InfrastructureStorage:
-    """ Provides access to infrastructure storage features.
-
-    This class creates and manages the storage resources of the
-    infrastructure that will be exposed as a cloud.
-    """
+    """ Provides access to infrastructure storage features. """
 
     def __init__(self, context):
         """ Initialize with an existent context. """
         self.__context = context
 
-    def configure_tiers(self, datacenter, tname=TIER_NAME):
-        """ Configure the default tiers of the datacenter. 
-
-        It sets af riendly name for the first tier and disables the rest.
-        If the parameter 'tname' is not specified, the 'TIER_NAME' variable
-        from the 'constants' module will be used.
-        """
-        print "Enabling tier %s..." % tname 
+    def configure_tiers(self, datacenter, tier):
+        """ Configure the default tiers of the datacenter. """
+        print "Enabling tier %s..." % tier
         tiers = datacenter.listTiers()
 
-        tiers[0].setName(tname)
+        tiers[0].setName(tier)
         tiers[0].update()
 
         for i in range(1, 4):
@@ -35,14 +26,9 @@ class InfrastructureStorage:
 
         return tiers[0]
 
-    def create_device(self, datacenter, devname=DEV_NAME, devtype=DEV_TYPE,devaddress=DEV_ADDRESS, devmanaddress=DEV_ADDRESS, user=DEV_USER, password=DEV_PASS):
-        """ Discovers and registers a storage device.
-
-        It discovers a remote storage device and registers it into the
-        given datacenter. If parameters are not set, the 'DEV_NAME',
-        'DEV_ADDRESS' and 'DEV_TYPE' variables from the 'constants'
-        module will be used.
-        """
+    def create_device(self, datacenter, devname, devtype, devaddress,
+            devmanaddress, user, password):
+        """ Discovers and registers a storage device. """
         print "Creating storage device %s at %s..." % (devname, devaddress)
         device = StorageDevice.builder(self.__context, datacenter) \
                  .name(devname) \
@@ -55,34 +41,36 @@ class InfrastructureStorage:
         device.save()
         return device
 
-    def create_pool(self, device, tier, poolname=POOL_NAME): 
-        """ Discovers and registers a StoragePool.
-
-        Discovers the information of the given pool from the given
-        storage device, and adds it to the given tier.
-        If parameter 'poolname' is not specified, the 'POOL_NAME'
-        variable from the 'constants' module will be used.
-        """
+    def create_pool(self, device, tier, poolname): 
+        """ Discovers and registers a StoragePool. """
         print "Adding pool %s..." % poolname
         pool = device.findRemoteStoragePool(StoragePoolPredicates.name(poolname))
         pool.setTier(tier)
         pool.save()
         return pool
 
-def create_infrastructure_storage(context, dc):
-    """ Creates the default infrastructure storage entities.
-    
-    Creates the default infrastructure storage entities using
-    the 'constants' module properties.
-    This is just an example of how to use this class.
-    """
+def create_infrastructure_storage(config, context, dc):
+    """ Creates the default infrastructure storage entities using the plugin config vlaues. """
     print "### Configuring storage ###"
     storage = InfrastructureStorage(context)
-    tier = storage.configure_tiers(dc)
-    device = storage.create_device(dc)
+    tier = storage.configure_tiers(dc, config.get("tier", "name"))
+    try: 
+        user = config.get("device", "user")
+        password= config.get("device", "password")
+        device = storage.create_device(dc, config.get("device", "name"),
+            StorageTechnologyType.valueOf(config.get("device", "type")),
+            config.get("device", "address"),
+            config.get("device", "adress"),
+            user, password)
+    except NoOptionError:
+        device = storage.create_device(dc, config.get("device", "name"),
+            StorageTechnologyType.valueOf(config.get("device", "type")),
+            config.get("device", "address"),
+            config.get("device", "adress"))
+
     storage.create_pool(device, tier)
 
-def cleanup_infrastructure_storage(datacenter):
+def cleanup_infrastructure_storage(config, datacenter):
     """ Cleans up previously created infrastructure storage entities. """
     print "Removing storage devices in datacenter %s..." % datacenter.getName()
     for device in datacenter.listStorageDevices():

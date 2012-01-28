@@ -19,7 +19,7 @@ from org.jclouds.rest import AuthorizationException
 class EnvironmentPlugin:
     """ Environment generator plugin. """
     def __init__(self):
-        pass
+        self.__config = ConfigLoader().load("env.conf", "config/env.conf")
     
     def commands(self):
         """ Returns the available commands in this plugin. """
@@ -30,16 +30,15 @@ class EnvironmentPlugin:
 
     def create(self, args):
         """ Creates the environment. """
-        config = ConfigLoader().load("env.conf", "config/env.conf")
         context = ContextLoader().load_context()
         try:
-            apply_default_configuration(config, context)
-            dc = create_infrastructure_compute(config, context)
-            create_infrastructure_storage(config, context, dc)
-            create_infrastructure_network(config, context, dc)
-            create_default_tenants(config, context, dc)
-            vdc = create_cloud_compute(config, context, dc)
-            create_cloud_storage(config, context, vdc)
+            apply_default_configuration(self.__config, context)
+            dc = create_infrastructure_compute(self.__config, context)
+            create_infrastructure_storage(self.__config, context, dc)
+            create_infrastructure_network(self.__config, context, dc)
+            create_default_tenants(self.__config, context, dc)
+            vdc = create_cloud_compute(self.__config, context, dc)
+            create_cloud_storage(self.__config, context, vdc)
         except (AbiquoException, AuthorizationException), ex:
             print "Error: %s" % ex.getMessage()
         finally:
@@ -49,9 +48,9 @@ class EnvironmentPlugin:
         """ Cleans up the environment. """
         context = ContextLoader().load_context()
         try:
-            cleanup_cloud_compute(config, context)
-            cleanup_default_tenants(config, context)
-            cleanup_infrastructure_compute(config, context)
+            cleanup_cloud_compute(self.__config, context)
+            cleanup_default_tenants(self.__config, context)
+            cleanup_infrastructure_compute(self.__config, context)
         except (AbiquoException, AuthorizationException), ex:
             print "Error: %s" % ex.getMessage()
         finally:
