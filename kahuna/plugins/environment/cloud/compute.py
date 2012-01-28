@@ -14,7 +14,7 @@ class CloudCompute:
         self.__context = context
 
     def create_virtual_datacenter(self, datacenter, enterprise, type,
-            name,netname, netaddress, netmask, netgateway):
+            name, netname, netaddress, netmask, netgateway):
         """ Creates a new virtual datacenter. """
         print "Creating virtual datacenter %s of type %s..." % (name, type)
         network = PrivateNetwork.builder(self.__context) \
@@ -72,9 +72,10 @@ def create_cloud_compute(config, context, dc):
     enterprise = admin.findEnterprise(EnterprisePredicates.name("Abiquo"))
     vdc = cloud.create_virtual_datacenter(dc, enterprise,
             HypervisorType.valueOf(config.get("machine", "type")),
+            config.get("virtual datacenter", "name"),
             config.get("private network", "name"),
             config.get("private network", "address"),
-            config.get("private network", "mask"),
+            config.getint("private network", "mask"),
             config.get("private network", "gateway"))
     vapp = cloud.create_virtual_appliance(vdc, config.get("virtual appliance", "name"))
     cloud.refresh_template_repository(enterprise, dc)

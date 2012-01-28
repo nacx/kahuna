@@ -26,8 +26,10 @@ def create_cloud_storage(config, context, vdc):
     """ Creates the default cloud storage entities using the plugin config values. """
     print "### Adding persistent storage ###"
     storage = CloudStorage(context)
-    tier = vdc.findStorageTier(config.get("tier", "name"))
-    storage.create_volume(vdc, tier, config.getint("tier", "size"))
+    tier = vdc.findStorageTier(TierPredicates.name(config.get("tier", "name")))
+    storage.create_volume(vdc, tier,
+            config.get("volume", "name"),
+            config.getint("volume", "size"))
 
 def cleanup_cloud_storage(config, context, vdc):
     """ Cleans up a previously created cloud storage resources. """

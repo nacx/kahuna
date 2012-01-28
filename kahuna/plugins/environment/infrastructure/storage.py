@@ -57,18 +57,16 @@ def create_infrastructure_storage(config, context, dc):
     try: 
         user = config.get("device", "user")
         password= config.get("device", "password")
-        device = storage.create_device(dc, config.get("device", "name"),
-            StorageTechnologyType.valueOf(config.get("device", "type")),
-            config.get("device", "address"),
-            config.get("device", "adress"),
-            user, password)
     except NoOptionError:
-        device = storage.create_device(dc, config.get("device", "name"),
-            StorageTechnologyType.valueOf(config.get("device", "type")),
-            config.get("device", "address"),
-            config.get("device", "adress"))
+        user = None
+        password = None
+    device = storage.create_device(dc, config.get("device", "name"),
+        StorageTechnologyType.valueOf(config.get("device", "type")),
+        config.get("device", "address"),
+        config.get("device", "address"),
+        user, password)
 
-    storage.create_pool(device, tier)
+    storage.create_pool(device, tier, config.get("pool", "name"))
 
 def cleanup_infrastructure_storage(config, datacenter):
     """ Cleans up previously created infrastructure storage entities. """

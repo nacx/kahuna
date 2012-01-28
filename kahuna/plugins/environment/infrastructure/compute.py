@@ -64,9 +64,9 @@ def create_infrastructure_compute(config, context):
     dc = comp.create_datacenter(config.get("datacenter", "name"),
             config.get("datacenter", "location"))
     rack = comp.create_rack(dc, config.get("rack", "name"),
-            config.get("rack", "vlan-min"),
-            config.get("rack", "vlan-max"),
-            config.get("rack", "nrsq"))
+            config.getint("rack", "vlan-min"),
+            config.getint("rack", "vlan-max"),
+            config.getint("rack", "nrsq"))
     comp.create_machine(rack, HypervisorType.valueOf(config.get("machine", "type")),
             config.get("machine", "address"),
             config.get("machine", "user"),
