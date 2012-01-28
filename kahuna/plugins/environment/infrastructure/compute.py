@@ -67,12 +67,16 @@ def create_infrastructure_compute(config, context):
             config.getint("rack", "vlan-min"),
             config.getint("rack", "vlan-max"),
             config.getint("rack", "nrsq"))
-    comp.create_machine(rack, HypervisorType.valueOf(config.get("machine", "type")),
-            config.get("machine", "address"),
-            config.get("machine", "user"),
-            config.get("machine", "password"),
-            config.get("machine", "datastore"),
-            config.get("machine", "vswitch"))
+
+    sections = filter(lambda s: s.startswith("machine"), config.sections())
+    for section in sections:
+        comp.create_machine(rack,
+                HypervisorType.valueOf(config.get(section, "type")),
+                config.get(section, "address"),
+                config.get(section, "user"),
+                config.get(section, "password"),
+                config.get(section, "datastore"),
+                config.get(section, "vswitch"))
     return dc
 
 def cleanup_infrastructure_compute(config, context):
