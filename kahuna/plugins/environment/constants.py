@@ -1,19 +1,21 @@
 #!/usr/bin/env jython
 
+from kahuna.config import ConfigLoader
 from com.abiquo.model.enumerator import *
 
+config = ConfigLoader().load("env.conf", "config/env.conf")
 
 ## Infrastructure ##
 
 # Datacenter configuration
-DC_NAME = "Hawaii"              # The name of the datacenter
-DC_LOCATION = "Honolulu"        # The location of the datacenter
+DC_NAME = config.get("datacenter", "name")
+DC_LOCATION = config.get("datacenter", "location")
 
 # Rack configuration
-RACK_NAME = "Coconut rack"
-RACK_VLAN_MIN = 3       # Minimum VLAN tag
-RACK_VLAN_MAX = 500     # Maximum VLAN tag
-RACK_NRSQ = 10          # VLAN pool size for VDC that exceed reservation
+RACK_NAME = config.get("rack", "name")
+RACK_VLAN_MIN = config.getint("rack", "vlan-min")
+RACK_VLAN_MAX = config.getint("rack", "vlan-max")
+RACK_NRSQ = config.getint("rack", "nrsq")
 
 # Machine configuration constants
 

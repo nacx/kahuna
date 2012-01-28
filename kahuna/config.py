@@ -50,8 +50,7 @@ class ConfigLoader:
 class Config:
     """ Main configuration. """
     def __init__(self):
-        loader = ConfigLoader()
-        config = loader.load("kahuna.conf", "config/kahuna.conf")
+        config = ConfigLoader().load("kahuna.conf", "config/kahuna.conf")
 
         self.address = config.get("connection", "address")
         self.user = config.get("connection", "user")
