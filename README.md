@@ -47,7 +47,7 @@ print the help with all the available options:
     Usage: kahuna.sh <plugin> <command> [<options>]
     The following plugins are available:
     
-     Interactive shell plugin. 
+    Interactive shell plugin. 
         shell open     Opens an interactive shell.
     
     Template plugin. 
