@@ -47,16 +47,21 @@ print the help with all the available options:
     Usage: kahuna.sh <plugin> <command> [<options>]
     The following plugins are available:
     
-    Environment generator plugin usage:
-      env create     Creates the environment. 
-      env clean      Cleans up the environment. 
+     Interactive shell plugin. 
+        shell open     Opens an interactive shell.
     
-    Interactive shell plugin usage:
-      shell open     Opens an interactive shell. 
+    Template plugin. 
+        template find	 Find a template given its name. 
+        template list	 List all available templates. 
     
-    Virtual machine plugin usage:
-      vm find        Find a virtual machine given its name. 
-      vm list        List all virtual machines.
+    Virtual machine plugin. 
+        vm create	 Creates a virtual machine based on a given template. 
+        vm delete	 Delete a virtual machine given its name. 
+        vm deploy	 Deploy an existing virtual machine given its name. 
+        vm find	 Find a virtual machine given its name. 
+        vm list	 List all virtual machines. 
+        vm undeploy	 Undeploy an existing virtual machine given its name. 
+
 
 Use it interactively
 --------------------
