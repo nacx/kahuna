@@ -30,7 +30,7 @@ class EnvironmentPlugin:
 
     def create(self, args):
         """ Creates the environment. """
-        context = ContextLoader().load_context()
+        context = ContextLoader().load()
         try:
             apply_default_configuration(self.__config, context)
             dc = create_infrastructure_compute(self.__config, context)
@@ -46,7 +46,7 @@ class EnvironmentPlugin:
 
     def cleanup(self, args):
         """ Cleans up the environment. """
-        context = ContextLoader().load_context()
+        context = ContextLoader().load()
         try:
             cleanup_cloud_compute(self.__config, context)
             cleanup_default_tenants(self.__config, context)

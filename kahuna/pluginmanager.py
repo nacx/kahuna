@@ -1,6 +1,9 @@
 #!/usr/bin/env jython
 
+import logging
 from plugins import __all__
+
+log = logging.getLogger('kahuna')
 
 class PluginManager:
     """ Manages available plugins. """
@@ -16,6 +19,7 @@ class PluginManager:
             plugin = self.__plugins[plugin_name]
         except KeyError:
             # Load the plugin only if not loaded yet
+            log.debug("Loading plugin: %s" % plugin_name)
             module = __import__("plugins." + plugin_name, fromlist=["plugins"])
             plugin = module.load()
             self.__plugins[plugin_name] = plugin

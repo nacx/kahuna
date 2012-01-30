@@ -11,7 +11,7 @@ log.setLevel(logging.INFO)
 
 class ConfigLoader:
     """ Loads configuration files from a given location. """
-    def __init__(self, basedir = "kahuna"):
+    def __init__(self, basedir="kahuna"):
         """ Initializes the ConfigLoader. """
         self.user_dir = os.environ['HOME'] + "/." + basedir
         self.sys_dir = "/etc/" + basedir
@@ -52,14 +52,23 @@ class Config:
     def __init__(self):
         config = ConfigLoader().load("kahuna.conf", "config/kahuna.conf")
 
+        # Connection
         self.address = config.get("connection", "address")
         self.user = config.get("connection", "user")
         self.password = config.get("connection", "pass")
+        
+        # Logging
         try:
             self.loglevel = config.get("logging", "level")
-            level = logging._levelNames[self.loglevel]
+            level = logging._levelNames[self.loglevel.upper()]
             log.setLevel(level)
         except ConfigParser.NoOptionError:     
             # Ignore errors if no logging level has been defined
             pass
+        
+        # Client
+        self.client_config = []
+        if config.has_section("client"):
+            self.client_config.extend(config.items("client"))
+            [log.debug("Set %s to %s" % (name, value)) for (name, value) in self.client_config]
 

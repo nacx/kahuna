@@ -21,7 +21,7 @@ class TemplatePlugin:
 
     def list(self, args):
         """ List all available templates. """
-        context = ContextLoader().load_context()
+        context = ContextLoader().load()
         try:
             admin = context.getAdministrationService()
             user = admin.getCurrentUserInfo()

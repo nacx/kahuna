@@ -29,7 +29,7 @@ class DeployerPlugin:
 
         # Once user input has been read, find the VM
         max = int(options.num)
-        context = ContextLoader().load_context()
+        context = ContextLoader().load()
         try:
             cloud = context.getCloudService()
             monitor = context.getMonitoringService().getVirtualApplianceMonitor()

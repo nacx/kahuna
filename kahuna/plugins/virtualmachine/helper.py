@@ -20,6 +20,7 @@ def find_compatible_virtual_datacenter(context, template):
             vdc = cloud.findVirtualDatacenter(VirtualDatacenterPredicates.type(type))
             if vdc:
                 return vdc
+
 def refresh_vm(context, vm):
     """ Refresh the given virtual machine. """
     vapp = vm.getVirtualAppliance()

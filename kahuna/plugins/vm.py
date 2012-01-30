@@ -36,7 +36,7 @@ class VmPlugin:
 
     def list(self, args):
         """ List all virtual machines. """
-        context = ContextLoader().load_context()
+        context = ContextLoader().load()
         try:
             cloud = context.getCloudService()
             vms = cloud.listVirtualMachines()
@@ -60,7 +60,7 @@ class VmPlugin:
             return
 
         # Once user input has been read, find the virtual machine
-        context = ContextLoader().load_context()
+        context = ContextLoader().load()
         try:
             cloud = context.getCloudService()
             vm = cloud.findVirtualMachine(VirtualMachinePredicates.name(name))
@@ -85,7 +85,7 @@ class VmPlugin:
             return
 
         # Once user input has been read, find the VM
-        context = ContextLoader().load_context()
+        context = ContextLoader().load()
         try:
             cloud = context.getCloudService()
             vm = cloud.findVirtualMachine(VirtualMachinePredicates.name(name))
@@ -111,7 +111,7 @@ class VmPlugin:
             return
 
         # Once user input has been read, find the virtual machine 
-        context = ContextLoader().load_context()
+        context = ContextLoader().load()
         try:
             cloud = context.getCloudService()
             vm = cloud.findVirtualMachine(VirtualMachinePredicates.name(name))
@@ -140,7 +140,7 @@ class VmPlugin:
             parser.print_help()
             return
 
-        context = ContextLoader().load_context()
+        context = ContextLoader().load()
         try:
             template = helper.find_template_by_id(context, options.template)
             if not template:
@@ -192,7 +192,7 @@ class VmPlugin:
             parser.print_help()
             return
 
-        context = ContextLoader().load_context()
+        context = ContextLoader().load()
         try:
             cloud = context.getCloudService()
             vm = cloud.findVirtualMachine(VirtualMachinePredicates.name(name))
