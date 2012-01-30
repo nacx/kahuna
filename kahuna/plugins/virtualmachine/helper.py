@@ -20,4 +20,24 @@ def find_compatible_virtual_datacenter(context, template):
             vdc = cloud.findVirtualDatacenter(VirtualDatacenterPredicates.type(type))
             if vdc:
                 return vdc
+def refresh_vm(context, vm):
+    """ Refresh the given virtual machine. """
+    vapp = vm.getVirtualAppliance()
+    return vapp.getVirtualMachine(vm.getId())
+
+def deploy_vm(context, vm):
+    """ Deploy the given virtual machine. """
+    monitor = context.getMonitoringService().getVirtualMachineMonitor()
+    print "Deploying virtual machine %s... This may take some time." % vm.getName()
+    vm.deploy()
+    monitor.awaitCompletionDeploy(vm)
+    return refresh_vm(context, vm)
+
+def undeploy_vm(context, vm):
+    """ Undeploy the given virtual machine. """
+    monitor = context.getMonitoringService().getVirtualMachineMonitor()
+    print "Uneploying virtual machine %s... This may take some time." % vm.getName()
+    vm.undeploy()
+    monitor.awaitCompletionUndeploy(vm)
+    return refresh_vm(context, vm)
 

@@ -50,8 +50,7 @@ class VmPlugin:
         """ Find a virtual machine given its name. """
         # Parse user input to get the name of the virtual machine
         parser = OptionParser(usage="vm find <options>")
-        parser.add_option("-n", "--name", help="The name of the virtual machine to find",
-                action="store", dest="name")
+        parser.add_option("-n", "--name", help="The name of the virtual machine to find", dest="name")
         parser.add_option("-v", "--verbose", help="Show virtual machine extended information",
                 action="store_true", dest="verbose")
         (options, args) = parser.parse_args(args)
@@ -89,8 +88,7 @@ class VmPlugin:
         """ Deploy an existing virtual machine given its name. """
         # Parse user input to get the name of the virtual machine
         parser = OptionParser(usage="vm deploy <options>")
-        parser.add_option("-n", "--name", help="The name of the virtual machine to deploy",
-                action="store", dest="name")
+        parser.add_option("-n", "--name", help="The name of the virtual machine to deploy", dest="name")
         (options, args) = parser.parse_args(args)
         name = options.name
         if not name:
@@ -101,12 +99,10 @@ class VmPlugin:
         context = ContextLoader().load_context()
         try:
             cloud = context.getCloudService()
-            monitor = context.getMonitoringService().getVirtualMachineMonitor()
             vm = cloud.findVirtualMachine(VirtualMachinePredicates.name(name))
             if vm:
-                print "Deploying virtual machine %s... This may take some time." % name
-                vm.deploy()
-                monitor.awaitCompletionDeploy(vm)
+                vm = helper.deploy_vm(context, vm)
+                pprint_vms([vm])
             else:
                 print "No virtual machine found with name: %s" % name
         except (AbiquoException, AuthorizationException), ex:
@@ -118,8 +114,7 @@ class VmPlugin:
         """ Undeploy an existing virtual machine given its name. """
         # Parse user input to get the name of the virtual machine
         parser = OptionParser(usage="vm undeploy <options>")
-        parser.add_option("-n", "--name", help="The name of the virtual machine to undeploy",
-                action="store", dest="name")
+        parser.add_option("-n", "--name", help="The name of the virtual machine to undeploy", dest="name")
         (options, args) = parser.parse_args(args)
         name = options.name
         if not name:
@@ -130,12 +125,10 @@ class VmPlugin:
         context = ContextLoader().load_context()
         try:
             cloud = context.getCloudService()
-            monitor = context.getMonitoringService().getVirtualMachineMonitor()
             vm = cloud.findVirtualMachine(VirtualMachinePredicates.name(name))
             if vm:
-                print "Uneploying virtual machine %s..." % name
-                vm.undeploy()
-                monitor.awaitCompletionUndeploy(vm)
+                vm = helper.undeploy_vm(context, vm)
+                pprint_vms([vm])
             else:
                 print "No virtual machine found with name: %s" % name
         except (AbiquoException, AuthorizationException), ex:
@@ -148,7 +141,11 @@ class VmPlugin:
         # Parse user input to get the name of the virtual machine
         parser = OptionParser(usage="vm create <options>")
         parser.add_option("-t", "--template-id", help="The id of the template to use",
-                type="int", action="store", dest="template")
+                type="int", dest="template")
+        parser.add_option("-c", "--cpu", help="The number of cores", type="int", dest="cpu")
+        parser.add_option("-r", "--ram", help="The RAM in MB", type="int", dest="ram")
+        parser.add_option("-d", "--deploy", help="Deploy the virtual machine after creating it",
+                action="store_true", dest="deploy")
         (options, args) = parser.parse_args(args)
         if not options.template:
             parser.print_help()
@@ -175,8 +172,17 @@ class VmPlugin:
                 vapp = VirtualAppliance.builder(context, vdc).name(name).build()
                 vapp.save()
 
-            vm = VirtualMachine.builder(context, vapp, template).build()
+            builder = VirtualMachine.builder(context, vapp, template)
+            if options.cpu:
+                builder.cpu(options.cpu)
+            if options.ram:
+                builder.ram(options.ram)
+
+            vm = builder.build()
             vm.save()
+
+            if options.deploy:
+                vm = helper.deploy_vm(context, vm)
 
             pprint_vms([vm])
         except (AbiquoException, AuthorizationException), ex:
@@ -188,8 +194,9 @@ class VmPlugin:
         """ Delete a virtual machine given its name. """
         # Parse user input to get the name of the virtual machine
         parser = OptionParser(usage="vm delete <options>")
-        parser.add_option("-n", "--name", help="The name of the virtual machine to delete",
-                action="store", dest="name")
+        parser.add_option("-n", "--name", help="The name of the virtual machine to delete", dest="name")
+        parser.add_option("-u", "--undeploy", help="undeploy the virtual machine before deleting it",
+                action="store_true", dest="undeploy")
         (options, args) = parser.parse_args(args)
         name = options.name
         if not name:
@@ -201,8 +208,12 @@ class VmPlugin:
             cloud = context.getCloudService()
             vm = cloud.findVirtualMachine(VirtualMachinePredicates.name(name))
             if vm:
-                if vm.getState().existsInHypervisor():
+                state = vm.getState()
+                if not options.undeploy and state.existsInHypervisor():
                     print "Virtual machine is deployed. Undeploy it before deleting."
+                elif options.undeploy and state.existsInHypervisor():
+                    vm = helper.undeploy_vm(context, vm)
+                    vm.delete()
                 else:
                     vm.delete()
             else:

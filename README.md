@@ -31,7 +31,7 @@ to add the script to your PATH. You could simply create a symlink to the kahuna 
 in */usr/local/bin*:
 
     cd <kahuna source directory>
-    cp config/kahuna.conf ~/.kahuna/kahuna.conf  # The edit the file accordingly
+    cp config/kahuna.conf ~/.kahuna/kahuna.conf  # Then edit the file accordingly
     chmod u+x kahuna.sh
     ln -s $(pwd)/kahuna.sh /usr/local/bin/kahuna
 
