@@ -29,9 +29,11 @@ def pprint_table(table):
     pprint_header(table, col_paddings)
     [pprint_row(row, col_paddings) for row in table[1:]]
 
-def pprint_vms(vms):
+def pprint_vms(vms, verbose=False):
     """ Pretty prints the given virtual machine list. """
     table = [["id", "name", "cpu", "ram", "hd", "state", "vnc", "template"]]
+    if verbose:
+        table[0].extend(["virtual appliance", "virtual datacenter", "enterprise"])
     for vm in vms:
         state = vm.getState()
         row = [vm.getId(), vm.getName(), vm.getCpu(), str(vm.getRam()) + " MB",
@@ -41,6 +43,9 @@ def pprint_vms(vms):
         else:
             row.append(vm.getVncAddress() + ":" + str(vm.getVncPort()))
         row.append(vm.getTemplate().getName())
+        if verbose:
+            row.extend([vm.getVirtualAppliance().getName(),
+                vm.getVirtualDatacenter().getName(), vm.getEnterprise().getName()])
         table.append(row)
     pprint_table(table)
 
@@ -52,6 +57,30 @@ def pprint_templates(templates):
                 template.getCpuRequired(), str(template.getRamRequired()) + " MB",
                 str(template.getHdRequired() / 1024 / 1024) + " MB",
                 str(template.getDiskFileSize() / 1024 / 1024) + " MB"]
+        table.append(row)
+    pprint_table(table)
+
+def pprint_vdcs(vdcs):
+    """ Pretty prints the given virtual datacenter list. """
+    table = [["id", "name", "type"]]
+    for vdc in vdcs:
+        row = [vdc.getId(), vdc.getName(), vdc.getHypervisorType()]
+        table.append(row)
+    pprint_table(table)
+
+def pprint_vapps(vapps):
+    """ Pretty prints the given virtual appliance list. """
+    table = [["id", "name"]]
+    for vapp in vapps:
+        row = [vapp.getId(), vapp.getName()]
+        table.append(row)
+    pprint_table(table)
+
+def pprint_enterprises(enterprises):
+    """ Pretty prints the given enterprise list. """
+    table = [["id", "name"]]
+    for enterprise in enterprises:
+        row = [enterprise.getId(), enterprise.getName()]
         table.append(row)
     pprint_table(table)
 

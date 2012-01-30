@@ -3,7 +3,7 @@
 import logging
 from optparse import OptionParser
 from kahuna.session import ContextLoader
-from kahuna.utils.prettyprint import pprint_vms
+from kahuna.utils.prettyprint import *
 from virtualmachine import helper
 from com.abiquo.model.enumerator import HypervisorType
 from org.jclouds.abiquo.domain.cloud import VirtualAppliance
@@ -65,18 +65,7 @@ class VmPlugin:
             cloud = context.getCloudService()
             vm = cloud.findVirtualMachine(VirtualMachinePredicates.name(name))
             if vm:
-                pprint_vms([vm])
-                if options.verbose:
-                    print "Found virtual machine in: "
-                    print "  %s" % vm.getVirtualAppliance()
-                    print "  %s" % vm.getVirtualDatacenter()
-                    print "  %s" % vm.getEnterprise()
-                    if vm.getState().existsInHypervisor():
-                        admin = context.getAdministrationService()
-                        machine = admin.findMachine(MachinePredicates.ip(vm.getVncAddress()))
-                        print "  %s" % machine
-                    else:
-                        print "  Machine [None (VM not deployed)]"
+                pprint_vms([vm], options.verbose)
             else:
                 print "No virtual machine found with name: %s" % name
         except (AbiquoException, AuthorizationException), ex:
