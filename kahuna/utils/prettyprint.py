@@ -84,3 +84,10 @@ def pprint_enterprises(enterprises):
         table.append(row)
     pprint_table(table)
 
+def pprint_machines(machines):
+    """ Pretty printd the given machine list. """
+    table = [["name", "hypervisor", "state"]]
+    for machine in machines:
+        row = [machine.getName(), machine.getType().name(), machine.getState().name()]
+        table.append(row)
+    pprint_table(table)
