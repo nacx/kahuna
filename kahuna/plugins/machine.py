@@ -88,6 +88,8 @@ class MachinePlugin:
         # parser.add_option("-c","--port",help="port from machine",action="store",dest="port")
         parser.add_option("-t","--type",help="hypervisor type of the machine",action="store",dest="hypervisor")
         parser.add_option("-r","--rsip",help="ip from remote services",action="store",dest="remoteservicesip")
+        parser.add_option("-d","--datastore",help="datastore to enable on physical machine",action="store",dest="datastore")
+        parser.add_option("-s","--vswitch",help="virtual switch to select on physical machine",action="store",dest="vswitch")
         (options, args) = parser.parse_args(args)
         
         # parse options
@@ -100,6 +102,8 @@ class MachinePlugin:
         user = self._getConfig(config,options,"user")
         psswd = self._getConfig(config,options,"psswd")
         rsip = self._getConfig(config,options,"remoteservicesip")
+        dsname = self._getConfig(config,options,"datastore")
+        vswitch =  self._getConfig(config,options,"vswitch")
         hypervisor = options.hypervisor
 
         try:
@@ -147,11 +151,27 @@ class MachinePlugin:
 
             log.debug("Machine %(mch)s of type %(hyp)s found" % {"mch":machine.getName(),"hyp":machine.getType().name()})
 
-            # save machine
+            # enabling datastore
+            dsfound = False
             for datastore in machine.getDatastores():
-                datastore.setEnabled(True)
+                if datastore.getName() == dsname:
+                    datastore.setEnabled(True)
+                    dsfound = True
+                    break
 
+            if not dsfound:
+                log.error("Missing datastore %s in machine" % dsname)
+                return
+
+            # setting virtual switch
+            vs=machine.findAvailableVirtualSwitch(vswitch)
+            if not vs:
+                log.error("Missing virtual switch %s in machine" % vswitch)
+                return
+
+            # saving machine
             machine.setRack(rack)
+            machine.setVirtualSwitch(vs)
             machine.save()
             log.debug("Machine saved")
             pprint_machines([machine])
