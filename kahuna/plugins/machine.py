@@ -11,6 +11,7 @@ from org.jclouds.abiquo.domain.infrastructure import Datacenter,Rack
 from org.jclouds.abiquo.predicates.infrastructure import MachinePredicates,DatacenterPredicates,RackPredicates
 from org.jclouds.abiquo.reference import AbiquoEdition
 from org.jclouds.rest import AuthorizationException
+from org.jclouds.http import HttpResponseException
 from com.abiquo.model.enumerator import HypervisorType
 
 log = logging.getLogger("kahuna")
@@ -80,10 +81,10 @@ class MachinePlugin:
         parser = OptionParser(usage="machine create --host <host> <options>")
 
         # create options
-        parser.add_option("-i","--host",help="ip or hostname from machine to create in abiquo",action="store",dest="host")
+        parser.add_option("-i","--host",help="ip or hostname from machine to create in abiquo [required]",action="store",dest="host")
         parser.add_option("-u","--user",help="user to loggin in the machine",action="store",dest="user")
         parser.add_option("-p","--psswd",help="password to loggin in the machine",action="store",dest="psswd")
-        parser.add_option("-c","--port",help="port from machine",action="store",dest="port")
+        # parser.add_option("-c","--port",help="port from machine",action="store",dest="port")
         parser.add_option("-t","--type",help="hypervisor type of the machine",action="store",dest="hypervisor")
         parser.add_option("-r","--rsip",help="ip from remote services",action="store",dest="remoteservicesip")
         (options, args) = parser.parse_args(args)
@@ -132,7 +133,7 @@ class MachinePlugin:
                     log.debug("trying for hypervisor %s" % hyp.name())
                     machine = dc.discoverSingleMachine(host, hyp, user, psswd)
                     break
-                except (AbiquoException), ex:
+                except (AbiquoException, HttpResponseException), ex:
                     log.debug(ex.getMessage().replace("\n",""))
 
             log.debug("machine %(mch)s of type %(hyp)s found" % {"mch":machine.getName(),"hyp":machine.getType().name()})
