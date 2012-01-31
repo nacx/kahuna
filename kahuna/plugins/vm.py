@@ -3,7 +3,7 @@
 import logging
 from optparse import OptionParser
 from kahuna.session import ContextLoader
-from kahuna.utils.prettyprint import *
+from kahuna.utils.prettyprint import pprint_vms
 from virtualmachine import helper
 from com.abiquo.model.enumerator import HypervisorType
 from org.jclouds.abiquo.domain.cloud import VirtualAppliance

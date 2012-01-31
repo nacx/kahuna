@@ -1,9 +1,10 @@
 #!/usr/bin/env jython
 
 from com.google.common.base import Predicates
-from org.jclouds.abiquo.domain.enterprise import *
-from org.jclouds.abiquo.predicates.enterprise import *
-from org.jclouds.abiquo.predicates.infrastructure import *
+from org.jclouds.abiquo.domain.enterprise import Enterprise
+from org.jclouds.abiquo.domain.enterprise import User
+from org.jclouds.abiquo.predicates.enterprise import EnterprisePredicates
+from org.jclouds.abiquo.predicates.enterprise import RolePredicates
 
 class Tenant:
     """ Provices access to tenant management features. """

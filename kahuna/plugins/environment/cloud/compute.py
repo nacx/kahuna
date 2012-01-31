@@ -1,10 +1,12 @@
 #!/usr/bin/env jython
 
 from kahuna.plugins.environment.cloud.storage import cleanup_cloud_storage
-from com.abiquo.model.enumerator import *
-from org.jclouds.abiquo.domain.cloud import *
-from org.jclouds.abiquo.domain.network import *
-from org.jclouds.abiquo.predicates.enterprise import *
+from com.abiquo.model.enumerator import HypervisorType
+from org.jclouds.abiquo.domain.cloud import VirtualAppliance
+from org.jclouds.abiquo.domain.cloud import VirtualDatacenter
+from org.jclouds.abiquo.domain.cloud import VirtualMachine
+from org.jclouds.abiquo.domain.network import PrivateNetwork
+from org.jclouds.abiquo.predicates.enterprise import EnterprisePredicates
 
 class CloudCompute:
     """ Provides access to cloud compute features. """

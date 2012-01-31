@@ -1,9 +1,11 @@
 #!/usr/bin/env jython
 
 from ConfigParser import NoOptionError
-from com.abiquo.model.enumerator import *
-from org.jclouds.abiquo.domain.infrastructure import *
-from org.jclouds.abiquo.predicates.infrastructure import *
+from com.abiquo.model.enumerator import StorageTechnologyType
+from org.jclouds.abiquo.domain.infrastructure import StorageDevice
+from org.jclouds.abiquo.domain.infrastructure import StoragePool
+from org.jclouds.abiquo.domain.infrastructure import Tier
+from org.jclouds.abiquo.predicates.infrastructure import StoragePoolPredicates
 
 class InfrastructureStorage:
     """ Provides access to infrastructure storage features. """
