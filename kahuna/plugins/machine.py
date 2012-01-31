@@ -27,6 +27,7 @@ class MachinePlugin:
         commands['check'] = self.checkMachines
         commands['create'] = self.createMachine
         commands['delete'] = self.deleteMachine
+        commands['list'] = self.listMachines
         return commands
 
     def checkMachines(self, args):
@@ -51,21 +52,21 @@ class MachinePlugin:
                 machines = admin.listMachines()
                 log.debug("%s machines found." % str(len(machines)))
                 for machine in machines:
-                    self.checkMachine(machine)
+                    self._checkMachine(machine)
                 pprint_machines(machines)
             else:
                 if name:
                     machine = admin.findMachine(MachinePredicates.name(name))
                 else:
                     machine = admin.findMachine(MachinePredicates.ip(host))
-                self.checkMachine(machine)
+                self._checkMachine(machine)
                 pprint_machines([machine]);
         except (AbiquoException, AuthorizationException), ex:
             print "Error %s" % ex.getMessage()
         finally:
             context.close()
 
-    def checkMachine(self, machine):
+    def _checkMachine(self, machine):
         try:
             if not machine:
                 raise Exception("machine not found")
@@ -96,9 +97,9 @@ class MachinePlugin:
             return
 
         config = ConfigLoader().load("machine.conf","config/machine.conf")
-        user = self.getConfig(config,options,"user")
-        psswd = self.getConfig(config,options,"psswd")
-        rsip = self.getConfig(config,options,"remoteservicesip")
+        user = self._getConfig(config,options,"user")
+        psswd = self._getConfig(config,options,"psswd")
+        rsip = self._getConfig(config,options,"remoteservicesip")
         hypervisor = options.hypervisor
 
         try:
@@ -106,21 +107,21 @@ class MachinePlugin:
             admin = context.getAdministrationService()
 
             # search or create datacenter
-            log.debug("searching for the datacenter 'kahuna'.")
+            log.debug("Searching for the datacenter 'kahuna'.")
             dc = admin.findDatacenter(DatacenterPredicates.name('kahuna'))
             if not dc:
-                log.debug("no datacenter 'kahuna' found.")
+                log.debug("No datacenter 'kahuna' found.")
                 dc = Datacenter.builder(context).name('kahuna').location('terrassa').remoteServices(rsip,AbiquoEdition.ENTERPRISE).build()
                 dc.save()
                 rack = Rack.builder(context,dc).name('rack').build()
                 rack.save()
-                log.debug("new datacenter 'kahuna' created.")
+                log.debug("New datacenter 'kahuna' created.")
             else:
                 rack = dc.findRack(RackPredicates.name('rack'))
                 if not rack:
                     rack = Rack.builder(context,dc).name('rack').build()
                     rack.save()
-                log.debug("datacenter 'kahuna' found")
+                log.debug("Datacenter 'kahuna' found")
         
             # discover machine
             if not hypervisor:
@@ -128,15 +129,23 @@ class MachinePlugin:
             else:
                 hypTypes = [HypervisorType.valueOf(hypervisor)]
 
+            machine = None
             for hyp in hypTypes:
                 try:
-                    log.debug("trying for hypervisor %s" % hyp.name())
+                    log.debug("Trying for hypervisor %s" % hyp.name())
                     machine = dc.discoverSingleMachine(host, hyp, user, psswd)
                     break
                 except (AbiquoException, HttpResponseException), ex:
                     log.debug(ex.getMessage().replace("\n",""))
+                    if ex.hasError("NC-3"):
+                        log.info(ex.getMessage().replace("\n",""))
+                        return
 
-            log.debug("machine %(mch)s of type %(hyp)s found" % {"mch":machine.getName(),"hyp":machine.getType().name()})
+            if not machine:
+                log.info("Not machine found in %s" % host)
+                return
+
+            log.debug("Machine %(mch)s of type %(hyp)s found" % {"mch":machine.getName(),"hyp":machine.getType().name()})
 
             # save machine
             for datastore in machine.getDatastores():
@@ -144,11 +153,16 @@ class MachinePlugin:
 
             machine.setRack(rack)
             machine.save()
-            log.debug("machine saved")
+            log.debug("Machine saved")
             pprint_machines([machine])
 
         except (AbiquoException,AuthorizationException), ex:
-            print ex.getMessage()
+            if ex.hasError("HYPERVISOR-1") or ex.hasError("HYPERVISOR-2"):
+                log.info("Machine already exists")
+            else:
+                print ex.getMessage()
+        finally:
+            context.close()
 
     def deleteMachine(self, args):
         """ Remove a physical machine from abiquo. """
@@ -171,17 +185,30 @@ class MachinePlugin:
             else:
                 machine = admin.findMachine(MachinePredicates.ip(host))
             if not machine:
-                raise Exception("machine not found")
+                log.error("Machine not found")
+                return
             name=machine.getName()
             machine.delete()
-            log.info("machine %s deleted succesfully" % name)
+            log.info("Machine %s deleted succesfully" % name)
 
         except (AbiquoException, AuthorizationException), ex:
             print "Error %s" % ex.getMessage()
         finally:
             context.close()
+    
+    def listMachines(self,args):
+        """ List physical machines from abiquo """
+        try:
+            context = ContextLoader().load()
+            admin = context.getAdministrationService()
+            machines = admin.listMachines()
+            pprint_machines(machines)
+        except (AbiquoException, AuthorizationException), ex:
+            print "Error %s" % ex.getMessage()
+        finally:
+            context.close()
 
-    def getConfig(self,config, options, prop):
+    def _getConfig(self,config, options, prop):
         """ gets a value from config or options """
         p = eval("options.%s" % prop)
         if not p:
