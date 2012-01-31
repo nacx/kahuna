@@ -6,7 +6,9 @@ import logging
 from config import Config
 from java.lang import System
 from java.util import Properties
-from org.jclouds.abiquo import *
+from com.google.common.collect import ImmutableSet
+from org.jclouds.abiquo import AbiquoContextFactory
+from org.jclouds.logging.config import NullLoggingModule
 
 log = logging.getLogger('kahuna')
 
@@ -40,7 +42,7 @@ class ContextLoader:
             log.debug("Connecting to %s as %s" % (props.getProperty("abiquo.endpoint"),
                 self.__config.user))
             self.__context = AbiquoContextFactory().createContext(self.__config.user,
-                    self.__config.password, props);
+                    self.__config.password, ImmutableSet.of(NullLoggingModule()), props);
             atexit.register(self.__del__)  # Close context automatically when exiting
         return self.__context
 
