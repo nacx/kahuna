@@ -1,8 +1,8 @@
 #!/usr/bin/env jython
 
-from kahuna.plugins.environment.constants import *
-from org.jclouds.abiquo.domain.network import *
-from org.jclouds.abiquo.predicates.enterprise import *
+from org.jclouds.abiquo.domain.network import ExternalNetwork
+from org.jclouds.abiquo.domain.network import PublicNetwork
+from org.jclouds.abiquo.predicates.enterprise import EnterprisePredicates
 
 class InfrastructureNetwork:
     """ Provides access to infrastructure network features. """

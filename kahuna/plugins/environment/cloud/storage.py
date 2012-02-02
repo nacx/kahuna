@@ -1,9 +1,7 @@
 #!/usr/bin/env jython
 
-from com.abiquo.model.enumerator import *
-from org.jclouds.abiquo.domain.cloud import *
-from org.jclouds.abiquo.predicates.cloud import *
-from org.jclouds.abiquo.predicates.infrastructure import *
+from org.jclouds.abiquo.domain.cloud import Volume
+from org.jclouds.abiquo.predicates.infrastructure import TierPredicates
 
 class CloudStorage:
     """ Provides access to cloud storage features. """

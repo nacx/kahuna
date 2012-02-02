@@ -2,9 +2,11 @@
 
 from kahuna.plugins.environment.infrastructure.network import cleanup_infrastructure_network
 from kahuna.plugins.environment.infrastructure.storage import cleanup_infrastructure_storage
-from com.abiquo.model.enumerator import *
-from org.jclouds.abiquo.domain.infrastructure import *
-from org.jclouds.abiquo.reference import *
+from com.abiquo.model.enumerator import HypervisorType
+from org.jclouds.abiquo.domain.infrastructure import Datacenter
+from org.jclouds.abiquo.domain.infrastructure import Machine
+from org.jclouds.abiquo.domain.infrastructure import Rack
+from org.jclouds.abiquo.reference import AbiquoEdition
 
 class InfrastructureCompute:
     """ Provides access to infrastructure compute features. """
