@@ -76,6 +76,8 @@ def get_virtual_datacenter_for_template(context, template):
                     vdc.save()
                     return vdc
                 except AbiquoException, ex:
+                    # Just catch the error thrown when no hypervisors of the given
+                    # type are available in the datacenter
                     if ex.hasError("VDC-1"):
                         # Check if we can create a VDC with other compatible type
                         continue

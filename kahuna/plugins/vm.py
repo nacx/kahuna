@@ -163,11 +163,8 @@ class VmPlugin:
                 vapp.save()
 
             builder = VirtualMachine.builder(context, vapp, template)
-            if options.cpu:
-                builder.cpu(options.cpu)
-            if options.ram:
-                builder.ram(options.ram)
-
+            builder.cpu(options.cpu if options.cpu else template.getCpuRequired())
+            builder.ram(options.ram if options.ram else template.getRamRequired())
             vm = builder.build()
             vm.save()
 
