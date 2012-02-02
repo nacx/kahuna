@@ -82,3 +82,12 @@ def cleanup_default_tenants(config, context):
         print "Removing enterprise %s and all users..." % enterprise.getName()
         enterprise.delete()
 
+    rolefilter = Predicates.not(Predicates.or(RolePredicates.name("CLOUD_ADMIN"), RolePredicates
+            .name("ENTERPRISE_ADMIN"), RolePredicates.name("USER")));
+    roles = admin.listRoles(rolefilter)
+    # This will remove all non default roles
+    for role in roles:
+        print "Removing role %s..." % role.getName()
+        role.delete()
+   
+
