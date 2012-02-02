@@ -7,6 +7,7 @@ from kahuna.utils.prettyprint import pprint_vms
 from virtualmachine import helper
 from com.abiquo.model.enumerator import HypervisorType
 from org.jclouds.abiquo.domain.cloud import VirtualAppliance
+from org.jclouds.abiquo.domain.cloud import VirtualDatacenter
 from org.jclouds.abiquo.domain.cloud import VirtualMachine
 from org.jclouds.abiquo.predicates.cloud import VirtualAppliancePredicates
 from org.jclouds.abiquo.predicates.cloud import VirtualDatacenterPredicates
@@ -148,9 +149,9 @@ class VmPlugin:
                 return
             log.debug("Using template: %s" % template.getName())
 
-            vdc = helper.find_compatible_virtual_datacenter(context, template)
+            vdc = helper.get_virtual_datacenter_for_template(context, template)
             if not vdc:
-                print "No virtual datacenter found for: %s" % template.getDiskFormatType()
+                print "Could not create a compatible virtual datacenter for %s" % template.getName()
                 return
             log.debug("Using virtual datacenter: %s" % vdc.getName())
 
