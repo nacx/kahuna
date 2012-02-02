@@ -62,7 +62,7 @@ class MachinePlugin:
                 self._checkMachine(machine)
                 pprint_machines([machine]);
         except (AbiquoException, AuthorizationException), ex:
-            print "Error %s" % ex.getMessage()
+            log.error("Error %s" % ex.getMessage())
         finally:
             context.close()
 
@@ -116,7 +116,14 @@ class MachinePlugin:
             if not dc:
                 log.debug("No datacenter 'kahuna' found.")
                 dc = Datacenter.builder(context).name('kahuna').location('terrassa').remoteServices(rsip,AbiquoEdition.ENTERPRISE).build()
-                dc.save()
+                try:
+                    dc.save()
+                except (AbiquoException), ex:
+                    if ex.hasError("RS-3"):
+                        log.error("ip %s to create remote services has been used yet, try with another one")
+                        dc.delete()
+                    else:
+                        raise ex
                 rack = Rack.builder(context,dc).name('rack').build()
                 rack.save()
                 log.debug("New datacenter 'kahuna' created.")
@@ -140,10 +147,10 @@ class MachinePlugin:
                     machine = dc.discoverSingleMachine(host, hyp, user, psswd)
                     break
                 except (AbiquoException, HttpResponseException), ex:
-                    log.debug(ex.getMessage().replace("\n",""))
-                    if ex.hasError("NC-3"):
-                        log.info(ex.getMessage().replace("\n",""))
+                    if ex.hasError("NC-3") or ex.hasError("RS-2"):
+                        log.error(ex.getMessage().replace("\n",""))
                         return
+                    log.debug(ex.getMessage().replace("\n",""))
 
             if not machine:
                 log.info("Not machine found in %s" % host)
@@ -178,9 +185,9 @@ class MachinePlugin:
 
         except (AbiquoException,AuthorizationException), ex:
             if ex.hasError("HYPERVISOR-1") or ex.hasError("HYPERVISOR-2"):
-                log.info("Machine already exists")
+                log.error("Machine already exists")
             else:
-                print ex.getMessage()
+                log.error(ex.getMessage())
         finally:
             context.close()
 
@@ -212,7 +219,7 @@ class MachinePlugin:
             log.info("Machine %s deleted succesfully" % name)
 
         except (AbiquoException, AuthorizationException), ex:
-            print "Error %s" % ex.getMessage()
+            log.error("Error %s" % ex.getMessage())
         finally:
             context.close()
     
@@ -224,7 +231,7 @@ class MachinePlugin:
             machines = admin.listMachines()
             pprint_machines(machines)
         except (AbiquoException, AuthorizationException), ex:
-            print "Error %s" % ex.getMessage()
+            log.error("Error %s" % ex.getMessage())
         finally:
             context.close()
 
