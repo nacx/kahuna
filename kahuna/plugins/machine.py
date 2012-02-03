@@ -120,8 +120,9 @@ class MachinePlugin:
                     dc.save()
                 except (AbiquoException), ex:
                     if ex.hasError("RS-3"):
-                        log.error("ip %s to create remote services has been used yet, try with another one")
+                        log.error("ip %s to create remote services has been used yet, try with another one" % rsip)
                         dc.delete()
+                        return
                     else:
                         raise ex
                 rack = Rack.builder(context,dc).name('rack').build()
