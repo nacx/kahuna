@@ -80,14 +80,17 @@ class MachinePlugin:
         parser = OptionParser(usage="machine create --host <host> <options>")
 
         # create options
-        parser.add_option("-i","--host",help="ip or hostname from machine to create in abiquo [required]",action="store",dest="host")
+        parser.add_option("-i","--host",
+                help="ip or hostname from machine to create in abiquo [required]",action="store",dest="host")
         parser.add_option("-u","--user",help="user to loggin in the machine",action="store",dest="user")
         parser.add_option("-p","--psswd",help="password to loggin in the machine",action="store",dest="psswd")
         # parser.add_option("-c","--port",help="port from machine",action="store",dest="port")
         parser.add_option("-t","--type",help="hypervisor type of the machine",action="store",dest="hypervisor")
         parser.add_option("-r","--rsip",help="ip from remote services",action="store",dest="remoteservicesip")
-        parser.add_option("-d","--datastore",help="datastore to enable on physical machine",action="store",dest="datastore")
-        parser.add_option("-s","--vswitch",help="virtual switch to select on physical machine",action="store",dest="vswitch")
+        parser.add_option("-d","--datastore",
+                help="datastore to enable on physical machine",action="store",dest="datastore")
+        parser.add_option("-s","--vswitch",
+                help="virtual switch to select on physical machine",action="store",dest="vswitch")
         (options, args) = parser.parse_args(args)
         
         # parse options
@@ -97,11 +100,11 @@ class MachinePlugin:
             return
 
         config = ConfigLoader().load("machine.conf","config/machine.conf")
-        user = self._getConfig(config,options,"user")
-        psswd = self._getConfig(config,options,"psswd")
-        rsip = self._getConfig(config,options,"remoteservicesip")
-        dsname = self._getConfig(config,options,"datastore")
-        vswitch =  self._getConfig(config,options,"vswitch")
+        user = self._getConfig(config,options,host,"user")
+        psswd = self._getConfig(config,options,host,"psswd")
+        rsip = self._getConfig(config,options,host,"remoteservicesip")
+        dsname = self._getConfig(config,options,host,"datastore")
+        vswitch =  self._getConfig(config,options,host,"vswitch")
         hypervisor = options.hypervisor
 
         context = ContextLoader().load()
@@ -156,7 +159,7 @@ class MachinePlugin:
                 print "Not machine found in %s" % host
                 return
 
-            log.debug("Machine %(mch)s of type %(hyp)s found" % {"mch":machine.getName(),"hyp":machine.getType().name()})
+            log.debug("Machine %s of type %s found" % (machine.getName(), machine.getType().name()))
 
             # enabling datastore
             ds = machine.findDatastore(dsname)
@@ -230,17 +233,15 @@ class MachinePlugin:
         finally:
             context.close()
 
-    def _getConfig(self,config, options, prop):
+    def _getConfig(self,config, options, host, prop):
         """ Gets a value from config or options """
         p = eval("options.%s" % prop)
-        if not p:
-            p = config.get("create",prop)
-            if p:
-                return p
-            else:
-                raise Exception("%s not defined" % prop)
-        else:
+        if p:
             return p
+        try:
+            return config.get(host, prop)
+        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
+            return config.get("global", prop)
 
 def load():
     """ Loads the current plugin. """

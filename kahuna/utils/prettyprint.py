@@ -86,9 +86,10 @@ def pprint_enterprises(enterprises):
 
 def pprint_machines(machines):
     """ Pretty printd the given machine list. """
-    table = [["name", "ip", "hypervisor", "state", "cpu (used/total)", "ram (used/total)"]]
+    table = [["id", "name", "address", "hypervisor", "state", "cpu (used/total)", "ram (used/total)"]]
     for machine in machines:
-        row = [machine.getName(), machine.getIp(), machine.getType().name(), machine.getState().name(),
+        row = [machine.getId(), machine.getName(), machine.getIp(), machine.getType().name(),
+                machine.getState().name(),
                 str(machine.getVirtualCpusUsed())+" / "+str(machine.getVirtualCpuCores()),
                 str(machine.getVirtualRamUsedInMb())+" / "+str(machine.getVirtualRamInMb()) + " MB"]
         table.append(row)
