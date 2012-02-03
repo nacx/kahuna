@@ -10,11 +10,10 @@ look at the official Java client project page:
  * [jclouds-abiquo Documentation](https://github.com/abiquo/jclouds-abiquo/wiki)
 
 
-Prerequisites
--------------
+Requirements
+------------
 
-To run the examples you will need to install *Maven >= 2.2.1*, *JRE >= 1.6*
-and ***Jython >= 2.5.2***.
+To run Kahuna you will need to install *Maven >= 2.2.1*, *JRE >= 1.6* and ***Jython >= 2.5.2***.
 
 
 Configuration
@@ -25,7 +24,7 @@ package ready, the *$JYHTONPATH* environment variable needs to be set manually:
 
     export JYTHONPATH=$(YOUR_PROJECT_HOME_DIRECTORY)
 
-You must also copy the **examples/kahuna.conf** file to **$HOME/.kahuna/kahuna.conf**
+You must also copy the **config/kahuna.conf** file to **$HOME/.kahuna/kahuna.conf**
 and edit it to configure the connection to your Abiquo Platform. It is also a good choice
 to add the script to your PATH. You could simply create a symlink to the kahuna script
 in */usr/local/bin*:
