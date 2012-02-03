@@ -59,7 +59,7 @@ print the help with all the available options:
         vm deploy       Deploy an existing virtual machine given its name. 
         vm find         Find a virtual machine given its name. 
         vm list         List all virtual machines. 
-        vm undeploy	    Undeploy an existing virtual machine given its name. 
+        vm undeploy     Undeploy an existing virtual machine given its name. 
 
 
 Use it interactively
