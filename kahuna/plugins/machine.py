@@ -19,7 +19,7 @@ log = logging.getLogger("kahuna")
 class MachinePlugin:
     """ Physical machines plugin. """
     def __init__(self):
-        pass
+        self.__config = ConfigLoader().load("machine.conf","config/machine.conf")
 
     def commands(self):
         """ Returns the commands provided by the plugin, mapped to the handler methods. """
@@ -99,12 +99,12 @@ class MachinePlugin:
             parser.print_help()
             return
 
-        config = ConfigLoader().load("machine.conf","config/machine.conf")
-        user = self._getConfig(config,options,host,"user")
-        psswd = self._getConfig(config,options,host,"psswd")
-        rsip = self._getConfig(config,options,host,"remoteservicesip")
-        dsname = self._getConfig(config,options,host,"datastore")
-        vswitch =  self._getConfig(config,options,host,"vswitch")
+
+        user = self._getConfig(options,host,"user")
+        psswd = self._getConfig(options,host,"psswd")
+        rsip = self._getConfig(options,host,"remoteservicesip")
+        dsname = self._getConfig(options,host,"datastore")
+        vswitch =  self._getConfig(options,host,"vswitch")
         hypervisor = options.hypervisor
 
         context = ContextLoader().load()
@@ -233,15 +233,15 @@ class MachinePlugin:
         finally:
             context.close()
 
-    def _getConfig(self,config, options, host, prop):
+    def _getConfig(self, options, host, prop):
         """ Gets a value from config or options """
         p = eval("options.%s" % prop)
         if p:
             return p
         try:
-            return config.get(host, prop)
+            return self.__config.get(host, prop)
         except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
-            return config.get("global", prop)
+            return self.__config.get("global", prop)
 
 def load():
     """ Loads the current plugin. """
