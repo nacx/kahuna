@@ -13,7 +13,7 @@ look at the official Java client project page:
 Requirements
 ------------
 
-To run Kahuna you will need to install *Maven >= 2.2.1*, *JRE >= 1.6*, ***Jython >= 2.5.2***.
+To run Kahuna you will need to install *Maven >= 2.2.1*, *JRE >= 1.6* and ***Jython >= 2.5.2***.
 
 
 Configuration
