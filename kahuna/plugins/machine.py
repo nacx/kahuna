@@ -71,7 +71,7 @@ class MachinePlugin:
                 raise Exception("machine not found")
             state = machine.check()
             machine.setState(state)
-            log.debug("%(mch)s - %(st)s" % {"mch":machine.getName(), "st":state})
+            log.debug("%s - %s" % (machine.getName(), state))
         except (AbiquoException, AuthorizationException), ex:
             print "Error %s" % ex.getMessage()
 
