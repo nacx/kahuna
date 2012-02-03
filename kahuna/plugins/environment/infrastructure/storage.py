@@ -22,9 +22,9 @@ class InfrastructureStorage:
         tiers[0].setName(tier)
         tiers[0].update()
 
-        for i in range(1, 4):
-            tiers[i].setEnabled(False)
-            tiers[i].update()
+        for tier in tiers[1:]:
+            tier.setEnabled(False)
+            tier.update()
 
         return tiers[0]
 
