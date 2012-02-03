@@ -45,14 +45,13 @@ class MachinePlugin:
             parser.print_help()
             return
 
+        context = ContextLoader().load()
         try:
-            context = ContextLoader().load()
             admin =  context.getAdministrationService()
             if all_true:
                 machines = admin.listMachines()
                 log.debug("%s machines found." % str(len(machines)))
-                for machine in machines:
-                    self._checkMachine(machine)
+                [self._checkMachine for machine in machines]
                 pprint_machines(machines)
             else:
                 if name:
@@ -62,7 +61,7 @@ class MachinePlugin:
                 self._checkMachine(machine)
                 pprint_machines([machine]);
         except (AbiquoException, AuthorizationException), ex:
-            log.error("Error %s" % ex.getMessage())
+            print "Error %s" % ex.getMessage()
         finally:
             context.close()
 
@@ -74,7 +73,7 @@ class MachinePlugin:
             machine.setState(state)
             log.debug("%(mch)s - %(st)s" % {"mch":machine.getName(), "st":state})
         except (AbiquoException, AuthorizationException), ex:
-            log.error("Error %s" % ex.getMessage())
+            print "Error %s" % ex.getMessage()
 
     def createMachine(self, args):
         """ Create a physical machine in abiquo. This method uses configurable constats for default values."""
@@ -105,8 +104,8 @@ class MachinePlugin:
         vswitch =  self._getConfig(config,options,"vswitch")
         hypervisor = options.hypervisor
 
+        context = ContextLoader().load()
         try:
-            context = ContextLoader().load()
             admin = context.getAdministrationService()
 
             # search or create datacenter
@@ -114,12 +113,16 @@ class MachinePlugin:
             dc = admin.findDatacenter(DatacenterPredicates.name('kahuna'))
             if not dc:
                 log.debug("No datacenter 'kahuna' found.")
-                dc = Datacenter.builder(context).name('kahuna').location('terrassa').remoteServices(rsip,AbiquoEdition.ENTERPRISE).build()
+                dc = Datacenter.builder(context) \
+                        .name('kahuna') \
+                        .location('terrassa') \
+                        .remoteServices(rsip,AbiquoEdition.ENTERPRISE) \
+                        .build()
                 try:
                     dc.save()
                 except (AbiquoException), ex:
                     if ex.hasError("RS-3"):
-                        log.error("ip %s to create remote services has been used yet, try with another one" % rsip)
+                        print "ip %s to create remote services has been used yet, try with another one" % rsip
                         dc.delete()
                         return
                     else:
@@ -135,25 +138,22 @@ class MachinePlugin:
                 log.debug("Datacenter 'kahuna' found")
         
             # discover machine
-            if not hypervisor:
-                hypTypes = HypervisorType.values()
-            else:
-                hypTypes = [HypervisorType.valueOf(hypervisor)]
+            hypTypes = [HypervisorType.valueOf(hypervisor)] if hypervisor else HypervisorType.values()
 
             machine = None
             for hyp in hypTypes:
                 try:
-                    log.debug("Trying for hypervisor %s" % hyp.name())
+                    log.debug("Trying hypervisor %s" % hyp.name())
                     machine = dc.discoverSingleMachine(host, hyp, user, psswd)
                     break
                 except (AbiquoException, HttpResponseException), ex:
                     if ex.hasError("NC-3") or ex.hasError("RS-2"):
-                        log.error(ex.getMessage().replace("\n",""))
+                        print ex.getMessage().replace("\n","")
                         return
                     log.debug(ex.getMessage().replace("\n",""))
 
             if not machine:
-                log.info("Not machine found in %s" % host)
+                print "Not machine found in %s" % host
                 return
 
             log.debug("Machine %(mch)s of type %(hyp)s found" % {"mch":machine.getName(),"hyp":machine.getType().name()})
@@ -161,14 +161,14 @@ class MachinePlugin:
             # enabling datastore
             ds = machine.findDatastore(dsname)
             if not ds:
-                log.error("Missing datastore %s in machine" % dsname)
+                print "Missing datastore %s in machine" % dsname
                 return
             ds.setEnabled(True)
 
             # setting virtual switch
             vs=machine.findAvailableVirtualSwitch(vswitch)
             if not vs:
-                log.error("Missing virtual switch %s in machine" % vswitch)
+                print "Missing virtual switch %s in machine" % vswitch
                 return
 
             # saving machine
@@ -180,9 +180,9 @@ class MachinePlugin:
 
         except (AbiquoException,AuthorizationException), ex:
             if ex.hasError("HYPERVISOR-1") or ex.hasError("HYPERVISOR-2"):
-                log.error("Machine already exists")
+                print "Error: Machine already exists"
             else:
-                log.error(ex.getMessage())
+                print "Error: %s " % ex.getMessage()
         finally:
             context.close()
 
@@ -199,39 +199,39 @@ class MachinePlugin:
             parser.print_help()
             return
 
+        context = ContextLoader().load()
         try:
-            context = ContextLoader().load()
             admin =  context.getAdministrationService()
             if name:
                 machine = admin.findMachine(MachinePredicates.name(name))
             else:
                 machine = admin.findMachine(MachinePredicates.ip(host))
             if not machine:
-                log.error("Machine not found")
+                print "Machine not found"
                 return
             name=machine.getName()
             machine.delete()
-            log.info("Machine %s deleted succesfully" % name)
+            log.debug("Machine %s deleted succesfully" % name)
 
         except (AbiquoException, AuthorizationException), ex:
-            log.error("Error %s" % ex.getMessage())
+            print "Error %s" % ex.getMessage()
         finally:
             context.close()
     
     def listMachines(self,args):
         """ List physical machines from abiquo """
+        context = ContextLoader().load()
         try:
-            context = ContextLoader().load()
             admin = context.getAdministrationService()
             machines = admin.listMachines()
             pprint_machines(machines)
         except (AbiquoException, AuthorizationException), ex:
-            log.error("Error %s" % ex.getMessage())
+            print "Error %s" % ex.getMessage()
         finally:
             context.close()
 
     def _getConfig(self,config, options, prop):
-        """ gets a value from config or options """
+        """ Gets a value from config or options """
         p = eval("options.%s" % prop)
         if not p:
             p = config.get("create",prop)
