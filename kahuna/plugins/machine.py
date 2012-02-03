@@ -77,8 +77,7 @@ class MachinePlugin:
             log.error("Error %s" % ex.getMessage())
 
     def createMachine(self, args):
-        """ Create a physical machine in abiquo.
-        \t\tThis method uses configurable constats for default values."""
+        """ Create a physical machine in abiquo. This method uses configurable constats for default values."""
         parser = OptionParser(usage="machine create --host <host> <options>")
 
         # create options
@@ -160,16 +159,11 @@ class MachinePlugin:
             log.debug("Machine %(mch)s of type %(hyp)s found" % {"mch":machine.getName(),"hyp":machine.getType().name()})
 
             # enabling datastore
-            dsfound = False
-            for datastore in machine.getDatastores():
-                if datastore.getName() == dsname:
-                    datastore.setEnabled(True)
-                    dsfound = True
-                    break
-
-            if not dsfound:
+            ds = machine.findDatastore(dsname)
+            if not ds:
                 log.error("Missing datastore %s in machine" % dsname)
                 return
+            ds.setEnabled(True)
 
             # setting virtual switch
             vs=machine.findAvailableVirtualSwitch(vswitch)
