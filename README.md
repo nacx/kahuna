@@ -115,7 +115,7 @@ will do our best to fix it.
 License
 -------
 
-This sowftare is licensed under the MIT license.
+This software is licensed under the MIT license.
 
 Copyright (c) 2011 Ignasi Barrera
 
