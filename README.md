@@ -57,8 +57,8 @@ print the help with all the available options:
         vm create	 Creates a virtual machine based on a given template. 
         vm delete	 Delete a virtual machine given its name. 
         vm deploy	 Deploy an existing virtual machine given its name. 
-        vm find	         Find a virtual machine given its name. 
-        vm list	         List all virtual machines. 
+        vm find	     Find a virtual machine given its name. 
+        vm list      List all virtual machines. 
         vm undeploy	 Undeploy an existing virtual machine given its name. 
 
 
