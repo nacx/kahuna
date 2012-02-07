@@ -44,8 +44,8 @@ class TemplatePlugin:
             parser.print_help()
             return
 
-        # Once user input has been read, find the template 
-        context = ContextLoader().load_context()
+        # Once user input has been read, find the template
+        context = ContextLoader().load()
         try:
             admin = context.getAdministrationService()
             user = admin.getCurrentUserInfo()
