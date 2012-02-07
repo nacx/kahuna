@@ -85,10 +85,16 @@ def pprint_enterprises(enterprises):
 
 def pprint_volumes(volumes):
     """ Pretty prints the given volume list. """
-    table = [["id", "name", "size", "status" , "virtual datacenter"]]
+    table = [["id", "name", "size", "status" , "virtual datacenter", "virtual machine"]]
     for vol in volumes:
         row = [vol.getId(), vol.getName(), str(vol.getSizeInMB()) + " MB",
                 vol.getState(), vol.getVirtualDatacenter().getName()]
+        # TODO: Add parent navigation in jclouds.abiquo
+        link = vol.unwrap().searchLink("virtualmachine")
+        if link:
+            row.append(link.getTitle())
+        else:
+            row.append("-")
         table.append(row)
     pprint_table(table)
 
