@@ -83,6 +83,15 @@ def pprint_enterprises(enterprises):
         table.append(row)
     pprint_table(table)
 
+def pprint_volumes(volumes):
+    """ Pretty prints the given volume list. """
+    table = [["id", "name", "size", "status" , "virtual datacenter"]]
+    for vol in volumes:
+        row = [vol.getId(), vol.getName(), str(vol.getSizeInMB()) + " MB",
+                vol.getState(), vol.getVirtualDatacenter().getName()]
+        table.append(row)
+    pprint_table(table)
+
 def pprint_machines(machines):
     """ Pretty printd the given machine list. """
     table = [["id", "name", "address", "hypervisor", "state", "cpu (used/total)", "ram (used/total)"]]
