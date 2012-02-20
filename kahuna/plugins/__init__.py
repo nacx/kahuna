@@ -13,4 +13,3 @@ for filename in os.listdir(plugin_dir):
         base, extension = os.path.splitext(basename)
         if extension == ".py" and not basename.startswith("_"):
             __all__.append(base)
-

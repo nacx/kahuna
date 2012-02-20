@@ -2,7 +2,6 @@
 
 from environment.cloud.compute import cleanup_cloud_compute
 from environment.cloud.compute import create_cloud_compute
-from environment.cloud.storage import cleanup_cloud_storage
 from environment.cloud.storage import create_cloud_storage
 from environment.config.sysconfig import apply_default_configuration
 from environment.infrastructure.compute import cleanup_infrastructure_compute
@@ -16,11 +15,12 @@ from kahuna.session import ContextLoader
 from org.jclouds.abiquo.domain.exception import AbiquoException
 from org.jclouds.rest import AuthorizationException
 
+
 class EnvironmentPlugin:
     """ Environment generator plugin. """
     def __init__(self):
         self.__config = ConfigLoader().load("env.conf", "config/env.conf")
-    
+
     def commands(self):
         """ Returns the available commands in this plugin. """
         commands = {}
@@ -55,8 +55,8 @@ class EnvironmentPlugin:
             print "Error: %s" % ex.getMessage()
         finally:
             context.close()
-    
+
+
 def load():
     """ Loads the environment plugin. """
     return EnvironmentPlugin()
-

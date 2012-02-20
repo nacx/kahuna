@@ -7,13 +7,14 @@ from org.jclouds.abiquo.predicates.cloud import VirtualMachineTemplatePredicates
 from org.jclouds.abiquo.domain.exception import AbiquoException
 from org.jclouds.rest import AuthorizationException
 
+
 class TemplatePlugin:
     """ Template plugin. """
     def __init__(self):
         pass
 
     def commands(self):
-        """ Returns the commands provided by the plugin, mapped to the handler methods. """
+        """ Returns the provided commands, mapped to handler methods. """
         commands = {}
         commands['list'] = self.list
         commands['find'] = self.find
@@ -37,7 +38,8 @@ class TemplatePlugin:
         """ Find a template given its name. """
         # Parse user input to get the name of the template
         parser = OptionParser(usage="template find <options>")
-        parser.add_option("-n", "--name", help="The name of the template to find", dest="name")
+        parser.add_option("-n", "--name", deswt="name",
+                help="The name of the template to find")
         (options, args) = parser.parse_args(args)
         name = options.name
         if not name:
@@ -50,7 +52,8 @@ class TemplatePlugin:
             admin = context.getAdministrationService()
             user = admin.getCurrentUserInfo()
             enterprise = user.getEnterprise()
-            template = enterprise.findTemplate(VirtualMachineTemplatePredicates.name(name))
+            template = enterprise.findTemplate(
+                    VirtualMachineTemplatePredicates.name(name))
             if template:
                 pprint_templates([template])
             else:
@@ -60,7 +63,7 @@ class TemplatePlugin:
         finally:
             context.close()
 
+
 def load():
     """ Loads the current plugin. """
     return TemplatePlugin()
-

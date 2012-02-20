@@ -7,4 +7,3 @@ logging.basicConfig(format=FORMAT)
 # Load the singleton configuration instance to initialize
 # the 'kahuna' logger
 Config()
-

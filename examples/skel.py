@@ -8,13 +8,15 @@
 
 # The documentation string in the plugin class will be used to
 # print the help of the plugin.
+
+
 class SkeletonPlugin:
     """ An example plugin that prints dummy messages. """
     def __init__(self):
         pass
 
     def commands(self):
-        """ Returns the commands provided by the plugin, mapped to the handler methods. """
+        """ Returns the provided commands, mapped to handler methods. """
         commands = {}
         # Bind the 'print' plugin command to the 'print_handler' method
         commands['print'] = self.print_handler
@@ -27,9 +29,9 @@ class SkeletonPlugin:
         """ Prints a dummy message. """
         print "This is the print_handler in the example plugin"
 
+
 # Each plugin must provide a load method at module level that will be
 # used to instantiate the plugin
 def load():
     """ Loads the current plugin. """
     return SkeletonPlugin()
-
