@@ -9,6 +9,7 @@ from utils.singleton import singleton
 log = logging.getLogger('kahuna')
 log.setLevel(logging.INFO)
 
+
 class ConfigLoader:
     """ Loads configuration files from a given location. """
     def __init__(self, basedir="kahuna"):
@@ -31,20 +32,24 @@ class ConfigLoader:
                 break
 
         if not os.path.exists(config_found):
-            # Fail if config file is not found and do not want to create the default one
+            # Fail if config file is not found and do not
+            # want to create the default one
             if not default:
                 raise IOError("Configuration file not found. " +
-                        "Please, make sure that %s or %s exist" % (user_config, sys_config));
+                        "Please, make sure that %s or %s exist" % (user_config,
+                            sys_config))
             # Create the default config file if nexessary
-            log.warn("Kahuna config file not found. Creating the default one to %s" % user_config)
+            log.warn(("Kahuna config file not found. "
+                "Creating the default one to %s") % user_config)
             if not os.path.isdir(self.user_dir):
                 os.makedirs(self.user_dir)
             shutil.copy(default, user_config)
             config_found = user_config
 
-        config = ConfigParser.SafeConfigParser() 
+        config = ConfigParser.SafeConfigParser()
         config.read(config_found)
         return config
+
 
 @singleton
 class Config:
@@ -56,19 +61,19 @@ class Config:
         self.address = config.get("connection", "address")
         self.user = config.get("connection", "user")
         self.password = config.get("connection", "pass")
-        
+
         # Logging
         try:
             self.loglevel = config.get("logging", "level")
             level = logging._levelNames[self.loglevel.upper()]
             log.setLevel(level)
-        except ConfigParser.NoOptionError:     
+        except ConfigParser.NoOptionError:
             # Ignore errors if no logging level has been defined
             pass
-        
+
         # Client
         self.client_config = []
         if config.has_section("client"):
             self.client_config.extend(config.items("client"))
-            [log.debug("Set %s to %s" % (name, value)) for (name, value) in self.client_config]
-
+            for (name, value) in self.client_config:
+                log.debug("Set %s to %s" % (name, value))

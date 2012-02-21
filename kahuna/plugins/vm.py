@@ -5,19 +5,15 @@ from optparse import OptionParser
 from kahuna.session import ContextLoader
 from kahuna.utils.prettyprint import pprint_vms
 from virtualmachine import helper
-from com.abiquo.model.enumerator import HypervisorType
 from org.jclouds.abiquo.domain.cloud import VirtualAppliance
-from org.jclouds.abiquo.domain.cloud import VirtualDatacenter
 from org.jclouds.abiquo.domain.cloud import VirtualMachine
 from org.jclouds.abiquo.predicates.cloud import VirtualAppliancePredicates
-from org.jclouds.abiquo.predicates.cloud import VirtualDatacenterPredicates
 from org.jclouds.abiquo.predicates.cloud import VirtualMachinePredicates
-from org.jclouds.abiquo.predicates.cloud import VirtualMachineTemplatePredicates
-from org.jclouds.abiquo.predicates.infrastructure import MachinePredicates
 from org.jclouds.abiquo.domain.exception import AbiquoException
 from org.jclouds.rest import AuthorizationException
 
 log = logging.getLogger('kahuna')
+
 
 class VmPlugin:
     """ Virtual machine plugin. """
@@ -25,7 +21,7 @@ class VmPlugin:
         pass
 
     def commands(self):
-        """ Returns the commands provided by the plugin, mapped to the handler methods. """
+        """ Returns the provided commands, mapped to handler methods. """
         commands = {}
         commands['list'] = self.list
         commands['find'] = self.find
@@ -51,9 +47,11 @@ class VmPlugin:
         """ Find a virtual machine given its name. """
         # Parse user input to get the name of the virtual machine
         parser = OptionParser(usage="vm find <options>")
-        parser.add_option("-n", "--name", help="The name of the virtual machine to find", dest="name")
-        parser.add_option("-v", "--verbose", help="Show virtual machine extended information",
-                action="store_true", dest="verbose")
+        parser.add_option("-n", "--name", dest="name",
+                help="The name of the virtual machine to find")
+        parser.add_option("-v", "--verbose", dest="verbose",
+                action="store_true",
+                help="Show virtual machine extended information")
         (options, args) = parser.parse_args(args)
         name = options.name
         if not name:
@@ -73,12 +71,13 @@ class VmPlugin:
             print "Error: %s" % ex.getMessage()
         finally:
             context.close()
-    
+
     def deploy(self, args):
         """ Deploy an existing virtual machine given its name. """
         # Parse user input to get the name of the virtual machine
         parser = OptionParser(usage="vm deploy <options>")
-        parser.add_option("-n", "--name", help="The name of the virtual machine to deploy", dest="name")
+        parser.add_option("-n", "--name", dest="name",
+                help="The name of the virtual machine to deploy")
         (options, args) = parser.parse_args(args)
         name = options.name
         if not name:
@@ -99,19 +98,20 @@ class VmPlugin:
             print "Error: %s" % ex.getMessage()
         finally:
             context.close()
-    
+
     def undeploy(self, args):
         """ Undeploy an existing virtual machine given its name. """
         # Parse user input to get the name of the virtual machine
         parser = OptionParser(usage="vm undeploy <options>")
-        parser.add_option("-n", "--name", help="The name of the virtual machine to undeploy", dest="name")
+        parser.add_option("-n", "--name", dest="name",
+                help="The name of the virtual machine to undeploy")
         (options, args) = parser.parse_args(args)
         name = options.name
         if not name:
             parser.print_help()
             return
 
-        # Once user input has been read, find the virtual machine 
+        # Once user input has been read, find the virtual machine
         context = ContextLoader().load()
         try:
             cloud = context.getCloudService()
@@ -130,12 +130,15 @@ class VmPlugin:
         """ Creates a virtual machine based on a given template. """
         # Parse user input to get the name of the virtual machine
         parser = OptionParser(usage="vm create <options>")
-        parser.add_option("-t", "--template-id", help="The id of the template to use",
-                type="int", dest="template")
-        parser.add_option("-c", "--cpu", help="The number of cores", type="int", dest="cpu")
-        parser.add_option("-r", "--ram", help="The RAM in MB", type="int", dest="ram")
-        parser.add_option("-d", "--deploy", help="Deploy the virtual machine after creating it",
-                action="store_true", dest="deploy")
+        parser.add_option("-t", "--template-id", dest="template",
+                type="int", help="The id of the template to use")
+        parser.add_option("-c", "--cpu", dest="cpu", type="int",
+                help="The number of cores")
+        parser.add_option("-r", "--ram", dest="ram", type="int",
+                help="The RAM in MB")
+        parser.add_option("-d", "--deploy", dest="deploy",
+                action="store_true",
+                help="Deploy the virtual machine after creating it")
         (options, args) = parser.parse_args(args)
         if not options.template:
             parser.print_help()
@@ -151,20 +154,27 @@ class VmPlugin:
 
             vdc = helper.get_virtual_datacenter_for_template(context, template)
             if not vdc:
-                print "Could not create a compatible virtual datacenter for %s" % template.getName()
+                print ("Could not create a compatible virtual datacenter "
+                    "for %s") % template.getName()
                 return
             log.debug("Using virtual datacenter: %s" % vdc.getName())
 
             name = "Kahuna-" + context.getIdentity()
-            vapp = vdc.findVirtualAppliance(VirtualAppliancePredicates.name(name))
+            vapp = vdc.findVirtualAppliance(
+                    VirtualAppliancePredicates.name(name))
             if not vapp:
-                log.debug("Virtual appliance %s not found. Creating it..." % name)
-                vapp = VirtualAppliance.builder(context, vdc).name(name).build()
+                log.debug(("Virtual appliance %s not found. "
+                    "Creating it...") % name)
+                vapp = VirtualAppliance.builder(context, vdc) \
+                        .name(name) \
+                        .build()
                 vapp.save()
 
             builder = VirtualMachine.builder(context, vapp, template)
-            builder.cpu(options.cpu if options.cpu else template.getCpuRequired())
-            builder.ram(options.ram if options.ram else template.getRamRequired())
+            if options.cpu:
+                builder.cpu(options.cpu)
+            if options.ram:
+                builder.ram(options.ram)
             vm = builder.build()
             vm.save()
 
@@ -181,9 +191,11 @@ class VmPlugin:
         """ Delete a virtual machine given its name. """
         # Parse user input to get the name of the virtual machine
         parser = OptionParser(usage="vm delete <options>")
-        parser.add_option("-n", "--name", help="The name of the virtual machine to delete", dest="name")
-        parser.add_option("-u", "--undeploy", help="undeploy the virtual machine before deleting it",
-                action="store_true", dest="undeploy")
+        parser.add_option("-n", "--name", dest="name",
+                help="The name of the virtual machine to delete")
+        parser.add_option("-u", "--undeploy", dest="undeploy",
+                action="store_true",
+                help="undeploy the virtual machine before deleting it")
         (options, args) = parser.parse_args(args)
         name = options.name
         if not name:
@@ -197,7 +209,8 @@ class VmPlugin:
             if vm:
                 state = vm.getState()
                 if not options.undeploy and state.existsInHypervisor():
-                    print "Virtual machine is deployed. Undeploy it before deleting."
+                    print ("Virtual machine is deployed. "
+                            "Undeploy it before deleting.")
                 elif options.undeploy and state.existsInHypervisor():
                     vm = helper.undeploy_vm(context, vm)
                     vm.delete()
@@ -210,7 +223,7 @@ class VmPlugin:
         finally:
             context.close()
 
+
 def load():
     """ Loads the current plugin. """
     return VmPlugin()
-

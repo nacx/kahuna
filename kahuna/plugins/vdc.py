@@ -7,13 +7,14 @@ from org.jclouds.abiquo.predicates.cloud import VirtualDatacenterPredicates
 from org.jclouds.abiquo.domain.exception import AbiquoException
 from org.jclouds.rest import AuthorizationException
 
+
 class VirtualDatacenterPlugin:
     """ Virtual datacenter plugin. """
     def __init__(self):
         pass
 
     def commands(self):
-        """ Returns the commands provided by the plugin, mapped to the handler methods. """
+        """ Returns the provided commands, mapped to handler methods. """
         commands = {}
         commands['list'] = self.list
         commands['find'] = self.find
@@ -47,7 +48,8 @@ class VirtualDatacenterPlugin:
         context = ContextLoader().load()
         try:
             cloud = context.getCloudService()
-            vdc = cloud.findVirtualDatacenter(VirtualDatacenterPredicates.name(name))
+            vdc = cloud.findVirtualDatacenter(
+                    VirtualDatacenterPredicates.name(name))
             if vdc:
                 pprint_vdcs([vdc])
             else:
@@ -57,7 +59,7 @@ class VirtualDatacenterPlugin:
         finally:
             context.close()
 
+
 def load():
     """ Loads the current plugin. """
     return VirtualDatacenterPlugin()
-
