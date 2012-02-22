@@ -1,10 +1,14 @@
 #!/usr/bin/env jython
 
+import logging
 from com.google.common.base import Predicates
 from org.jclouds.abiquo.domain.enterprise import Enterprise
 from org.jclouds.abiquo.domain.enterprise import User
 from org.jclouds.abiquo.predicates.enterprise import EnterprisePredicates
 from org.jclouds.abiquo.predicates.enterprise import RolePredicates
+
+log = logging.getLogger('kahuna')
+
 
 class Tenant:
     """ Provices access to tenant management features. """
@@ -16,7 +20,7 @@ class Tenant:
     def create_enterprise(self, dc, name, cpusoft, cpuhard, ramsoft, ramhard,
             ipsoft, iphard, storagesoft, storagehard):
         """ Creates a new enterprise. """
-        print "Creating enterprise %s..." % name
+        log.info("Creating enterprise %s..." % name)
 
         # Create the enterprise with the limits
         enterprise = Enterprise.builder(self.__context) \
@@ -34,9 +38,10 @@ class Tenant:
 
         return enterprise
 
-    def create_user(self, enterprise, name, surname, role, email, nick, password):
+    def create_user(self, enterprise, name, surname, role, email,
+            nick, password):
         """ Creates a new user int he given enterprise. """
-        print "Adding user %s as %s" % (name, role)
+        log.info("Adding user %s as %s" % (name, role))
 
         admin = self.__context.getAdministrationService()
         role = admin.findRole(RolePredicates.name(role))
@@ -50,13 +55,14 @@ class Tenant:
 
         user.save()
 
-        return user;
+        return user
+
 
 def create_default_tenants(config, context, dc):
-    """ Creates the default tenants using the plugin config values. """
-    print "### Configuring tenants ###"
+    """ Creates the default tenants. """
+    log.info("### Configuring tenants ###")
     ten = Tenant(context)
-    enterprise= ten.create_enterprise(dc, config.get("enterprise", "name"),
+    enterprise = ten.create_enterprise(dc, config.get("enterprise", "name"),
             config.getint("enterprise", "cpu-soft"),
             config.getint("enterprise", "cpu-hard"),
             config.getint("enterprise", "ram-soft"),
@@ -72,22 +78,26 @@ def create_default_tenants(config, context, dc):
             config.get("user", "login"),
             config.get("user", "password"))
 
+
 def cleanup_default_tenants(config, context):
     """ Cleans up a previously created default tenants. """
-    print "### Cleaning up tenants ###"
+    log.info("### Cleaning up tenants ###")
     admin = context.getAdministrationService()
-    enterprises = admin.listEnterprises(Predicates.not(EnterprisePredicates.name("Abiquo")))
+    enterprises = admin.listEnterprises(
+            Predicates.not(EnterprisePredicates.name("Abiquo")))
     for enterprise in enterprises:
-        # This will remove the enterprise and all users (if none of them is a Cloud Admin)
-        print "Removing enterprise %s and all users..." % enterprise.getName()
+        # This will remove the enterprise and all users
+        # (if none of them is a Cloud Admin)
+        log.info("Removing enterprise %s and all users..."  \
+                % enterprise.getName())
         enterprise.delete()
 
-    rolefilter = Predicates.not(Predicates.or(RolePredicates.name("CLOUD_ADMIN"), RolePredicates
-            .name("ENTERPRISE_ADMIN"), RolePredicates.name("USER")));
+    rolefilter = Predicates.not(Predicates.or(
+        RolePredicates.name("CLOUD_ADMIN"),
+        RolePredicates.name("ENTERPRISE_ADMIN"),
+        RolePredicates.name("USER")))
     roles = admin.listRoles(rolefilter)
     # This will remove all non default roles
     for role in roles:
-        print "Removing role %s..." % role.getName()
+        log.info("Removing role %s..." % role.getName())
         role.delete()
-   
-

@@ -1,11 +1,13 @@
 #!/usr/bin/env jython
 
+import logging
 from ConfigParser import NoOptionError
 from com.abiquo.model.enumerator import StorageTechnologyType
 from org.jclouds.abiquo.domain.infrastructure import StorageDevice
-from org.jclouds.abiquo.domain.infrastructure import StoragePool
-from org.jclouds.abiquo.domain.infrastructure import Tier
 from org.jclouds.abiquo.predicates.infrastructure import StoragePoolPredicates
+
+log = logging.getLogger('kahuna')
+
 
 class InfrastructureStorage:
     """ Provides access to infrastructure storage features. """
@@ -16,7 +18,7 @@ class InfrastructureStorage:
 
     def configure_tiers(self, datacenter, tier):
         """ Configure the default tiers of the datacenter. """
-        print "Enabling tier %s..." % tier
+        log.info("Enabling tier %s..." % tier)
         tiers = datacenter.listTiers()
 
         tiers[0].setName(tier)
@@ -31,7 +33,8 @@ class InfrastructureStorage:
     def create_device(self, datacenter, devname, devtype, devaddress,
             devmanaddress, user, password):
         """ Discovers and registers a storage device. """
-        print "Creating storage device %s at %s..." % (devname, devaddress)
+        log.info("Creating storage device %s at %s..." % (devname,
+            devaddress))
         device = StorageDevice.builder(self.__context, datacenter) \
                  .name(devname) \
                  .type(devtype) \
@@ -43,22 +46,24 @@ class InfrastructureStorage:
         device.save()
         return device
 
-    def create_pool(self, device, tier, poolname): 
+    def create_pool(self, device, tier, poolname):
         """ Discovers and registers a StoragePool. """
-        print "Adding pool %s..." % poolname
-        pool = device.findRemoteStoragePool(StoragePoolPredicates.name(poolname))
+        log.info("Adding pool %s..." % poolname)
+        pool = device.findRemoteStoragePool(
+            StoragePoolPredicates.name(poolname))
         pool.setTier(tier)
         pool.save()
         return pool
 
+
 def create_infrastructure_storage(config, context, dc):
-    """ Creates the default infrastructure storage entities using the plugin config vlaues. """
-    print "### Configuring storage ###"
+    """ Creates the default infrastructure storage entities. """
+    log.info("### Configuring storage ###")
     storage = InfrastructureStorage(context)
     tier = storage.configure_tiers(dc, config.get("tier", "name"))
-    try: 
+    try:
         user = config.get("device", "user")
-        password= config.get("device", "password")
+        password = config.get("device", "password")
     except NoOptionError:
         user = None
         password = None
@@ -70,9 +75,10 @@ def create_infrastructure_storage(config, context, dc):
 
     storage.create_pool(device, tier, config.get("pool", "name"))
 
+
 def cleanup_infrastructure_storage(config, datacenter):
     """ Cleans up previously created infrastructure storage entities. """
-    print "Removing storage devices in datacenter %s..." % datacenter.getName()
+    log.info(("Removing storage devices in "
+            "datacenter %s...") % datacenter.getName())
     for device in datacenter.listStorageDevices():
         device.delete()
-

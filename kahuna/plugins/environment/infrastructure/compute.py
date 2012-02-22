@@ -1,23 +1,26 @@
 #!/usr/bin/env jython
 
+import logging
 from kahuna.plugins.environment.infrastructure.network import cleanup_infrastructure_network
 from kahuna.plugins.environment.infrastructure.storage import cleanup_infrastructure_storage
 from com.abiquo.model.enumerator import HypervisorType
 from org.jclouds.abiquo.domain.infrastructure import Datacenter
-from org.jclouds.abiquo.domain.infrastructure import Machine
 from org.jclouds.abiquo.domain.infrastructure import Rack
 from org.jclouds.abiquo.reference import AbiquoEdition
 
+log = logging.getLogger('kahuna')
+
+
 class InfrastructureCompute:
     """ Provides access to infrastructure compute features. """
-    
+
     def __init__(self, context):
         """ Initialize with an existent context. """
         self.__context = context
 
     def create_datacenter(self, name, location):
         """ Creates a new datacenter. """
-        print "Creating datacenter %s at %s..." % (name, location)
+        log.info("Creating datacenter %s at %s..." % (name, location))
         rs_address = self.__context.getEndpoint().getHost()
         datacenter = Datacenter.builder(self.__context) \
                      .name(name) \
@@ -29,7 +32,7 @@ class InfrastructureCompute:
 
     def create_rack(self, datacenter, name, vlan_id_min, vlan_id_max, nrsq):
         """ Creates a new rack. """
-        print "Adding rack %s..." % name
+        log.info("Adding rack %s..." % name)
         rack = Rack.builder(self.__context, datacenter) \
                .name(name) \
                .vlanIdMin(vlan_id_min) \
@@ -39,13 +42,15 @@ class InfrastructureCompute:
         rack.save()
         return rack
 
-    def create_machine(self, rack, hyp, address, user, password, datastore, vswitch):
+    def create_machine(self, rack, hyp, address, user, password,
+            datastore, vswitch):
         """ Creates a new machine. """
-        print "Adding %s hypervisor at %s..." % (hyp, address)
+        log.info("Adding %s hypervisor at %s..." % (hyp, address))
         datacenter = rack.getDatacenter()
 
         # Discover machine info with the Discovery Manager remote service
-        machine = datacenter.discoverSingleMachine(address, hyp, user, password)
+        machine = datacenter.discoverSingleMachine(address, hyp,
+                user, password)
 
         # Verify that the desired datastore and virtual switch exist
         datastore = machine.findDatastore(datastore)
@@ -59,9 +64,10 @@ class InfrastructureCompute:
 
         return machine
 
+
 def create_infrastructure_compute(config, context):
-    """ Creates the default infrastructure compute entities using the plugin config values. """
-    print "### Configuring infrastructure ###"
+    """ Creates the default infrastructure compute entities.. """
+    log.info("### Configuring infrastructure ###")
     comp = InfrastructureCompute(context)
     dc = comp.create_datacenter(config.get("datacenter", "name"),
             config.get("datacenter", "location"))
@@ -81,14 +87,15 @@ def create_infrastructure_compute(config, context):
                 config.get(section, "vswitch"))
     return dc
 
+
 def cleanup_infrastructure_compute(config, context):
     """ Cleans up previously created infrastructure compute resources. """
-    print "### Cleaning up infrastructure ###"
+    log.info("### Cleaning up infrastructure ###")
     admin = context.getAdministrationService()
     for datacenter in admin.listDatacenters():
         cleanup_infrastructure_storage(config, datacenter)
         cleanup_infrastructure_network(config, datacenter)
-        # This will remove the datacenter and all hypervisors (if they don't contain deplopyed VMs)
-        print "Removing datacenter %s..." % datacenter.getName()
+        # This will remove the datacenter and all hypervisors
+        # (if they don't contain deplopyed VMs)
+        log.info("Removing datacenter %s..." % datacenter.getName())
         datacenter.delete()
-

@@ -1,5 +1,10 @@
 #!/usr/bin/env jython
 
+import logging
+
+log = logging.getLogger('kahuna')
+
+
 class SystemConfig:
     """ Provides access to configuration features.
 
@@ -10,7 +15,7 @@ class SystemConfig:
     def __init__(self, context):
         """ Initialize with an existing context. """
         self.__context = context
-    
+
     def get(self, property_name):
         """ Returns value if a given configuration property. """
         admin = self.__context.getAdministrationService()
@@ -23,13 +28,13 @@ class SystemConfig:
         prop.setValue(property_value)
         prop.update()
 
+
 def apply_default_configuration(config, context):
     """ Applies the default platform configuration. """
-    print "### Applying default configuration ###"
+    log.info("### Applying default configuration ###")
     sysconf = SystemConfig(context)
-    print "Disabling initial popup..."
+    log.info("Disabling initial popup...")
     sysconf.set("client.dashboard.showStartUpAlert", "0")
-    print "Setting volume size values..."
+    log.info("Setting volume size values...")
     sysconf.set("client.storage.volumeMaxSizeValues",
             "0.032,0.064,0.128,0.256,0.512,1,2,4,8,16,32,64,128,256")
-

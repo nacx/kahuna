@@ -6,6 +6,7 @@ from org.jclouds.abiquo.predicates.cloud import VolumePredicates
 
 log = logging.getLogger('kahuna')
 
+
 def find_volume(context, name):
     """ Find a volume given its name. """
     cloud = context.getCloudService()
@@ -17,10 +18,12 @@ def find_volume(context, name):
             log.debug("Found volume in virtual datacenter: %s" % vdc.getName())
             return volume
 
+
 def refresh_volume(context, volume):
     """ Refresh the given volume. """
     vdc = volume.getVirtualDatacenter()
     return vdc.getVolume(volume.getId())
+
 
 def get_attached_vm(context, volume):
     """ Get the virtual machine where the volume is attached. """
@@ -30,4 +33,3 @@ def get_attached_vm(context, volume):
         name = link.getTitle()
         cloud = context.getCloudService()
         return cloud.findVirtualMachine(VirtualMachinePredicates.name(name))
-    

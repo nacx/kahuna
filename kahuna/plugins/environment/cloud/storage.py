@@ -1,7 +1,11 @@
 #!/usr/bin/env jython
 
+import logging
 from org.jclouds.abiquo.domain.cloud import Volume
 from org.jclouds.abiquo.predicates.infrastructure import TierPredicates
+
+log = logging.getLogger('kahuna')
+
 
 class CloudStorage:
     """ Provides access to cloud storage features. """
@@ -12,7 +16,7 @@ class CloudStorage:
 
     def create_volume(self, vdc, tier, name, size):
         """ Creates a new volume in the given virtual datacenter. """
-        print "Creating volume %s of %s MB..." % (name, size)
+        log.info("Creating volume %s of %s MB..." % (name, size))
         volume = Volume.builder(self.__context, vdc, tier) \
                  .name(name) \
                  .sizeInMb(size) \
@@ -20,18 +24,20 @@ class CloudStorage:
         volume.save()
         return volume
 
+
 def create_cloud_storage(config, context, vdc):
-    """ Creates the default cloud storage entities using the plugin config values. """
-    print "### Adding persistent storage ###"
+    """ Creates the default cloud storage entities. """
+    log.info("### Adding persistent storage ###")
     storage = CloudStorage(context)
     tier = vdc.findStorageTier(TierPredicates.name(config.get("tier", "name")))
     storage.create_volume(vdc, tier,
             config.get("volume", "name"),
             config.getint("volume", "size"))
 
+
 def cleanup_cloud_storage(config, context, vdc):
     """ Cleans up a previously created cloud storage resources. """
-    print "Removing persistent volumes in virtual datacenter %s..." % vdc.getName()
+    log.info(("Removing persistent volumes in "
+            "virtual datacenter %s...") % vdc.getName())
     for volume in vdc.listVolumes():
         volume.delete()
-
