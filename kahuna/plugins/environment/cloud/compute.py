@@ -8,6 +8,7 @@ from org.jclouds.abiquo.domain.cloud import VirtualDatacenter
 from org.jclouds.abiquo.domain.cloud import VirtualMachine
 from org.jclouds.abiquo.domain.network import PrivateNetwork
 from org.jclouds.abiquo.predicates.enterprise import EnterprisePredicates
+from org.jclouds.abiquo.predicates.cloud import VirtualMachineTemplatePredicates
 
 log = logging.getLogger('kahuna')
 
@@ -69,6 +70,17 @@ def find_smallest_template(context, vdc):
     if len(templates) > 0:
         log.info("Found compatible template: %s" % templates[0].getName())
         return templates[0]
+    else:
+        log.info("No compatible template found")
+        return None
+
+
+def find_template_by_name(context, vdc, name):
+    """ Finds the template with the given name. """
+    template = vdc.listAvailableTemplates(VirtualMachineTemplatePredicates.name(name))
+    if len(template) > 0:
+        log.info("Found compatible template: %s" % template[0].getName())
+        return template[0]
     else:
         log.info("No compatible template found")
         return None
