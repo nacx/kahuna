@@ -77,13 +77,13 @@ def find_smallest_template(context, vdc):
 
 def find_template_by_name(context, vdc, name):
     """ Finds the template with the given name. """
-    template = vdc.listAvailableTemplates(VirtualMachineTemplatePredicates.name(name))
-    if len(template) > 0:
-        log.info("Found compatible template: %s" % template[0].getName())
-        return template[0]
+    template = vdc.findAvailableTemplate(VirtualMachineTemplatePredicates.name(name))
+    if template:
+        log.info("Found compatible template: %s" % template.getName())
     else:
         log.info("No compatible template found")
-        return None
+
+    return template
 
 
 def create_cloud_compute(config, context, dc):
