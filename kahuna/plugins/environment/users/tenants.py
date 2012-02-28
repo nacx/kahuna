@@ -17,7 +17,7 @@ class Tenant:
         """ Initialize with an existent context. """
         self.__context = context
 
-    def create_enterprise(self, dc, name, cpusoft, cpuhard, ramsoft, ramhard,
+    def create_enterprise(self, dcs, name, cpusoft, cpuhard, ramsoft, ramhard,
             ipsoft, iphard, storagesoft, storagehard):
         """ Creates a new enterprise. """
         log.info("Creating enterprise %s..." % name)
@@ -33,8 +33,10 @@ class Tenant:
 
         enterprise.save()
 
-        # Allow the enterprise to use a Datacenter
-        enterprise.allowDatacenter(dc)
+        for dc in dcs:
+            # Allow the enterprise to use a Datacenter
+            enterprise.allowDatacenter(dc)
+            log.info("Allowed datacenter %s to enterprise %s..." % (dc.name, name))
 
         return enterprise
 
@@ -62,7 +64,7 @@ def create_default_tenants(config, context, dc):
     """ Creates the default tenants. """
     log.info("### Configuring tenants ###")
     ten = Tenant(context)
-    enterprise = ten.create_enterprise(dc, config.get("enterprise", "name"),
+    enterprise = ten.create_enterprise([dc], config.get("enterprise", "name"),
             config.getint("enterprise", "cpu-soft"),
             config.getint("enterprise", "cpu-hard"),
             config.getint("enterprise", "ram-soft"),
