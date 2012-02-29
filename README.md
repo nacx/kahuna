@@ -104,7 +104,7 @@ Note on patches/pull requests
  * Commit.
  * Send me a pull request.
 
-You can take as an example the process explained in the [Diaspora Git workflow](If you want to contribute code to the project, take a look at the [Diaspora Git workflow](https://github.com/diaspora/diaspora/wiki/Git-Workflow).
+You can take as an example the process explained in the [Diaspora Git workflow](https://github.com/diaspora/diaspora/wiki/Git-Workflow).
 
 
 Issue Tracking
