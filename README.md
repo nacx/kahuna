@@ -96,13 +96,15 @@ to see how to create and add your own plugins.
 
 Note on patches/pull requests
 -----------------------------
- 
+
  * Fork the project.
  * Create a topic branch for your feature or bug fix.
  * Develop in the just created feature/bug branch.
  * Add tests for it. This is important so I don't break it in a future version unintentionally.
  * Commit.
  * Send me a pull request.
+
+You can take as an example the process explained in the [Diaspora Git workflow](https://github.com/diaspora/diaspora/wiki/Git-Workflow).
 
 
 Issue Tracking
