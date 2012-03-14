@@ -53,6 +53,16 @@ def undeploy_vm(context, vm):
     return refresh_vm(context, vm)
 
 
+def change_state_vm(context, vm, new_state):
+    """ Change the state of the given virtual machine. """
+    monitor = context.getMonitoringService().getVirtualMachineMonitor()
+    print("Changing state of virtual machine %s to %s... "
+        "This may take some time." % (vm.getName(), new_state.name()))
+    vm.changeState(new_state)
+    monitor.awaitState(new_state, vm)
+    return vm
+
+
 def get_virtual_datacenter_for_template(context, template):
     """ Get a virtual datacenter where the given template can be deployed. """
     datacenter = template.getDatacenter()

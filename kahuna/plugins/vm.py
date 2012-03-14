@@ -5,6 +5,7 @@ from optparse import OptionParser
 from kahuna.session import ContextLoader
 from kahuna.utils.prettyprint import pprint_vms
 from virtualmachine import helper
+from com.abiquo.server.core.cloud import VirtualMachineState
 from org.jclouds.abiquo.domain.cloud import VirtualAppliance
 from org.jclouds.abiquo.domain.cloud import VirtualMachine
 from org.jclouds.abiquo.predicates.cloud import VirtualAppliancePredicates
@@ -29,6 +30,9 @@ class VmPlugin:
         commands['undeploy'] = self.undeploy
         commands['create'] = self.create
         commands['delete'] = self.delete
+        commands['start'] = self.start
+        commands['stop'] = self.stop
+        commands['pause'] = self.pause
         return commands
 
     def list(self, args):
@@ -216,6 +220,43 @@ class VmPlugin:
                     vm.delete()
                 else:
                     vm.delete()
+            else:
+                print "No virtual machine found with name: %s" % name
+        except (AbiquoException, AuthorizationException), ex:
+            print "Error: %s" % ex.getMessage()
+        finally:
+            context.close()
+
+    def start(self, args):
+        """ Power on a virtual machine given its name. """
+        self.__change_state("start", VirtualMachineState.ON, args)
+
+    def stop(self, args):
+        """ Power off a virtual machine given its name. """
+        self.__change_state("stop", VirtualMachineState.OFF, args)
+
+    def pause(self, args):
+        """ Pause a virtual machine given its name. """
+        self.__change_state("pause", VirtualMachineState.PAUSED, args)
+
+    def __change_state(self, state_name, new_state, args):
+        """ Generic method to change the state of a virtual machine. """
+        parser = OptionParser(usage="vm %s <options>" % state_name)
+        parser.add_option("-n", "--name", dest="name",
+                help="The name of the virtual machine to %s" % state_name)
+        (options, args) = parser.parse_args(args)
+        name = options.name
+        if not name:
+            parser.print_help()
+            return
+
+        context = ContextLoader().load()
+        try:
+            cloud = context.getCloudService()
+            vm = cloud.findVirtualMachine(VirtualMachinePredicates.name(name))
+            if vm:
+                helper.change_state_vm(context, vm, new_state)
+                pprint_vms([vm])
             else:
                 print "No virtual machine found with name: %s" % name
         except (AbiquoException, AuthorizationException), ex:
