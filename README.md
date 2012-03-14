@@ -73,7 +73,7 @@ use the 'shell' plugin as follows:
     [Java HotSpot(TM) Server VM (Sun Microsystems Inc.)] on java1.6.0_18
     Type "help", "copyright", "credits" or "license" for more information.
     >>> from kahuna.session import ContextLoader
-    >>> ctx = ContextLoader().load_context()
+    >>> ctx = ContextLoader().load()
     Using endpoint: http://10.60.1.222/api
     >>> cloud = ctx.getCloudService()         
     >>> cloud.listVirtualDatacenters()
