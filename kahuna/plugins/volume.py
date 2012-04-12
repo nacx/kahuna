@@ -70,7 +70,7 @@ class VolumePlugin:
         parser = OptionParser(usage="volume attach <options>")
         parser.add_option("-n", "--name", dest="name",
                 help="The name of the volume to attach")
-        parser.add_option("-v", "--vm", dest="name",
+        parser.add_option("-v", "--vm", dest="vm",
                 help=("The name of the virtual machine "
                 "where the volume will be attached"))
         (options, args) = parser.parse_args(args)
@@ -107,7 +107,7 @@ class VolumePlugin:
     def detach(self, args):
         """ Detach a volume from the given virtual machine. """
         parser = OptionParser(usage="volume detach <options>")
-        parser.add_option("-n", "--name", dest="name>",
+        parser.add_option("-n", "--name", dest="name",
                 help="The name of the volume to detach")
         (options, args) = parser.parse_args(args)
         if not options.name:

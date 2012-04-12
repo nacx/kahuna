@@ -108,6 +108,7 @@ class MachinePlugin:
         hypervisor = options.hypervisor
 
         context = ContextLoader().load()
+        api_context = context.getProviderSpecificContext()
         try:
             admin = context.getAdministrationService()
 
@@ -116,7 +117,7 @@ class MachinePlugin:
             dc = admin.findDatacenter(DatacenterPredicates.name('kahuna'))
             if not dc:
                 log.debug("No datacenter 'kahuna' found.")
-                dc = Datacenter.builder(context) \
+                dc = Datacenter.builder(api_context) \
                         .name('kahuna') \
                         .location('terrassa') \
                         .remoteServices(rsip,AbiquoEdition.ENTERPRISE) \
@@ -130,13 +131,13 @@ class MachinePlugin:
                         return
                     else:
                         raise ex
-                rack = Rack.builder(context,dc).name('rack').build()
+                rack = Rack.builder(api_ontext,dc).name('rack').build()
                 rack.save()
                 log.debug("New datacenter 'kahuna' created.")
             else:
                 rack = dc.findRack(RackPredicates.name('rack'))
                 if not rack:
-                    rack = Rack.builder(context,dc).name('rack').build()
+                    rack = Rack.builder(api_context,dc).name('rack').build()
                     rack.save()
                 log.debug("Datacenter 'kahuna' found")
         

@@ -23,7 +23,8 @@ class Tenant:
         log.info("Creating enterprise %s..." % name)
 
         # Create the enterprise with the limits
-        enterprise = Enterprise.builder(self.__context) \
+        enterprise = Enterprise.builder(
+                self.__context.getProviderSpecificContext()) \
                      .name(name) \
                      .cpuCountLimits(cpusoft, cpuhard) \
                      .ramLimits(ramsoft, ramhard) \
@@ -36,7 +37,8 @@ class Tenant:
         for dc in dcs:
             # Allow the enterprise to use a Datacenter
             enterprise.allowDatacenter(dc)
-            log.info("Allowed datacenter %s to enterprise %s..." % (dc.name, name))
+            log.info("Allowed datacenter %s to enterprise %s..." % (dc.name,
+                name))
 
         return enterprise
 
@@ -48,7 +50,8 @@ class Tenant:
         admin = self.__context.getAdministrationService()
         role = admin.findRole(RolePredicates.name(role))
 
-        user = User.builder(self.__context, enterprise, role) \
+        user = User.builder(self.__context.getProviderSpecificContext(),
+                enterprise, role) \
                .name(name, surname) \
                .email(email) \
                .nick(nick) \

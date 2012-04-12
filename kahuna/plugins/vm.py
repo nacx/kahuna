@@ -149,6 +149,7 @@ class VmPlugin:
             return
 
         context = ContextLoader().load()
+        api_context = context.getProviderSpecificContext()
         try:
             template = helper.find_template_by_id(context, options.template)
             if not template:
@@ -163,18 +164,18 @@ class VmPlugin:
                 return
             log.debug("Using virtual datacenter: %s" % vdc.getName())
 
-            name = "Kahuna-" + context.getIdentity()
+            name = "Kahuna-" + api_context.getIdentity()
             vapp = vdc.findVirtualAppliance(
                     VirtualAppliancePredicates.name(name))
             if not vapp:
                 log.debug(("Virtual appliance %s not found. "
                     "Creating it...") % name)
-                vapp = VirtualAppliance.builder(context, vdc) \
+                vapp = VirtualAppliance.builder(api_context, vdc) \
                         .name(name) \
                         .build()
                 vapp.save()
 
-            builder = VirtualMachine.builder(context, vapp, template)
+            builder = VirtualMachine.builder(api_context, vapp, template)
             if options.cpu:
                 builder.cpu(options.cpu)
             if options.ram:

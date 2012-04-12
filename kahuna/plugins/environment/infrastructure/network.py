@@ -13,7 +13,7 @@ class InfrastructureNetwork:
 
     def __init__(self, context):
         """ Initialize with an existent context. """
-        self.__context = context
+        self.__context = context.getProviderSpecificContext()
 
     def create_public_network(self, datacenter, netname, netaddress,
             netmask, netgateway, nettag, netdns):

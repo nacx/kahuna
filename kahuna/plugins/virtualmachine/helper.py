@@ -66,9 +66,10 @@ def change_state_vm(context, vm, new_state):
 def get_virtual_datacenter_for_template(context, template):
     """ Get a virtual datacenter where the given template can be deployed. """
     datacenter = template.getDatacenter()
+    api_context = context.getProviderSpecificContext()
     vdcs = find_compatible_virtual_datacenters(context,
             template.getDiskFormatType(), datacenter)
-    pattern = "Kahuna-%s-" + context.getIdentity()
+    pattern = "Kahuna-%s-" + api_context.getIdentity()
     vdcs = filter(lambda vdc: vdc.getName() ==
             (pattern % vdc.getHypervisorType().name()), vdcs)
 
@@ -78,13 +79,13 @@ def get_virtual_datacenter_for_template(context, template):
         admin = context.getAdministrationService()
         enterprise = admin.getCurrentUserInfo().getEnterprise()
 
-        network = PrivateNetwork.builder(context) \
-            .name("Kahuna-" + context.getIdentity()) \
+        network = PrivateNetwork.builder(api_context) \
+            .name("Kahuna-" + api_context.getIdentity()) \
             .gateway("192.168.1.1") \
             .address("192.168.1.0") \
             .mask(24) \
             .build()
-        vdc = VirtualDatacenter.builder(context, datacenter, enterprise) \
+        vdc = VirtualDatacenter.builder(api_context, datacenter, enterprise) \
             .network(network) \
             .build()
 

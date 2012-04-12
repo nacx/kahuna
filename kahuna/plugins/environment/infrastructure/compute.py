@@ -16,7 +16,7 @@ class InfrastructureCompute:
 
     def __init__(self, context):
         """ Initialize with an existent context. """
-        self.__context = context
+        self.__context = context.getProviderSpecificContext()
 
     def create_datacenter(self, name, location):
         """ Creates a new datacenter. """

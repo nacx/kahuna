@@ -18,7 +18,7 @@ class CloudCompute:
 
     def __init__(self, context):
         """ Initialize the cloud creator with an existent context. """
-        self.__context = context
+        self.__context = context.getProviderSpecificContext()
 
     def create_virtual_datacenter(self, datacenter, enterprise, type,
             name, netname, netaddress, netmask, netgateway):
@@ -77,7 +77,8 @@ def find_smallest_template(context, vdc):
 
 def find_template_by_name(context, vdc, name):
     """ Finds the template with the given name. """
-    template = vdc.findAvailableTemplate(VirtualMachineTemplatePredicates.name(name))
+    template = vdc.findAvailableTemplate(
+            VirtualMachineTemplatePredicates.name(name))
     if template:
         log.info("Found compatible template: %s" % template.getName())
     else:
