@@ -149,7 +149,7 @@ class VmPlugin:
             return
 
         context = ContextLoader().load()
-        api_context = context.getProviderSpecificContext()
+        api_context = context.getApiContext()
         try:
             template = helper.find_template_by_id(context, options.template)
             if not template:

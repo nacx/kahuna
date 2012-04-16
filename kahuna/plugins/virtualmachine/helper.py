@@ -14,8 +14,7 @@ log = logging.getLogger('kahuna')
 def find_template_by_id(context, id):
     """ Find a template given its id. """
     admin = context.getAdministrationService()
-    user = admin.getCurrentUserInfo()
-    enterprise = user.getEnterprise()
+    enterprise = admin.getCurrentEnterprise()
     return enterprise.findTemplate(VirtualMachineTemplatePredicates.id(id))
 
 
@@ -66,7 +65,7 @@ def change_state_vm(context, vm, new_state):
 def get_virtual_datacenter_for_template(context, template):
     """ Get a virtual datacenter where the given template can be deployed. """
     datacenter = template.getDatacenter()
-    api_context = context.getProviderSpecificContext()
+    api_context = context.getApiContext()
     vdcs = find_compatible_virtual_datacenters(context,
             template.getDiskFormatType(), datacenter)
     pattern = "Kahuna-%s-" + api_context.getIdentity()
@@ -77,7 +76,7 @@ def get_virtual_datacenter_for_template(context, template):
         log.debug("No default virtual datacenter was found. Creating it...")
 
         admin = context.getAdministrationService()
-        enterprise = admin.getCurrentUserInfo().getEnterprise()
+        enterprise = admin.getCurrentEnterprise()
 
         network = PrivateNetwork.builder(api_context) \
             .name("Kahuna-" + api_context.getIdentity()) \

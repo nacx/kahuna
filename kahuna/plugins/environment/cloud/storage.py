@@ -12,7 +12,7 @@ class CloudStorage:
 
     def __init__(self, context):
         """ Initialize the cloud creator with an existent context. """
-        self.__context = context.getProviderSpecificContext()
+        self.__context = context.getApiContext()
 
     def create_volume(self, vdc, tier, name, size):
         """ Creates a new volume in the given virtual datacenter. """

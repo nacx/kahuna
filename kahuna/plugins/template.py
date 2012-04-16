@@ -25,8 +25,7 @@ class TemplatePlugin:
         context = ContextLoader().load()
         try:
             admin = context.getAdministrationService()
-            user = admin.getCurrentUserInfo()
-            enterprise = user.getEnterprise()
+            enterprise = admin.getCurrentEnterprise()
             templates = enterprise.listTemplates()
             pprint_templates(templates)
         except (AbiquoException, AuthorizationException), ex:
@@ -50,8 +49,7 @@ class TemplatePlugin:
         context = ContextLoader().load()
         try:
             admin = context.getAdministrationService()
-            user = admin.getCurrentUserInfo()
-            enterprise = user.getEnterprise()
+            enterprise = admin.getCurrentEnterprise()
             template = enterprise.findTemplate(
                     VirtualMachineTemplatePredicates.name(name))
             if template:

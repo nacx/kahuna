@@ -5,8 +5,8 @@ import logging
 
 from config import Config
 from java.util import Properties
-from org.jclouds.abiquo import AbiquoApiMetadata
-from org.jclouds.rest.internal import ContextBuilder
+from org.jclouds import ContextBuilder
+from org.jclouds.abiquo import AbiquoApiMetadata, AbiquoContext
 
 log = logging.getLogger('kahuna')
 
@@ -28,7 +28,7 @@ class ContextLoader:
         """ Closes the context before destroying. """
         if self.__context:
             log.debug("Disconnecting from %s" % self.__context. \
-                    getProviderSpecificContext().getEndpoint())
+                    getApiContext().getEndpoint())
             self.__context.close()
 
     def load(self):
@@ -42,7 +42,7 @@ class ContextLoader:
                 .endpoint(endpoint) \
                 .credentials(self.__config.user, self.__config.password) \
                 .overrides(props) \
-                .build()
+                .build(AbiquoContext)
             # Close context automatically when exiting
             atexit.register(self.__del__)
             return self.__context

@@ -18,7 +18,7 @@ class CloudCompute:
 
     def __init__(self, context):
         """ Initialize the cloud creator with an existent context. """
-        self.__context = context.getProviderSpecificContext()
+        self.__context = context.getApiContext()
 
     def create_virtual_datacenter(self, datacenter, enterprise, type,
             name, netname, netaddress, netmask, netgateway):

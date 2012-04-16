@@ -24,7 +24,7 @@ class Tenant:
 
         # Create the enterprise with the limits
         enterprise = Enterprise.builder(
-                self.__context.getProviderSpecificContext()) \
+                self.__context.getApiContext()) \
                      .name(name) \
                      .cpuCountLimits(cpusoft, cpuhard) \
                      .ramLimits(ramsoft, ramhard) \
@@ -50,7 +50,7 @@ class Tenant:
         admin = self.__context.getAdministrationService()
         role = admin.findRole(RolePredicates.name(role))
 
-        user = User.builder(self.__context.getProviderSpecificContext(),
+        user = User.builder(self.__context.getApiContext(),
                 enterprise, role) \
                .name(name, surname) \
                .email(email) \

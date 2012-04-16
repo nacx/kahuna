@@ -108,7 +108,7 @@ class MachinePlugin:
         hypervisor = options.hypervisor
 
         context = ContextLoader().load()
-        api_context = context.getProviderSpecificContext()
+        api_context = context.getApiContext()
         try:
             admin = context.getAdministrationService()
 

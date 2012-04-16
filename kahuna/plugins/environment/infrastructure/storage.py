@@ -14,7 +14,7 @@ class InfrastructureStorage:
 
     def __init__(self, context):
         """ Initialize with an existent context. """
-        self.__context = context.getProviderSpecificContext()
+        self.__context = context.getApiContext()
 
     def configure_tiers(self, datacenter, tier):
         """ Configure the default tiers of the datacenter. """
