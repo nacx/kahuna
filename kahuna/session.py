@@ -7,6 +7,7 @@ from config import Config
 from java.util import Properties
 from org.jclouds import ContextBuilder
 from org.jclouds.abiquo import AbiquoApiMetadata, AbiquoContext
+from org.jclouds.logging.config import NullLoggingModule
 
 log = logging.getLogger('kahuna')
 
@@ -41,6 +42,7 @@ class ContextLoader:
             self.__context = ContextBuilder.newBuilder(AbiquoApiMetadata()) \
                 .endpoint(endpoint) \
                 .credentials(self.__config.user, self.__config.password) \
+                .modules([NullLoggingModule()]) \
                 .overrides(props) \
                 .build(AbiquoContext)
             # Close context automatically when exiting

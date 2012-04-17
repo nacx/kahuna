@@ -131,7 +131,7 @@ class MachinePlugin:
                         return
                     else:
                         raise ex
-                rack = Rack.builder(api_ontext,dc).name('rack').build()
+                rack = Rack.builder(api_context,dc).name('rack').build()
                 rack.save()
                 log.debug("New datacenter 'kahuna' created.")
             else:
