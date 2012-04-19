@@ -7,6 +7,7 @@
     
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <jclouds.version>1.5.0-SNAPSHOT</jclouds.version>
     </properties>
 
     <repositories>
@@ -22,6 +23,11 @@
             <groupId>org.jclouds.provider</groupId>
             <artifactId>jclouds-abiquo</artifactId>
             <version>2.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jclouds.driver</groupId>
+            <artifactId>jclouds-jsch</artifactId>
+            <version>${jclouds.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>
