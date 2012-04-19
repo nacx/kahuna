@@ -16,6 +16,11 @@
             <name>Abiquo Maven Repository</name>
             <url>http://repo.community.abiquo.com/repo</url>
         </repository>
+        <repository>
+            <id>jclouds-snapshots</id>
+            <name>Sonatype Snapshot Repository</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </repository>
     </repositories>
 
     <dependencies>
