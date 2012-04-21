@@ -1,6 +1,7 @@
 #!/usr/bin/env jython
 
 import logging
+import os
 from java.io import File
 from kahuna.config import ConfigLoader
 from com.google.common.collect import Iterables
@@ -20,9 +21,10 @@ log = logging.getLogger('kahuna')
 class MothershipPlugin:
     """ Mothership plugin. """
     def __init__(self):
-        self.__endpoint = "http://mothership.bcn.abiquo.com/api"
         self.__config = ConfigLoader().load("mothership.conf",
                 "config/mothership.conf")
+        self.__endpoint = "http://%s/api" % \
+                self.__config.get("mothership", "host")
         self.__scriptdir = "kahuna/plugins/mothership"
 
     def commands(self):
@@ -95,7 +97,10 @@ class MothershipPlugin:
             log.info("KVM deployed at %s"
                     % Iterables.getOnlyElement(node.getPrivateAddresses()))
 
-            ## TODO: read abiquo-aim.ini and replace redis host and port
+            redishost = self.__config.get("deploy-kvm", "redis_host")
+            redisport = self.__config.get("deploy-kvm", "redis_port")
+            self._complete_file("abiquo-aim.ini", {'redishost': redishost,
+                'redisport': redisport})
             self._upload_file_node(context, node, "/etc/", "abiquo-aim.ini")
             f = open(self.__scriptdir + "/configure-kvm.sh", "r")
             script = f.read()
@@ -114,6 +119,7 @@ class MothershipPlugin:
         finally:
             context.close()
 
+    # Util functions
     def _create_context(self):
         user = self.__config.get("mothership", "user")
         password = self.__config.get("mothership", "password")
@@ -149,7 +155,12 @@ class MothershipPlugin:
 
     def _upload_file_node(self, context, node, destination, filename):
         ssh = context.getUtils().sshForNode().apply(node)
-        file = File(self.__scriptdir + "/" + filename)
+        file = File(self.__scriptdir + "/" + filename + ".tmp")
+        tmpfile = True
+        if not file:
+            file = File(self.__scriptdir + "/" + filename)
+            tmpfile = False
+
         try:
             ssh.connect()
             log.info("Uploading file %s..." % filename)
@@ -158,6 +169,18 @@ class MothershipPlugin:
         finally:
             if ssh:
                 ssh.disconnect()
+            if tmpfile:
+                os.remove(file.getPath())
+
+    def _complete_file(self, filename, dictionary):
+        f = open(self.__scriptdir + "/" + filename, "r")
+        content = f.read()
+        f.close()
+        content = content % dictionary
+        f = open(self.__scriptdir + "/" + filename + ".tmp", "w")
+        f.write(content)
+        f.close()
+        log.info("File completed")
 
 
 def load():
