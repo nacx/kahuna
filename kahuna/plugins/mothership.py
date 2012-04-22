@@ -97,13 +97,18 @@ class MothershipPlugin:
             log.info("KVM deployed at %s"
                     % Iterables.getOnlyElement(node.getPrivateAddresses()))
 
+            # abiquo-aim.ini
             redishost = self.__config.get("deploy-kvm", "redis_host")
             redisport = self.__config.get("deploy-kvm", "redis_port")
             self._complete_file("abiquo-aim.ini", {'redishost': redishost,
                 'redisport': redisport})
             self._upload_file_node(context, node, "/etc/", "abiquo-aim.ini")
+
+            # configure-kvm.sh
+            nfsfrom = self.__config.get("deploy-kvm", "nfs_from")
+            nfsto = self.__config.get("deploy-kvm", "nfs_to")
             f = open(self.__scriptdir + "/configure-kvm.sh", "r")
-            script = f.read()
+            script = f.read() % {'nfsfrom': nfsfrom, 'nfsto': nfsto}
             f.close()
 
             log.info("Configuring kvm...")
@@ -180,7 +185,7 @@ class MothershipPlugin:
         f = open(self.__scriptdir + "/" + filename + ".tmp", "w")
         f.write(content)
         f.close()
-        log.info("File completed")
+        log.info("File %s completed" % filename)
 
 
 def load():
