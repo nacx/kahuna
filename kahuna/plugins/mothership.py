@@ -50,7 +50,7 @@ class MothershipPlugin:
 
             log.info("Deploying node...")
             node = Iterables.getOnlyElement(
-                    compute.createNodesInGroup("jclouds-chef", 1, template))
+                    compute.createNodesInGroup("kahuna-chef", 1, template))
 
             f = open(self.__scriptdir + "/configure-chef.sh", "r")
             script_contents = f.read()
@@ -97,16 +97,18 @@ class MothershipPlugin:
             log.info("KVM deployed at %s"
                     % Iterables.getOnlyElement(node.getPrivateAddresses()))
 
-            # abiquo-aim.ini
+            # configuration values
             redishost = self.__config.get("deploy-kvm", "redis_host")
             redisport = self.__config.get("deploy-kvm", "redis_port")
+            nfsto = self.__config.get("deploy-kvm", "nfs_to")
+            nfsfrom = self.__config.get("deploy-kvm", "nfs_from")
+
+            # abiquo-aim.ini
             self._complete_file("abiquo-aim.ini", {'redishost': redishost,
-                'redisport': redisport})
+                'redisport': redisport, 'nfsto': nfsto})
             self._upload_file_node(context, node, "/etc/", "abiquo-aim.ini")
 
             # configure-kvm.sh
-            nfsfrom = self.__config.get("deploy-kvm", "nfs_from")
-            nfsto = self.__config.get("deploy-kvm", "nfs_to")
             f = open(self.__scriptdir + "/configure-kvm.sh", "r")
             script = f.read() % {'nfsfrom': nfsfrom, 'nfsto': nfsto}
             f.close()
