@@ -46,18 +46,17 @@ class MothershipPlugin:
             options = self._template_options(compute, "deploy-chef")
             template = compute.templateBuilder() \
                     .imageNameMatches(name) \
-                    .options(options.blockOnPort(4000, 60)) \
+                    .options(options.blockOnPort(4000, 90)) \
                     .build()
 
             log.info("Deploying node...")
             node = Iterables.getOnlyElement(
                     compute.createNodesInGroup("kahuna-chef", 1, template))
 
-            f = open(self.__scriptdir + "/configure-chef.sh", "r")
-            script_contents = f.read()
-            f.close()
             cookbooks = self.__config.get("deploy-chef", "cookbooks")
-            script = "COOKBOOKS=(%s)\n%s" % (cookbooks, script_contents)
+            f = open(self.__scriptdir + "/configure-chef.sh", "r")
+            script = f.read() % {'cookbooks': cookbooks}
+            f.close()
 
             log.info("Configuring node with cookbooks: %s..." % cookbooks)
             compute.runScriptOnNode(node.getId(), script)

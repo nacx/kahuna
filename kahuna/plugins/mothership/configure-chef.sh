@@ -1,5 +1,4 @@
-# The COOKBOOKS variable is defined in the mothership.py plugin
-
+COOKBOOKS=(%(cookbooks)s)
 COOKBOOK_DIR=${HOME}/cookbooks
 
 echo "Installing git..."
