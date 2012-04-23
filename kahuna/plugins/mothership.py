@@ -19,7 +19,7 @@ log = logging.getLogger('kahuna')
 
 
 class MothershipPlugin:
-    """ Mothership plugin. """
+    """ Mothership plugin """
     def __init__(self):
         self.__config = ConfigLoader().load("mothership.conf",
                 "config/mothership.conf")
@@ -28,14 +28,15 @@ class MothershipPlugin:
         self.__scriptdir = "kahuna/plugins/mothership"
 
     def commands(self):
-        """ Returns the provided commands, mapped to handler methods. """
+        """ Returns the provided commands, mapped to handler methods """
         commands = {}
         commands['deploy-chef'] = self.deploy_chef
         commands['deploy-kvm'] = self.deploy_kvm
+        commands['deploy-vbox'] = self.deploy_vbox
         return commands
 
     def deploy_chef(self, args):
-        """ Deploys and configures the Chef Server. """
+        """ Deploys and configures a Chef Server """
         context = self._create_context()
         compute = context.getComputeService()
 
@@ -70,22 +71,28 @@ class MothershipPlugin:
             self._print_node_file(context, node, "/etc/chef/webui.pem")
 
         except RunNodesException, ex:
-            for error in ex.getExecutionErrors().values():
-                print "Error %s" % error.getMessage()
-            for error in ex.getNodeErrors().values():
-                print "Error %s" % error.getMessage()
+            self._print_node_errors(ex)
         finally:
             context.close()
 
     def deploy_kvm(self, args):
-        """ Deploys and configures a KVM Hypervisor """
+        """ Deploys and configures a KVM hypervisor """
+        self._deploy_aim("deploy-kvm", "kahuna-kvm")
+
+    def deploy_vbox(self, args):
+        """ Deploys and configures a VirtualBox hypervisor """
+        self._deploy_aim("deploy-vbox", "kahuna-vbox")
+
+    # Utility functions
+    def _deploy_aim(self, config_section, vapp_name):
+        """ Deploys and configures an AIM based hypervisor """
         context = self._create_context()
         compute = context.getComputeService()
 
         try:
-            name = self.__config.get("deploy-kvm", "template")
+            name = self.__config.get(config_section, "template")
             log.info("Loading template: %s" % name)
-            options = self._template_options(compute, "deploy-kvm")
+            options = self._template_options(compute, config_section)
             template = compute.templateBuilder() \
                     .imageNameMatches(name) \
                     .options(options) \
@@ -93,40 +100,36 @@ class MothershipPlugin:
 
             log.info("Deploying node...")
             node = Iterables.getOnlyElement(
-                    compute.createNodesInGroup("kahuna-kvm", 1, template))
-            log.info("KVM deployed at %s"
-                    % Iterables.getOnlyElement(node.getPrivateAddresses()))
+                    compute.createNodesInGroup(vapp_name, 1, template))
 
-            # configuration values
-            redishost = self.__config.get("deploy-kvm", "redis_host")
-            redisport = self.__config.get("deploy-kvm", "redis_port")
-            nfsto = self.__config.get("deploy-kvm", "nfs_to")
-            nfsfrom = self.__config.get("deploy-kvm", "nfs_from")
+            # Configuration values
+            redishost = self.__config.get(config_section, "redis_host")
+            redisport = self.__config.get(config_section, "redis_port")
+            nfsto = self.__config.get(config_section, "nfs_to")
+            nfsfrom = self.__config.get(config_section, "nfs_from")
 
             # abiquo-aim.ini
             self._complete_file("abiquo-aim.ini", {'redishost': redishost,
                 'redisport': redisport, 'nfsto': nfsto})
             self._upload_file_node(context, node, "/etc/", "abiquo-aim.ini")
 
-            # configure-kvm.sh
-            f = open(self.__scriptdir + "/configure-kvm.sh", "r")
+            # configure-aim-node.sh
+            f = open(self.__scriptdir + "/configure-aim-node.sh", "r")
             script = f.read() % {'nfsfrom': nfsfrom, 'nfsto': nfsto}
             f.close()
 
-            log.info("Configuring kvm...")
+            log.info("Configuring node...")
             compute.runScriptOnNode(node.getId(), script)
 
-            log.info("KVM Hypervisor configured!")
+            log.info("Node configured!")
+            log.info("You can access it at: ssh://%s" %
+                    Iterables.getOnlyElement(node.getPrivateAddresses()))
 
         except RunNodesException, ex:
-            for error in ex.getExecutionErrors().values():
-                print "Error %s" % error.getMessage()
-            for error in ex.getNodeErrors().values():
-                print "Error %s" % error.getMessage()
+            self._print_node_errors(ex)
         finally:
             context.close()
 
-    # Util functions
     def _create_context(self):
         user = self.__config.get("mothership", "user")
         password = self.__config.get("mothership", "password")
@@ -189,7 +192,13 @@ class MothershipPlugin:
         f.close()
         log.info("File %s completed" % filename)
 
+    def _print_node_errors(ex):
+        for error in ex.getExecutionErrors().values():
+            print "Error %s" % error.getMessage()
+        for error in ex.getNodeErrors().values():
+            print "Error %s" % error.getMessage()
+
 
 def load():
-    """ Loads the current plugin. """
+    """ Loads the current plugin """
     return MothershipPlugin()
