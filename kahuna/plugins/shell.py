@@ -5,21 +5,21 @@ EXIT_OPEN_SHELL = 10
 
 
 class ShellPlugin:
-    """ Interactive shell plugin. """
+    """ Interactive shell plugin """
     def __init__(self):
         pass
 
     def commands(self):
-        """ Returns the provided commands, mapped to handler methods. """
+        """ Returns the provided commands, mapped to handler methods """
         commands = {}
         commands['open'] = self.open
         return commands
 
     def open(self, args):
-        """ Opens an interactive shell. """
+        """ Opens an interactive shell """
         return EXIT_OPEN_SHELL
 
 
 def load():
-    """ Loads the current plugin. """
+    """ Loads the current plugin """
     return ShellPlugin()

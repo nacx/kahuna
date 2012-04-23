@@ -13,12 +13,12 @@ log = logging.getLogger('kahuna')
 
 
 class VolumePlugin:
-    """ Volume plugin. """
+    """ Volume plugin """
     def __init__(self):
         pass
 
     def commands(self):
-        """ Returns the provided commands, mapped to handler methods. """
+        """ Returns the provided commands, mapped to handler methods """
         commands = {}
         commands['list'] = self.list
         commands['find'] = self.find
@@ -27,7 +27,7 @@ class VolumePlugin:
         return commands
 
     def list(self, args):
-        """ List all available volumes. """
+        """ List all available volumes """
         context = ContextLoader().load()
         try:
             cloud = context.getCloudService()
@@ -41,7 +41,7 @@ class VolumePlugin:
             context.close()
 
     def find(self, args):
-        """ Find an available volume given its name. """
+        """ Find an available volume given its name """
         # Parse user input to get the name of the volume
         parser = OptionParser(usage="volume find <options>")
         parser.add_option("-n", "--name", dest="name",
@@ -66,7 +66,7 @@ class VolumePlugin:
             context.close()
 
     def attach(self, args):
-        """ Attach a volume to the given virtual machine. """
+        """ Attach a volume to the given virtual machine """
         parser = OptionParser(usage="volume attach <options>")
         parser.add_option("-n", "--name", dest="name",
                 help="The name of the volume to attach")
@@ -105,7 +105,7 @@ class VolumePlugin:
             context.close()
 
     def detach(self, args):
-        """ Detach a volume from the given virtual machine. """
+        """ Detach a volume from the given virtual machine """
         parser = OptionParser(usage="volume detach <options>")
         parser.add_option("-n", "--name", dest="name",
                 help="The name of the volume to detach")
@@ -142,5 +142,5 @@ class VolumePlugin:
 
 
 def load():
-    """ Loads the current plugin. """
+    """ Loads the current plugin """
     return VolumePlugin()

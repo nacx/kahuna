@@ -17,19 +17,19 @@ from org.jclouds.rest import AuthorizationException
 
 
 class EnvironmentPlugin:
-    """ Environment generator plugin. """
+    """ Environment generator plugin """
     def __init__(self):
         self.__config = ConfigLoader().load("env.conf", "config/env.conf")
 
     def commands(self):
-        """ Returns the available commands in this plugin. """
+        """ Returns the available commands in this plugin """
         commands = {}
         commands['create'] = self.create
         commands['clean'] = self.cleanup
         return commands
 
     def create(self, args):
-        """ Creates the environment. """
+        """ Creates the environment """
         context = ContextLoader().load()
         try:
             apply_default_configuration(self.__config, context)
@@ -45,7 +45,7 @@ class EnvironmentPlugin:
             context.close()
 
     def cleanup(self, args):
-        """ Cleans up the environment. """
+        """ Cleans up the environment """
         context = ContextLoader().load()
         try:
             cleanup_cloud_compute(self.__config, context)
@@ -58,5 +58,5 @@ class EnvironmentPlugin:
 
 
 def load():
-    """ Loads the environment plugin. """
+    """ Loads the environment plugin """
     return EnvironmentPlugin()

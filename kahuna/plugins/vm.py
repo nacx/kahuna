@@ -17,12 +17,12 @@ log = logging.getLogger('kahuna')
 
 
 class VmPlugin:
-    """ Virtual machine plugin. """
+    """ Virtual machine plugin """
     def __init__(self):
         pass
 
     def commands(self):
-        """ Returns the provided commands, mapped to handler methods. """
+        """ Returns the provided commands, mapped to handler methods """
         commands = {}
         commands['list'] = self.list
         commands['find'] = self.find
@@ -36,7 +36,7 @@ class VmPlugin:
         return commands
 
     def list(self, args):
-        """ List all virtual machines. """
+        """ List all virtual machines """
         context = ContextLoader().load()
         try:
             cloud = context.getCloudService()
@@ -48,7 +48,7 @@ class VmPlugin:
             context.close()
 
     def find(self, args):
-        """ Find a virtual machine given its name. """
+        """ Find a virtual machine given its name """
         # Parse user input to get the name of the virtual machine
         parser = OptionParser(usage="vm find <options>")
         parser.add_option("-n", "--name", dest="name",
@@ -77,7 +77,7 @@ class VmPlugin:
             context.close()
 
     def deploy(self, args):
-        """ Deploy an existing virtual machine given its name. """
+        """ Deploy an existing virtual machine given its name """
         # Parse user input to get the name of the virtual machine
         parser = OptionParser(usage="vm deploy <options>")
         parser.add_option("-n", "--name", dest="name",
@@ -104,7 +104,7 @@ class VmPlugin:
             context.close()
 
     def undeploy(self, args):
-        """ Undeploy an existing virtual machine given its name. """
+        """ Undeploy an existing virtual machine given its name """
         # Parse user input to get the name of the virtual machine
         parser = OptionParser(usage="vm undeploy <options>")
         parser.add_option("-n", "--name", dest="name",
@@ -131,7 +131,7 @@ class VmPlugin:
             context.close()
 
     def create(self, args):
-        """ Creates a virtual machine based on a given template. """
+        """ Creates a virtual machine based on a given template """
         # Parse user input to get the name of the virtual machine
         parser = OptionParser(usage="vm create <options>")
         parser.add_option("-t", "--template-id", dest="template",
@@ -193,7 +193,7 @@ class VmPlugin:
             context.close()
 
     def delete(self, args):
-        """ Delete a virtual machine given its name. """
+        """ Delete a virtual machine given its name """
         # Parse user input to get the name of the virtual machine
         parser = OptionParser(usage="vm delete <options>")
         parser.add_option("-n", "--name", dest="name",
@@ -229,19 +229,19 @@ class VmPlugin:
             context.close()
 
     def start(self, args):
-        """ Power on a virtual machine given its name. """
+        """ Power on a virtual machine given its name """
         self.__change_state("start", VirtualMachineState.ON, args)
 
     def stop(self, args):
-        """ Power off a virtual machine given its name. """
+        """ Power off a virtual machine given its name """
         self.__change_state("stop", VirtualMachineState.OFF, args)
 
     def pause(self, args):
-        """ Pause a virtual machine given its name. """
+        """ Pause a virtual machine given its name """
         self.__change_state("pause", VirtualMachineState.PAUSED, args)
 
     def __change_state(self, state_name, new_state, args):
-        """ Generic method to change the state of a virtual machine. """
+        """ Generic method to change the state of a virtual machine """
         parser = OptionParser(usage="vm %s <options>" % state_name)
         parser.add_option("-n", "--name", dest="name",
                 help="The name of the virtual machine to %s" % state_name)
@@ -267,5 +267,5 @@ class VmPlugin:
 
 
 def load():
-    """ Loads the current plugin. """
+    """ Loads the current plugin """
     return VmPlugin()

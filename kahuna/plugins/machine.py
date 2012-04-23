@@ -17,12 +17,12 @@ from com.abiquo.model.enumerator import HypervisorType
 log = logging.getLogger("kahuna")
 
 class MachinePlugin:
-    """ Physical machines plugin. """
+    """ Physical machines plugin """
     def __init__(self):
         self.__config = ConfigLoader().load("machine.conf","config/machine.conf")
 
     def commands(self):
-        """ Returns the commands provided by the plugin, mapped to the handler methods. """
+        """ Returns the commands provided by the plugin, mapped to the handler methods """
         commands = {}
         commands['check'] = self.checkMachines
         commands['create'] = self.createMachine
@@ -31,7 +31,7 @@ class MachinePlugin:
         return commands
 
     def checkMachines(self, args):
-        """ Check state from physical machine. """
+        """ Check state from physical machine """
         parser = OptionParser(usage="machine check <options>")
         parser.add_option("-n","--name",help="the name of the physical machine",action="store",dest="name")
         parser.add_option("-i","--host",help="the ip of the physical machine",action="store",dest="host")
@@ -76,7 +76,7 @@ class MachinePlugin:
             print "Error %s" % ex.getMessage()
 
     def createMachine(self, args):
-        """ Create a physical machine in abiquo. This method uses configurable constats for default values."""
+        """ Create a physical machine in abiquo """
         parser = OptionParser(usage="machine create --host <host> <options>")
 
         # create options
@@ -191,7 +191,7 @@ class MachinePlugin:
             context.close()
 
     def deleteMachine(self, args):
-        """ Remove a physical machine from abiquo. """
+        """ Remove a physical machine from abiquo """
         parser = OptionParser(usage="machine delete <options>")
         parser.add_option("-n","--name",help="the name of the physical machine",action="store",dest="name")
         parser.add_option("-i","--host",help="the ip of the physical machine",action="store",dest="host")
@@ -245,6 +245,6 @@ class MachinePlugin:
             return self.__config.get("global", prop)
 
 def load():
-    """ Loads the current plugin. """
+    """ Loads the current plugin """
     return MachinePlugin()
 
