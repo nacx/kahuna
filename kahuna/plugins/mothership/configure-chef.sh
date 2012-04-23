@@ -17,3 +17,6 @@ chmod a+r /etc/chef/*.pem
 echo "Uploading cookbooks..."
 knife cookbook upload -a -VV -o ${COOKBOOK_DIR} -s http://localhost:4000 -u chef-webui -k /etc/chef/webui.pem
 
+# Make sure web console is started (sometimes it crashes at startup)
+echo "Restarting web console..."
+/etc/init.d/chef-server-webui restart
