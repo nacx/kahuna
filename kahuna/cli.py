@@ -1,7 +1,6 @@
 #!/usr/bin/env jython
-
-import sys
 from pluginmanager import PluginManager
+import sys
 
 
 class CLI:
@@ -9,6 +8,7 @@ class CLI:
     def __init__(self):
         """ Initialize the plugin manager. """
         self.__pluginmanager = PluginManager()
+        self.__context = None
 
     def parse_input(self):
         """ Validates user input and delegates to the plugin manager. """
@@ -24,8 +24,9 @@ class CLI:
         else:
             # Call the command in the given plugin with the
             # remaining of the arguments
-            return self.__pluginmanager.call(sys.argv[1], sys.argv[2],
-                    sys.argv[3:])
+            self.__pluginmanager.call(sys.argv[1],
+                        sys.argv[2], sys.argv[3:])
+
 
 if __name__ == "__main__":
     cli = CLI()

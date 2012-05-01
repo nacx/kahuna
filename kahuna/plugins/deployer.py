@@ -2,12 +2,12 @@
 
 import time
 from optparse import OptionParser
-from kahuna.session import ContextLoader
 from org.jclouds.abiquo.domain.exception import AbiquoException
 from org.jclouds.rest import AuthorizationException
+from kahuna.abstract import AbsPlugin
 
 
-class DeployerPlugin:
+class DeployerPlugin(AbsPlugin):
     """ Massive deployer plugin. """
     def __init__(self):
         pass
@@ -31,10 +31,9 @@ class DeployerPlugin:
 
         # Once user input has been read, find the VM
         max = int(options.num)
-        context = ContextLoader().load()
         try:
-            cloud = context.getCloudService()
-            monitor = context.getMonitoringService() \
+            cloud = self._context.getCloudService()
+            monitor = self._context.getMonitoringService() \
                     .getVirtualApplianceMonitor()
 
             vdc = cloud.listVirtualDatacenters()[0]
@@ -64,8 +63,6 @@ class DeployerPlugin:
                 time.sleep(5)
         except (AbiquoException, AuthorizationException), ex:
             print "Error: %s" % ex.getMessage()
-        finally:
-            context.close()
 
 
 def load():

@@ -1,10 +1,11 @@
 #!/usr/bin/env jython
+from kahuna.abstract import AbsPlugin
 
 # Return code to make the wrapper script open a shell
 EXIT_OPEN_SHELL = 10
 
 
-class ShellPlugin:
+class ShellPlugin(AbsPlugin):
     """ Interactive shell plugin. """
     def __init__(self):
         pass
