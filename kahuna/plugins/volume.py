@@ -2,43 +2,31 @@
 
 import logging
 from optparse import OptionParser
-from kahuna.session import ContextLoader
 from kahuna.utils.prettyprint import pprint_volumes
 from org.jclouds.abiquo.predicates.cloud import VirtualMachinePredicates
 from org.jclouds.abiquo.domain.exception import AbiquoException
 from org.jclouds.rest import AuthorizationException
 from storage import helper
+from kahuna.abstract import AbsPlugin
 
 log = logging.getLogger('kahuna')
 
 
-class VolumePlugin:
+class VolumePlugin(AbsPlugin):
     """ Volume plugin. """
     def __init__(self):
         pass
 
-    def commands(self):
-        """ Returns the provided commands, mapped to handler methods. """
-        commands = {}
-        commands['list'] = self.list
-        commands['find'] = self.find
-        commands['attach'] = self.attach
-        commands['detach'] = self.detach
-        return commands
-
     def list(self, args):
         """ List all available volumes. """
-        context = ContextLoader().load()
         try:
-            cloud = context.getCloudService()
+            cloud = self._context.getCloudService()
             vdcs = cloud.listVirtualDatacenters()
             volumes = []
             [volumes.extend(vdc.listVolumes()) for vdc in vdcs]
             pprint_volumes(volumes)
         except (AbiquoException, AuthorizationException), ex:
             print "Error: %s" % ex.getMessage()
-        finally:
-            context.close()
 
     def find(self, args):
         """ Find an available volume given its name. """
@@ -53,17 +41,14 @@ class VolumePlugin:
             return
 
         # Once user input has been read, find the volume
-        context = ContextLoader().load()
         try:
-            volume = helper.find_volume(context, name)
+            volume = helper.find_volume(self._context, name)
             if volume:
                 pprint_volumes([volume])
             else:
                 print "No volume found with name: %s" % name
         except (AbiquoException, AuthorizationException), ex:
             print "Error: %s" % ex.getMessage()
-        finally:
-            context.close()
 
     def attach(self, args):
         """ Attach a volume to the given virtual machine. """
@@ -78,13 +63,12 @@ class VolumePlugin:
             parser.print_help()
             return
 
-        context = ContextLoader().load()
         try:
-            volume = helper.find_volume(context, options.name)
+            volume = helper.find_volume(self._context, options.name)
             if not volume:
                 print "No volume found with name: %s" % options.name
                 return
-            cloud = context.getCloudService()
+            cloud = self._context.getCloudService()
             vm = cloud.findVirtualMachine(
                     VirtualMachinePredicates.name(options.vm))
             if not vm:
@@ -98,11 +82,9 @@ class VolumePlugin:
                 print "This may take some time..."
 
             vm.attachVolumes(volume)
-            pprint_volumes([helper.refresh_volume(context, volume)])
+            pprint_volumes([helper.refresh_volume(self._context, volume)])
         except (AbiquoException, AuthorizationException), ex:
             print "Error: %s" % ex.getMessage()
-        finally:
-            context.close()
 
     def detach(self, args):
         """ Detach a volume from the given virtual machine. """
@@ -114,14 +96,13 @@ class VolumePlugin:
             parser.print_help()
             return
 
-        context = ContextLoader().load()
         try:
-            volume = helper.find_volume(context, options.name)
+            volume = helper.find_volume(self._context, options.name)
             if not volume:
                 print "No volume found with name: %s" % options.name
                 return
 
-            vm = helper.get_attached_vm(context, volume)
+            vm = helper.get_attached_vm(self._context, volume)
             if not vm:
                 print ("Volume %s is not attached "
                         "to any virtual machine") % options.name
@@ -134,11 +115,9 @@ class VolumePlugin:
                 print "This may take some time..."
 
             vm.detachVolumes(volume)
-            pprint_volumes([helper.refresh_volume(context, volume)])
+            pprint_volumes([helper.refresh_volume(self._context, volume)])
         except (AbiquoException, AuthorizationException), ex:
             print "Error: %s" % ex.getMessage()
-        finally:
-            context.close()
 
 
 def load():

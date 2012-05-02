@@ -9,23 +9,20 @@
 # The documentation string in the plugin class will be used to
 # print the help of the plugin.
 
+from kahuna.abstract import AbsPlugin
 
-class SkeletonPlugin:
+
+class SkeletonPlugin(AbsPlugin):
     """ An example plugin that prints dummy messages. """
     def __init__(self):
         pass
 
-    def commands(self):
-        """ Returns the provided commands, mapped to handler methods. """
-        commands = {}
-        # Bind the 'print' plugin command to the 'print_handler' method
-        commands['print'] = self.print_handler
-        return commands
-
+    # Public methods will be considered plugin commands.
+    # The name of the command will be the method name.
     # The documentation string in command methods will be used to
     # print the help of the command.
     # The arguments are the options given to the command itself
-    def print_handler(self, args):
+    def dummy(self, args):
         """ Prints a dummy message. """
         print "This is the print_handler in the example plugin"
 
