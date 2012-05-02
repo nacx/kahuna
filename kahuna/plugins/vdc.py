@@ -9,12 +9,12 @@ from org.jclouds.rest import AuthorizationException
 
 
 class VirtualDatacenterPlugin(AbsPlugin):
-    """ Virtual datacenter plugin. """
+    """ Virtual datacenter plugin """
     def __init__(self):
         pass
 
     def list(self, args):
-        """ List all available virtual datacenters. """
+        """ List all available virtual datacenters """
         try:
             cloud = self._context.getCloudService()
             vdcs = cloud.listVirtualDatacenters()

@@ -4,13 +4,13 @@ import sys
 
 
 class CLI:
-    """ Main command line interface. """
+    """ Main command line interface """
     def __init__(self):
-        """ Initialize the plugin manager. """
+        """ Initialize the plugin manager """
         self.__pluginmanager = PluginManager()
 
     def parse_input(self):
-        """ Validates user input and delegates to the plugin manager. """
+        """ Validates user input and delegates to the plugin manager """
         if len(sys.argv) < 2:
             print "Usage: kahuna <plugin> <command> [<options>]"
             print "The following plugins are available:\n"

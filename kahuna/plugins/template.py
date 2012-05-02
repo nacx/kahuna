@@ -9,12 +9,12 @@ from org.jclouds.rest import AuthorizationException
 
 
 class TemplatePlugin(AbsPlugin):
-    """ Template plugin. """
+    """ Template plugin """
     def __init__(self):
         pass
 
     def list(self, args):
-        """ List all available templates. """
+        """ List all available templates """
         try:
             admin = self._context.getAdministrationService()
             user = admin.getCurrentUser()

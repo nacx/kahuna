@@ -10,14 +10,14 @@ log = logging.getLogger('kahuna')
 
 
 class InfrastructureStorage:
-    """ Provides access to infrastructure storage features. """
+    """ Provides access to infrastructure storage features """
 
     def __init__(self, context):
-        """ Initialize with an existent context. """
+        """ Initialize with an existent context """
         self.__context = context.getApiContext()
 
     def configure_tiers(self, datacenter, tier):
-        """ Configure the default tiers of the datacenter. """
+        """ Configure the default tiers of the datacenter """
         log.info("Enabling tier %s..." % tier)
         tiers = datacenter.listTiers()
 
@@ -32,7 +32,7 @@ class InfrastructureStorage:
 
     def create_device(self, datacenter, devname, devtype, devaddress,
             devmanaddress, user, password):
-        """ Discovers and registers a storage device. """
+        """ Discovers and registers a storage device """
         log.info("Creating storage device %s at %s..." % (devname,
             devaddress))
         device = StorageDevice.builder(self.__context, datacenter) \
@@ -47,7 +47,7 @@ class InfrastructureStorage:
         return device
 
     def create_pool(self, device, tier, poolname):
-        """ Discovers and registers a StoragePool. """
+        """ Discovers and registers a StoragePool """
         log.info("Adding pool %s..." % poolname)
         pool = device.findRemoteStoragePool(
             StoragePoolPredicates.name(poolname))
@@ -57,7 +57,7 @@ class InfrastructureStorage:
 
 
 def create_infrastructure_storage(config, context, dc):
-    """ Creates the default infrastructure storage entities. """
+    """ Creates the default infrastructure storage entities """
     log.info("### Configuring storage ###")
     storage = InfrastructureStorage(context)
     tier = storage.configure_tiers(dc, config.get("tier", "name"))
@@ -77,7 +77,7 @@ def create_infrastructure_storage(config, context, dc):
 
 
 def cleanup_infrastructure_storage(config, datacenter):
-    """ Cleans up previously created infrastructure storage entities. """
+    """ Cleans up previously created infrastructure storage entities """
     log.info(("Removing storage devices in "
             "datacenter %s...") % datacenter.getName())
     for device in datacenter.listStorageDevices():

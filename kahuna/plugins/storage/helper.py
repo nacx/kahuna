@@ -8,7 +8,7 @@ log = logging.getLogger('kahuna')
 
 
 def find_volume(context, name):
-    """ Find a volume given its name. """
+    """ Find a volume given its name """
     cloud = context.getCloudService()
     vdcs = cloud.listVirtualDatacenters()
     log.debug("Looking for volume: %s" % name)
@@ -20,13 +20,13 @@ def find_volume(context, name):
 
 
 def refresh_volume(context, volume):
-    """ Refresh the given volume. """
+    """ Refresh the given volume """
     vdc = volume.getVirtualDatacenter()
     return vdc.getVolume(volume.getId())
 
 
 def get_attached_vm(context, volume):
-    """ Get the virtual machine where the volume is attached. """
+    """ Get the virtual machine where the volume is attached """
     # TODO: Add parent navigation in jclouds.abiquo
     link = volume.unwrap().searchLink("virtualmachine")
     if link:

@@ -11,14 +11,14 @@ log.setLevel(logging.INFO)
 
 
 class ConfigLoader:
-    """ Loads configuration files from a given location. """
+    """ Loads configuration files from a given location """
     def __init__(self, basedir="kahuna"):
-        """ Initializes the ConfigLoader. """
+        """ Initializes the ConfigLoader """
         self.user_dir = os.environ['HOME'] + "/." + basedir
         self.sys_dir = "/etc/" + basedir
 
     def load(self, file_name, default=None):
-        """ Loads the given configuration file ftom the default locations. """
+        """ Loads the given configuration file ftom the default locations """
         user_config = self.user_dir + "/" + file_name
         sys_config = self.sys_dir + "/" + file_name
         config_found = user_config
@@ -53,7 +53,7 @@ class ConfigLoader:
 
 @singleton
 class Config:
-    """ Main configuration. """
+    """ Main configuration """
     def __init__(self):
         config = ConfigLoader().load("kahuna.conf", "config/kahuna.conf")
 

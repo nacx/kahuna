@@ -2,12 +2,12 @@
 
 
 def max_width(table, index):
-    """ Get the maximum width of the given column index. """
+    """ Get the maximum width of the given column index """
     return max([len(str(row[index])) for row in table])
 
 
 def pprint_row(row, col_paddings):
-    """ Pretty prints the given row. """
+    """ Pretty prints the given row """
     for i in range(len(row)):
         value = str(row[i])
         col = value.ljust(col_paddings[i] + 1)
@@ -16,7 +16,7 @@ def pprint_row(row, col_paddings):
 
 
 def pprint_header(table, col_paddings):
-    """ Pretty prints the table header. """
+    """ Pretty prints the table header """
     pprint_row(table[0], col_paddings)
     for i in range(len(table[0])):
         print "-" * col_paddings[i], "",
@@ -24,7 +24,7 @@ def pprint_header(table, col_paddings):
 
 
 def pprint_table(table):
-    """ Pretty prints the given table. """
+    """ Pretty prints the given table """
     # Get the column paddings
     col_paddings = []
     for i in range(len(table[0])):
@@ -35,7 +35,7 @@ def pprint_table(table):
 
 
 def pprint_vms(vms, verbose=False):
-    """ Pretty prints the given virtual machine list. """
+    """ Pretty prints the given virtual machine list """
     table = [["id", "name", "cpu", "ram", "hd", "state", "vnc",
         "template", "virtual datacenter"]]
     if verbose:
@@ -58,7 +58,7 @@ def pprint_vms(vms, verbose=False):
 
 
 def pprint_templates(templates):
-    """ Pretty prints the given template list. """
+    """ Pretty prints the given template list """
     table = [["id", "name", "disk type", "cpu", "ram", "hd", "disk file size"]]
     for template in templates:
         row = [template.getId(), template.getName(),
@@ -71,7 +71,7 @@ def pprint_templates(templates):
 
 
 def pprint_vdcs(vdcs):
-    """ Pretty prints the given virtual datacenter list. """
+    """ Pretty prints the given virtual datacenter list """
     table = [["id", "name", "type"]]
     for vdc in vdcs:
         row = [vdc.getId(), vdc.getName(), vdc.getHypervisorType()]
@@ -80,7 +80,7 @@ def pprint_vdcs(vdcs):
 
 
 def pprint_vapps(vapps):
-    """ Pretty prints the given virtual appliance list. """
+    """ Pretty prints the given virtual appliance list """
     table = [["id", "name"]]
     for vapp in vapps:
         row = [vapp.getId(), vapp.getName()]
@@ -89,7 +89,7 @@ def pprint_vapps(vapps):
 
 
 def pprint_enterprises(enterprises):
-    """ Pretty prints the given enterprise list. """
+    """ Pretty prints the given enterprise list """
     table = [["id", "name"]]
     for enterprise in enterprises:
         row = [enterprise.getId(), enterprise.getName()]
@@ -98,7 +98,7 @@ def pprint_enterprises(enterprises):
 
 
 def pprint_volumes(volumes):
-    """ Pretty prints the given volume list. """
+    """ Pretty prints the given volume list """
     table = [["id", "name", "size", "status", "virtual datacenter",
         "virtual machine"]]
     for vol in volumes:
@@ -115,7 +115,7 @@ def pprint_volumes(volumes):
 
 
 def pprint_machines(machines):
-    """ Pretty printd the given machine list. """
+    """ Pretty printd the given machine list """
     table = [["id", "name", "address", "hypervisor", "state",
         "cpu (used/total)", "ram (used/total)"]]
     for machine in machines:

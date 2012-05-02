@@ -21,13 +21,13 @@ log = logging.getLogger("kahuna")
 
 
 class MachinePlugin(AbsPlugin):
-    """ Physical machines plugin. """
+    """ Physical machines plugin """
     def __init__(self):
         self.__config = ConfigLoader().load("machine.conf",
                 "config/machine.conf")
 
     def check(self, args):
-        """ Check state from physical machine. """
+        """ Check state from physical machine """
         parser = OptionParser(usage="machine check <options>")
         parser.add_option('-n', '--name',
                 help='the name of the physical machine',
@@ -74,7 +74,7 @@ class MachinePlugin(AbsPlugin):
             print "Error %s" % ex.getMessage()
 
     def create(self, args):
-        """ Create a physical machine in abiquo. """
+        """ Create a physical machine in abiquo """
         parser = OptionParser(usage="machine create --host <host> <options>")
 
         # create options
@@ -201,7 +201,7 @@ class MachinePlugin(AbsPlugin):
                 print "Error: %s " % ex.getMessage()
 
     def delete(self, args):
-        """ Remove a physical machine from abiquo. """
+        """ Remove a physical machine from abiquo """
         parser = OptionParser(usage="machine delete <options>")
         parser.add_option("-n", "--name",
                 help="the name of the physical machine",
