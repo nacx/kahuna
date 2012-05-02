@@ -3,6 +3,7 @@
 import logging
 import os
 from java.io import File
+from kahuna.abstract import AbsPlugin
 from kahuna.config import ConfigLoader
 from com.google.common.collect import Iterables
 from org.jclouds import ContextBuilder
@@ -18,7 +19,7 @@ from org.jclouds.ssh.jsch.config import JschSshClientModule
 log = logging.getLogger('kahuna')
 
 
-class MothershipPlugin:
+class MothershipPlugin(AbsPlugin):
     """ Mothership plugin """
     def __init__(self):
         self.__config = ConfigLoader().load("mothership.conf",
@@ -27,7 +28,7 @@ class MothershipPlugin:
                 self.__config.get("mothership", "host")
         self.__scriptdir = "kahuna/plugins/mothership"
 
-    def commands(self):
+    def _commands(self):
         """ Returns the provided commands, mapped to handler methods """
         commands = {}
         commands['deploy-chef'] = self.deploy_chef

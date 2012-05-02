@@ -2,6 +2,7 @@
 
 import logging
 from optparse import OptionParser
+from kahuna.abstract import AbsPlugin
 from kahuna.utils.prettyprint import pprint_vms
 from virtualmachine import helper
 from com.abiquo.server.core.cloud import VirtualMachineState
@@ -11,7 +12,6 @@ from org.jclouds.abiquo.predicates.cloud import VirtualAppliancePredicates
 from org.jclouds.abiquo.predicates.cloud import VirtualMachinePredicates
 from org.jclouds.abiquo.domain.exception import AbiquoException
 from org.jclouds.rest import AuthorizationException
-from kahuna.abstract import AbsPlugin
 
 log = logging.getLogger('kahuna')
 

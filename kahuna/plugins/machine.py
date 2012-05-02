@@ -2,6 +2,7 @@
 
 import logging
 import ConfigParser
+from kahuna.abstract import AbsPlugin
 from kahuna.session import ContextLoader
 from kahuna.config import ConfigLoader
 from kahuna.utils.prettyprint import pprint_machines
@@ -15,7 +16,6 @@ from org.jclouds.abiquo.reference import AbiquoEdition
 from org.jclouds.rest import AuthorizationException
 from org.jclouds.http import HttpResponseException
 from com.abiquo.model.enumerator import HypervisorType
-from kahuna.abstract import AbsPlugin
 
 log = logging.getLogger("kahuna")
 

@@ -17,7 +17,7 @@ class TemplatePlugin(AbsPlugin):
         """ List all available templates. """
         try:
             admin = self._context.getAdministrationService()
-            user = admin.getCurrentUserInfo()
+            user = admin.getCurrentUser()
             enterprise = user.getEnterprise()
             templates = enterprise.listTemplates()
             pprint_templates(templates)
@@ -39,7 +39,7 @@ class TemplatePlugin(AbsPlugin):
         # Once user input has been read, find the template
         try:
             admin = self._context.getAdministrationService()
-            user = admin.getCurrentUserInfo()
+            user = admin.getCurrentUser()
             enterprise = user.getEnterprise()
             template = enterprise.findTemplate(
                     VirtualMachineTemplatePredicates.name(name))

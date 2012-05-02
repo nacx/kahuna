@@ -10,10 +10,10 @@ from environment.infrastructure.network import create_infrastructure_network
 from environment.infrastructure.storage import create_infrastructure_storage
 from environment.users.tenants import cleanup_default_tenants
 from environment.users.tenants import create_default_tenants
+from kahuna.abstract import AbsPlugin
 from kahuna.config import ConfigLoader
 from org.jclouds.abiquo.domain.exception import AbiquoException
 from org.jclouds.rest import AuthorizationException
-from kahuna.abstract import AbsPlugin
 
 
 class EnvironmentPlugin(AbsPlugin):
