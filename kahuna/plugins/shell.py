@@ -1,4 +1,5 @@
 #!/usr/bin/env jython
+
 from kahuna.abstract import AbsPlugin
 
 # Return code to make the wrapper script open a shell

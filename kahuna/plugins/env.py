@@ -34,7 +34,7 @@ class EnvironmentPlugin(AbsPlugin):
         except (AbiquoException, AuthorizationException), ex:
             print "Error: %s" % ex.getMessage()
 
-    def cleanup(self, args):
+    def clean(self, args):
         """ Cleans up the environment. """
         try:
             cleanup_cloud_compute(self.__config, self._context)

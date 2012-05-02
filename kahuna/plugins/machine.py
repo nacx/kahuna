@@ -26,7 +26,7 @@ class MachinePlugin(AbsPlugin):
         self.__config = ConfigLoader().load("machine.conf",
                 "config/machine.conf")
 
-    def checkMachines(self, args):
+    def check(self, args):
         """ Check state from physical machine. """
         parser = OptionParser(usage="machine check <options>")
         parser.add_option('-n', '--name',
@@ -73,7 +73,7 @@ class MachinePlugin(AbsPlugin):
         except (AbiquoException, AuthorizationException), ex:
             print "Error %s" % ex.getMessage()
 
-    def createMachine(self, args):
+    def create(self, args):
         """ Create a physical machine in abiquo. """
         parser = OptionParser(usage="machine create --host <host> <options>")
 
@@ -199,7 +199,7 @@ class MachinePlugin(AbsPlugin):
             else:
                 print "Error: %s " % ex.getMessage()
 
-    def deleteMachine(self, args):
+    def delete(self, args):
         """ Remove a physical machine from abiquo. """
         parser = OptionParser(usage="machine delete <options>")
         parser.add_option("-n", "--name",
@@ -232,7 +232,7 @@ class MachinePlugin(AbsPlugin):
         except (AbiquoException, AuthorizationException), ex:
             print "Error %s" % ex.getMessage()
 
-    def listMachines(self, args):
+    def list(self, args):
         """ List physical machines from abiquo """
         context = ContextLoader().load()
         try:
