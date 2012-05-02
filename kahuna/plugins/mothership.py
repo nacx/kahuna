@@ -28,6 +28,8 @@ class MothershipPlugin(AbsPlugin):
                 self.__config.get("mothership", "host")
         self.__scriptdir = "kahuna/plugins/mothership"
 
+    # Override the commands factory method because the command names we want
+    # can not be used as valid python class method names
     def _commands(self):
         """ Returns the provided commands, mapped to handler methods """
         commands = {}
