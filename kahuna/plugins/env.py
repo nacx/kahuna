@@ -11,50 +11,37 @@ from environment.infrastructure.storage import create_infrastructure_storage
 from environment.users.tenants import cleanup_default_tenants
 from environment.users.tenants import create_default_tenants
 from kahuna.config import ConfigLoader
-from kahuna.session import ContextLoader
 from org.jclouds.abiquo.domain.exception import AbiquoException
 from org.jclouds.rest import AuthorizationException
+from kahuna.abstract import AbsPlugin
 
 
-class EnvironmentPlugin:
-    """ Environment generator plugin """
+class EnvironmentPlugin(AbsPlugin):
+    """ Environment generator plugin. """
     def __init__(self):
         self.__config = ConfigLoader().load("env.conf", "config/env.conf")
 
-    def commands(self):
-        """ Returns the available commands in this plugin """
-        commands = {}
-        commands['create'] = self.create
-        commands['clean'] = self.cleanup
-        return commands
-
     def create(self, args):
-        """ Creates the environment """
-        context = ContextLoader().load()
+        """ Creates the environment. """
         try:
-            apply_default_configuration(self.__config, context)
-            dc = create_infrastructure_compute(self.__config, context)
-            create_infrastructure_storage(self.__config, context, dc)
-            create_infrastructure_network(self.__config, context, dc)
-            create_default_tenants(self.__config, context, dc)
-            vdc = create_cloud_compute(self.__config, context, dc)
-            create_cloud_storage(self.__config, context, vdc)
+            apply_default_configuration(self.__config, self._context)
+            dc = create_infrastructure_compute(self.__config, self._context)
+            create_infrastructure_storage(self.__config, self._context, dc)
+            create_infrastructure_network(self.__config, self._context, dc)
+            create_default_tenants(self.__config, self._context, dc)
+            vdc = create_cloud_compute(self.__config, self._context, dc)
+            create_cloud_storage(self.__config, self._context, vdc)
         except (AbiquoException, AuthorizationException), ex:
             print "Error: %s" % ex.getMessage()
-        finally:
-            context.close()
 
-    def cleanup(self, args):
-        """ Cleans up the environment """
-        context = ContextLoader().load()
+    def clean(self, args):
+        """ Cleans up the environment. """
         try:
-            cleanup_cloud_compute(self.__config, context)
-            cleanup_default_tenants(self.__config, context)
-            cleanup_infrastructure_compute(self.__config, context)
+            cleanup_cloud_compute(self.__config, self._context)
+            cleanup_default_tenants(self.__config, self._context)
+            cleanup_infrastructure_compute(self.__config, self._context)
         except (AbiquoException, AuthorizationException), ex:
             print "Error: %s" % ex.getMessage()
-        finally:
-            context.close()
 
 
 def load():

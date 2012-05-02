@@ -2,7 +2,6 @@
 
 import logging
 from optparse import OptionParser
-from kahuna.session import ContextLoader
 from kahuna.utils.prettyprint import pprint_vms
 from virtualmachine import helper
 from com.abiquo.server.core.cloud import VirtualMachineState
@@ -12,40 +11,24 @@ from org.jclouds.abiquo.predicates.cloud import VirtualAppliancePredicates
 from org.jclouds.abiquo.predicates.cloud import VirtualMachinePredicates
 from org.jclouds.abiquo.domain.exception import AbiquoException
 from org.jclouds.rest import AuthorizationException
+from kahuna.abstract import AbsPlugin
 
 log = logging.getLogger('kahuna')
 
 
-class VmPlugin:
-    """ Virtual machine plugin """
+class VmPlugin(AbsPlugin):
+    """ Virtual machine plugin. """
     def __init__(self):
         pass
 
-    def commands(self):
-        """ Returns the provided commands, mapped to handler methods """
-        commands = {}
-        commands['list'] = self.list
-        commands['find'] = self.find
-        commands['deploy'] = self.deploy
-        commands['undeploy'] = self.undeploy
-        commands['create'] = self.create
-        commands['delete'] = self.delete
-        commands['start'] = self.start
-        commands['stop'] = self.stop
-        commands['pause'] = self.pause
-        return commands
-
     def list(self, args):
-        """ List all virtual machines """
-        context = ContextLoader().load()
+        """ List all virtual machines. """
         try:
-            cloud = context.getCloudService()
+            cloud = self._context.getCloudService()
             vms = cloud.listVirtualMachines()
             pprint_vms(vms)
         except (AbiquoException, AuthorizationException), ex:
             print "Error: %s" % ex.getMessage()
-        finally:
-            context.close()
 
     def find(self, args):
         """ Find a virtual machine given its name """
@@ -63,9 +46,8 @@ class VmPlugin:
             return
 
         # Once user input has been read, find the virtual machine
-        context = ContextLoader().load()
         try:
-            cloud = context.getCloudService()
+            cloud = self._context.getCloudService()
             vm = cloud.findVirtualMachine(VirtualMachinePredicates.name(name))
             if vm:
                 pprint_vms([vm], options.verbose)
@@ -73,8 +55,6 @@ class VmPlugin:
                 print "No virtual machine found with name: %s" % name
         except (AbiquoException, AuthorizationException), ex:
             print "Error: %s" % ex.getMessage()
-        finally:
-            context.close()
 
     def deploy(self, args):
         """ Deploy an existing virtual machine given its name """
@@ -89,19 +69,16 @@ class VmPlugin:
             return
 
         # Once user input has been read, find the VM
-        context = ContextLoader().load()
         try:
-            cloud = context.getCloudService()
+            cloud = self._context.getCloudService()
             vm = cloud.findVirtualMachine(VirtualMachinePredicates.name(name))
             if vm:
-                vm = helper.deploy_vm(context, vm)
+                vm = helper.deploy_vm(self._context, vm)
                 pprint_vms([vm])
             else:
                 print "No virtual machine found with name: %s" % name
         except (AbiquoException, AuthorizationException), ex:
             print "Error: %s" % ex.getMessage()
-        finally:
-            context.close()
 
     def undeploy(self, args):
         """ Undeploy an existing virtual machine given its name """
@@ -116,19 +93,16 @@ class VmPlugin:
             return
 
         # Once user input has been read, find the virtual machine
-        context = ContextLoader().load()
         try:
-            cloud = context.getCloudService()
+            cloud = self._context.getCloudService()
             vm = cloud.findVirtualMachine(VirtualMachinePredicates.name(name))
             if vm:
-                vm = helper.undeploy_vm(context, vm)
+                vm = helper.undeploy_vm(self._context, vm)
                 pprint_vms([vm])
             else:
                 print "No virtual machine found with name: %s" % name
         except (AbiquoException, AuthorizationException), ex:
             print "Error: %s" % ex.getMessage()
-        finally:
-            context.close()
 
     def create(self, args):
         """ Creates a virtual machine based on a given template """
@@ -148,16 +122,17 @@ class VmPlugin:
             parser.print_help()
             return
 
-        context = ContextLoader().load()
-        api_context = context.getApiContext()
         try:
-            template = helper.find_template_by_id(context, options.template)
+            api_context = self._context.getApiContext()
+            template = helper.find_template_by_id(self._context,
+                    options.template)
             if not template:
                 print "No template was found with id %s" % options.template
                 return
             log.debug("Using template: %s" % template.getName())
 
-            vdc = helper.get_virtual_datacenter_for_template(context, template)
+            vdc = helper.get_virtual_datacenter_for_template(self._context,
+                    template)
             if not vdc:
                 print ("Could not create a compatible virtual datacenter "
                     "for %s") % template.getName()
@@ -184,13 +159,11 @@ class VmPlugin:
             vm.save()
 
             if options.deploy:
-                vm = helper.deploy_vm(context, vm)
+                vm = helper.deploy_vm(self._context, vm)
 
             pprint_vms([vm])
         except (AbiquoException, AuthorizationException), ex:
             print "Error: %s" % ex.getMessage()
-        finally:
-            context.close()
 
     def delete(self, args):
         """ Delete a virtual machine given its name """
@@ -207,9 +180,8 @@ class VmPlugin:
             parser.print_help()
             return
 
-        context = ContextLoader().load()
         try:
-            cloud = context.getCloudService()
+            cloud = self._context.getCloudService()
             vm = cloud.findVirtualMachine(VirtualMachinePredicates.name(name))
             if vm:
                 state = vm.getState()
@@ -217,7 +189,7 @@ class VmPlugin:
                     print ("Virtual machine is deployed. "
                             "Undeploy it before deleting.")
                 elif options.undeploy and state.existsInHypervisor():
-                    vm = helper.undeploy_vm(context, vm)
+                    vm = helper.undeploy_vm(self._context, vm)
                     vm.delete()
                 else:
                     vm.delete()
@@ -225,8 +197,6 @@ class VmPlugin:
                 print "No virtual machine found with name: %s" % name
         except (AbiquoException, AuthorizationException), ex:
             print "Error: %s" % ex.getMessage()
-        finally:
-            context.close()
 
     def start(self, args):
         """ Power on a virtual machine given its name """
@@ -251,19 +221,16 @@ class VmPlugin:
             parser.print_help()
             return
 
-        context = ContextLoader().load()
         try:
-            cloud = context.getCloudService()
+            cloud = self._context.getCloudService()
             vm = cloud.findVirtualMachine(VirtualMachinePredicates.name(name))
             if vm:
-                helper.change_state_vm(context, vm, new_state)
+                helper.change_state_vm(self._context, vm, new_state)
                 pprint_vms([vm])
             else:
                 print "No virtual machine found with name: %s" % name
         except (AbiquoException, AuthorizationException), ex:
             print "Error: %s" % ex.getMessage()
-        finally:
-            context.close()
 
 
 def load():
