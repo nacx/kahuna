@@ -33,7 +33,7 @@ class PluginManager:
         """ Encapsulate the call into a context already loaded.
         """
         with opencontext() as context:
-            self._call(context, plugin_name, command_name, args)
+            return self._call(context, plugin_name, command_name, args)
 
     def _call(self, context, plugin_name, command_name, args):
         """ Calls the given command on the given plugin. """
@@ -74,10 +74,9 @@ class PluginManager:
 @contextmanager
 def opencontext():
     """ Loads the context each plugin needs to be initialized
-    in order to be executed.
-    """
-    log.debug("Loading context for plugin execution... ")
+    in order to be executed. """
+    log.debug("Loading context for plugin execution")
     context = ContextLoader().load()
     yield context
+    log.debug("Context closed after plugin execution")
     context.close()
-    log.debug("Context closed after plugin execution. ")
