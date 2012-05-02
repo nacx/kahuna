@@ -21,13 +21,6 @@ class EnvironmentPlugin(AbsPlugin):
     def __init__(self):
         self.__config = ConfigLoader().load("env.conf", "config/env.conf")
 
-    def commands(self):
-        """ Returns the available commands in this plugin. """
-        commands = {}
-        commands['create'] = self.create
-        commands['clean'] = self.cleanup
-        return commands
-
     def create(self, args):
         """ Creates the environment. """
         try:

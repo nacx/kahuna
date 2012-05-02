@@ -10,12 +10,6 @@ class ShellPlugin(AbsPlugin):
     def __init__(self):
         pass
 
-    def commands(self):
-        """ Returns the provided commands, mapped to handler methods. """
-        commands = {}
-        commands['open'] = self.open
-        return commands
-
     def open(self, args):
         """ Opens an interactive shell. """
         return EXIT_OPEN_SHELL

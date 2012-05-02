@@ -26,17 +26,6 @@ class MachinePlugin(AbsPlugin):
         self.__config = ConfigLoader().load("machine.conf",
                 "config/machine.conf")
 
-    def commands(self):
-        """ Returns the commands provided by the plugin,
-        mapped to the handler methods.
-        """
-        commands = {}
-        commands['check'] = self.checkMachines
-        commands['create'] = self.createMachine
-        commands['delete'] = self.deleteMachine
-        commands['list'] = self.listMachines
-        return commands
-
     def checkMachines(self, args):
         """ Check state from physical machine. """
         parser = OptionParser(usage="machine check <options>")
@@ -85,10 +74,7 @@ class MachinePlugin(AbsPlugin):
             print "Error %s" % ex.getMessage()
 
     def createMachine(self, args):
-        """ Create a physical machine in abiquo.
-
-        This method uses configurable constats for default values.
-        """
+        """ Create a physical machine in abiquo. """
         parser = OptionParser(usage="machine create --host <host> <options>")
 
         # create options
@@ -163,7 +149,10 @@ class MachinePlugin(AbsPlugin):
                 log.debug("Datacenter 'kahuna' found")
 
             # discover machine
-            hypTypes = [HypervisorType.valueOf(hypervisor)] if hypervisor else HypervisorType.values()
+            if hypervisor:
+                hypTypes = [HypervisorType.valueOf(hypervisor)]
+            else:
+                hypTypes = HypervisorType.values()
 
             machine = None
             for hyp in hypTypes:

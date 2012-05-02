@@ -39,12 +39,12 @@ class PluginManager:
         """ Calls the given command on the given plugin. """
         try:
             plugin = self.load_plugin(plugin_name)
-            plugin.load_context(context)
+            plugin._load_context(context)
             if not command_name:
                 self.help(plugin)
             else:
                 try:
-                    command = plugin.commands()[command_name]
+                    command = plugin._commands()[command_name]
                     return command(args)
                 except KeyError:
                     # Command not found in plugin. Print only plugin help
@@ -55,7 +55,7 @@ class PluginManager:
 
     def help(self, plugin):
         """ Prints the help for the given plugin. """
-        commands = plugin.commands()
+        commands = plugin._commands()
         tokens = plugin.__module__.split('.')
         plugin_name = tokens[len(tokens) - 1]
         print "%s" % plugin.__doc__

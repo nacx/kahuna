@@ -13,13 +13,6 @@ class TemplatePlugin(AbsPlugin):
     def __init__(self):
         pass
 
-    def commands(self):
-        """ Returns the provided commands, mapped to handler methods. """
-        commands = {}
-        commands['list'] = self.list
-        commands['find'] = self.find
-        return commands
-
     def list(self, args):
         """ List all available templates. """
         try:

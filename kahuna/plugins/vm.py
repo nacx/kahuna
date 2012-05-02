@@ -21,20 +21,6 @@ class VmPlugin(AbsPlugin):
     def __init__(self):
         pass
 
-    def commands(self):
-        """ Returns the provided commands, mapped to handler methods. """
-        commands = {}
-        commands['list'] = self.list
-        commands['find'] = self.find
-        commands['deploy'] = self.deploy
-        commands['undeploy'] = self.undeploy
-        commands['create'] = self.create
-        commands['delete'] = self.delete
-        commands['start'] = self.start
-        commands['stop'] = self.stop
-        commands['pause'] = self.pause
-        return commands
-
     def list(self, args):
         """ List all virtual machines. """
         try:

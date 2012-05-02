@@ -12,12 +12,6 @@ class DeployerPlugin(AbsPlugin):
     def __init__(self):
         pass
 
-    def commands(self):
-        """ Returns the available commands for this plugin. """
-        commands = {}
-        commands['start'] = self.start
-        return commands
-
     def start(self, args):
         """ Deploys and undeploys the first virtual appliance N times. """
         # Parse user input to get the number of deployments and undeployments

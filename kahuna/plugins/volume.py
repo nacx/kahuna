@@ -17,15 +17,6 @@ class VolumePlugin(AbsPlugin):
     def __init__(self):
         pass
 
-    def commands(self):
-        """ Returns the provided commands, mapped to handler methods. """
-        commands = {}
-        commands['list'] = self.list
-        commands['find'] = self.find
-        commands['attach'] = self.attach
-        commands['detach'] = self.detach
-        return commands
-
     def list(self, args):
         """ List all available volumes. """
         try:
