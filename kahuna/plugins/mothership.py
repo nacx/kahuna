@@ -1,5 +1,6 @@
 #!/usr/bin/env jython
 
+from __future__ import with_statement  # jython 2.5.2 issue
 import logging
 import os
 from java.io import File
@@ -57,9 +58,8 @@ class MothershipPlugin(AbsPlugin):
                     compute.createNodesInGroup("kahuna-chef", 1, template))
 
             cookbooks = self.__config.get("deploy-chef", "cookbooks")
-            f = open(self.__scriptdir + "/configure-chef.sh", "r")
-            script = f.read() % {'cookbooks': cookbooks}
-            f.close()
+            with open(self.__scriptdir + "/configure-chef.sh", "r") as f:
+                script = f.read() % {'cookbooks': cookbooks}
 
             log.info("Configuring node with cookbooks: %s..." % cookbooks)
             compute.runScriptOnNode(node.getId(), script)
@@ -116,9 +116,8 @@ class MothershipPlugin(AbsPlugin):
             self._upload_file_node(context, node, "/etc/", "abiquo-aim.ini")
 
             # configure-aim-node.sh
-            f = open(self.__scriptdir + "/configure-aim-node.sh", "r")
-            script = f.read() % {'nfsfrom': nfsfrom, 'nfsto': nfsto}
-            f.close()
+            with open(self.__scriptdir + "/configure-aim-node.sh", "r") as f:
+                script = f.read() % {'nfsfrom': nfsfrom, 'nfsto': nfsto}
 
             log.info("Configuring node...")
             compute.runScriptOnNode(node.getId(), script)
@@ -185,16 +184,14 @@ class MothershipPlugin(AbsPlugin):
                 os.remove(file.getPath())
 
     def _complete_file(self, filename, dictionary):
-        f = open(self.__scriptdir + "/" + filename, "r")
-        content = f.read()
-        f.close()
+        with open(self.__scriptdir + "/" + filename, "r") as f:
+            content = f.read()
         content = content % dictionary
-        f = open(self.__scriptdir + "/" + filename + ".tmp", "w")
-        f.write(content)
-        f.close()
+        with open(self.__scriptdir + "/" + filename + ".tmp", "w") as f:
+            f.write(content)
         log.info("File %s completed" % filename)
 
-    def _print_node_errors(ex):
+    def _print_node_errors(self, ex):
         for error in ex.getExecutionErrors().values():
             print "Error %s" % error.getMessage()
         for error in ex.getNodeErrors().values():
