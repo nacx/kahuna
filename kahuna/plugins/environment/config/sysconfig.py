@@ -13,16 +13,16 @@ class SystemConfig:
     """
 
     def __init__(self, context):
-        """ Initialize with an existing context. """
+        """ Initialize with an existing context """
         self.__context = context
 
     def get(self, property_name):
-        """ Returns value if a given configuration property. """
+        """ Returns value if a given configuration property """
         admin = self.__context.getAdministrationService()
         return admin.getSystemProperty(property_name)
 
     def set(self, property_name, property_value):
-        """ Set a value to a given configuration property. """
+        """ Set a value to a given configuration property """
         admin = self.__context.getAdministrationService()
         prop = admin.getSystemProperty(property_name)
         prop.setValue(property_value)
@@ -30,7 +30,7 @@ class SystemConfig:
 
 
 def apply_default_configuration(config, context):
-    """ Applies the default platform configuration. """
+    """ Applies the default platform configuration """
     log.info("### Applying default configuration ###")
     sysconf = SystemConfig(context)
     log.info("Disabling initial popup...")

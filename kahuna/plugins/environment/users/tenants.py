@@ -11,15 +11,15 @@ log = logging.getLogger('kahuna')
 
 
 class Tenant:
-    """ Provices access to tenant management features. """
+    """ Provices access to tenant management features """
 
     def __init__(self, context):
-        """ Initialize with an existent context. """
+        """ Initialize with an existent context """
         self.__context = context
 
     def create_enterprise(self, dcs, name, cpusoft, cpuhard, ramsoft, ramhard,
             ipsoft, iphard, storagesoft, storagehard):
-        """ Creates a new enterprise. """
+        """ Creates a new enterprise """
         log.info("Creating enterprise %s..." % name)
 
         # Create the enterprise with the limits
@@ -42,7 +42,7 @@ class Tenant:
 
     def create_user(self, enterprise, name, surname, role, email,
             nick, password):
-        """ Creates a new user int he given enterprise. """
+        """ Creates a new user int he given enterprise """
         log.info("Adding user %s as %s" % (name, role))
 
         admin = self.__context.getAdministrationService()
@@ -61,7 +61,7 @@ class Tenant:
 
 
 def create_default_tenants(config, context, dc):
-    """ Creates the default tenants. """
+    """ Creates the default tenants """
     log.info("### Configuring tenants ###")
     ten = Tenant(context)
     enterprise = ten.create_enterprise([dc], config.get("enterprise", "name"),
@@ -82,7 +82,7 @@ def create_default_tenants(config, context, dc):
 
 
 def cleanup_default_tenants(config, context):
-    """ Cleans up a previously created default tenants. """
+    """ Cleans up a previously created default tenants """
     log.info("### Cleaning up tenants ###")
     admin = context.getAdministrationService()
     enterprises = admin.listEnterprises(

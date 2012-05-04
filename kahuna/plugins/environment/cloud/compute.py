@@ -14,15 +14,15 @@ log = logging.getLogger('kahuna')
 
 
 class CloudCompute:
-    """ Provides access to cloud compute features. """
+    """ Provides access to cloud compute features """
 
     def __init__(self, context):
-        """ Initialize the cloud creator with an existent context. """
+        """ Initialize the cloud creator with an existent context """
         self.__context = context
 
     def create_virtual_datacenter(self, datacenter, enterprise, type,
             name, netname, netaddress, netmask, netgateway):
-        """ Creates a new virtual datacenter. """
+        """ Creates a new virtual datacenter """
         log.info("Creating virtual datacenter %s of type %s..." % (name, type))
         network = PrivateNetwork.builder(self.__context) \
                   .name(netname) \
@@ -40,7 +40,7 @@ class CloudCompute:
         return vdc
 
     def create_virtual_appliance(self, vdc, name):
-        """ Creates a new virtual appliance inside a virtual datacenter. """
+        """ Creates a new virtual appliance inside a virtual datacenter """
         log.info("Creating virtual appliance %s..." % name)
         vapp = VirtualAppliance.builder(self.__context, vdc) \
                .name(name) \
@@ -49,7 +49,7 @@ class CloudCompute:
         return vapp
 
     def create_virtual_machine(self, vapp, template):
-        """ Create a virtual machine based on the given template. """
+        """ Create a virtual machine based on the given template """
         log.info(("Creating virtual machine from "
                 "template: %s...") % template.getName())
         vm = VirtualMachine.builder(self.__context, vapp, template).build()
@@ -57,13 +57,13 @@ class CloudCompute:
         return vm
 
     def refresh_template_repository(self, enterprise, datacenter):
-        """ Refresh the virtual machines templates in the given repository. """
+        """ Refresh the virtual machines templates in the given repository """
         log.info("Refreshing template repository...")
         enterprise.refreshTemplateRepository(datacenter)
 
 
 def find_smallest_template(context, vdc):
-    """ Finds the smallest template available to the virtual datacenter. """
+    """ Finds the smallest template available to the virtual datacenter """
     log.info("Looking for the smallest available template...")
     templates = sorted(vdc.listAvailableTemplates(),
             key=lambda t: t.getDiskFileSize())
@@ -76,7 +76,7 @@ def find_smallest_template(context, vdc):
 
 
 def find_template_by_name(context, vdc, name):
-    """ Finds the template with the given name. """
+    """ Finds the template with the given name """
     template = vdc.findAvailableTemplate(VirtualMachineTemplatePredicates.name(name))
     if template:
         log.info("Found compatible template: %s" % template.getName())
@@ -87,7 +87,7 @@ def find_template_by_name(context, vdc, name):
 
 
 def create_cloud_compute(config, context, dc):
-    """ Creates the default cloud compute entities. """
+    """ Creates the default cloud compute entities """
     log.info("### Configuring the cloud ###")
     cloud = CloudCompute(context)
     # Create it into the 'abiquo' enterprise, to make it easier to use
@@ -110,7 +110,7 @@ def create_cloud_compute(config, context, dc):
 
 
 def cleanup_cloud_compute(config, context):
-    """ Cleans up a previously created cloud compute resources. """
+    """ Cleans up a previously created cloud compute resources """
     log.info("### Cleaning up the cloud ###")
     cloud = context.getCloudService()
     for vdc in cloud.listVirtualDatacenters():

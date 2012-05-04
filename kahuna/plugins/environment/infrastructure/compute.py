@@ -12,14 +12,14 @@ log = logging.getLogger('kahuna')
 
 
 class InfrastructureCompute:
-    """ Provides access to infrastructure compute features. """
+    """ Provides access to infrastructure compute features """
 
     def __init__(self, context):
-        """ Initialize with an existent context. """
+        """ Initialize with an existent context """
         self.__context = context
 
     def create_datacenter(self, name, location):
-        """ Creates a new datacenter. """
+        """ Creates a new datacenter """
         log.info("Creating datacenter %s at %s..." % (name, location))
         rs_address = self.__context.getEndpoint().getHost()
         datacenter = Datacenter.builder(self.__context) \
@@ -31,7 +31,7 @@ class InfrastructureCompute:
         return datacenter
 
     def create_rack(self, datacenter, name, vlan_id_min, vlan_id_max, nrsq):
-        """ Creates a new rack. """
+        """ Creates a new rack """
         log.info("Adding rack %s..." % name)
         rack = Rack.builder(self.__context, datacenter) \
                .name(name) \
@@ -44,7 +44,7 @@ class InfrastructureCompute:
 
     def create_machine(self, rack, hyp, address, user, password,
             datastore, vswitch):
-        """ Creates a new machine. """
+        """ Creates a new machine """
         log.info("Adding %s hypervisor at %s..." % (hyp, address))
         datacenter = rack.getDatacenter()
 
@@ -66,7 +66,7 @@ class InfrastructureCompute:
 
 
 def create_infrastructure_compute(config, context):
-    """ Creates the default infrastructure compute entities.. """
+    """ Creates the default infrastructure compute entities. """
     log.info("### Configuring infrastructure ###")
     comp = InfrastructureCompute(context)
     dc = comp.create_datacenter(config.get("datacenter", "name"),
@@ -89,7 +89,7 @@ def create_infrastructure_compute(config, context):
 
 
 def cleanup_infrastructure_compute(config, context):
-    """ Cleans up previously created infrastructure compute resources. """
+    """ Cleans up previously created infrastructure compute resources """
     log.info("### Cleaning up infrastructure ###")
     admin = context.getAdministrationService()
     for datacenter in admin.listDatacenters():

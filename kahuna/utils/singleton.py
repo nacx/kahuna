@@ -6,7 +6,7 @@ log = logging.getLogger('kahuna')
 
 
 def singleton(cls):
-    """ Singleton decorator. """
+    """ Singleton decorator """
     instances = {}
 
     def instance():

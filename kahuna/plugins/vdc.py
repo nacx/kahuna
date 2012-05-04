@@ -9,12 +9,12 @@ from org.jclouds.rest import AuthorizationException
 
 
 class VirtualDatacenterPlugin(AbsPlugin):
-    """ Virtual datacenter plugin. """
+    """ Virtual datacenter plugin """
     def __init__(self):
         pass
 
     def list(self, args):
-        """ List all available virtual datacenters. """
+        """ List all available virtual datacenters """
         try:
             cloud = self._context.getCloudService()
             vdcs = cloud.listVirtualDatacenters()
@@ -23,7 +23,7 @@ class VirtualDatacenterPlugin(AbsPlugin):
             print "Error: %s" % ex.getMessage()
 
     def find(self, args):
-        """ Find a virtual datacenter given its name. """
+        """ Find a virtual datacenter given its name """
         # Parse user input to get the name of the virtual datacenter
         parser = OptionParser(usage="vdc find <options>")
         parser.add_option("-n", "--name",
@@ -48,5 +48,5 @@ class VirtualDatacenterPlugin(AbsPlugin):
 
 
 def load():
-    """ Loads the current plugin. """
+    """ Loads the current plugin """
     return VirtualDatacenterPlugin()

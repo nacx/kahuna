@@ -22,7 +22,7 @@ class ContextLoader:
     """
 
     def __init__(self):
-        """ Sets the properties and context builders. """
+        """ Sets the properties and context builders """
         context_builder = "org.jclouds.abiquo.AbiquoContextBuilder"
         props_builder = "org.jclouds.abiquo.AbiquoPropertiesBuilder"
         System.setProperty("abiquo.contextbuilder", context_builder)
@@ -31,13 +31,13 @@ class ContextLoader:
         self.__config = Config()
 
     def __del__(self):
-        """ Closes the context before destroying. """
+        """ Closes the context before destroying """
         if self.__context:
             log.debug("Disconnecting from %s" % self.__context.getEndpoint())
             self.__context.close()
 
     def load(self):
-        """ Creates and configures the context. """
+        """ Creates and configures the context """
         if not self.__context:     # Avoid loading the same context twice
             props = self._load_config()
             log.debug("Connecting to %s as %s" %
@@ -51,7 +51,7 @@ class ContextLoader:
             return self.__context
 
     def _load_config(self):
-        """ Returns the default jclouds client configuration. """
+        """ Returns the default jclouds client configuration """
         endpoint = "http://" + self.__config.address + "/api"
         props = Properties()
         props.put("abiquo.endpoint", endpoint)

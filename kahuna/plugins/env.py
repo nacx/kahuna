@@ -17,12 +17,12 @@ from kahuna.abstract import AbsPlugin
 
 
 class EnvironmentPlugin(AbsPlugin):
-    """ Environment generator plugin. """
+    """ Environment generator plugin """
     def __init__(self):
         self.__config = ConfigLoader().load("env.conf", "config/env.conf")
 
     def create(self, args):
-        """ Creates the environment. """
+        """ Creates the environment """
         try:
             apply_default_configuration(self.__config, self._context)
             dc = create_infrastructure_compute(self.__config, self._context)
@@ -35,7 +35,7 @@ class EnvironmentPlugin(AbsPlugin):
             print "Error: %s" % ex.getMessage()
 
     def clean(self, args):
-        """ Cleans up the environment. """
+        """ Cleans up the environment """
         try:
             cleanup_cloud_compute(self.__config, self._context)
             cleanup_default_tenants(self.__config, self._context)
@@ -45,5 +45,5 @@ class EnvironmentPlugin(AbsPlugin):
 
 
 def load():
-    """ Loads the environment plugin. """
+    """ Loads the environment plugin """
     return EnvironmentPlugin()

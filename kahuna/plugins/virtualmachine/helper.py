@@ -12,7 +12,7 @@ log = logging.getLogger('kahuna')
 
 
 def find_template_by_id(context, id):
-    """ Find a template given its id. """
+    """ Find a template given its id """
     admin = context.getAdministrationService()
     user = admin.getCurrentUserInfo()
     enterprise = user.getEnterprise()
@@ -20,7 +20,7 @@ def find_template_by_id(context, id):
 
 
 def find_compatible_virtual_datacenters(context, type, datacenter):
-    """ Find a virtual datacenter compatible with the type and datacenter.. """
+    """ Find a virtual datacenter compatible with the type and datacenter. """
     cloud = context.getCloudService()
     all = cloud.listVirtualDatacenters(
             VirtualDatacenterPredicates.datacenter(datacenter))
@@ -28,13 +28,13 @@ def find_compatible_virtual_datacenters(context, type, datacenter):
 
 
 def refresh_vm(context, vm):
-    """ Refresh the given virtual machine. """
+    """ Refresh the given virtual machine """
     vapp = vm.getVirtualAppliance()
     return vapp.getVirtualMachine(vm.getId())
 
 
 def deploy_vm(context, vm):
-    """ Deploy the given virtual machine. """
+    """ Deploy the given virtual machine """
     monitor = context.getMonitoringService().getVirtualMachineMonitor()
     print "Deploying virtual machine %s... This may take some time." \
             % vm.getName()
@@ -44,7 +44,7 @@ def deploy_vm(context, vm):
 
 
 def undeploy_vm(context, vm):
-    """ Undeploy the given virtual machine. """
+    """ Undeploy the given virtual machine """
     monitor = context.getMonitoringService().getVirtualMachineMonitor()
     print "Uneploying virtual machine %s... This may take some time." \
             % vm.getName()
@@ -54,7 +54,7 @@ def undeploy_vm(context, vm):
 
 
 def change_state_vm(context, vm, new_state):
-    """ Change the state of the given virtual machine. """
+    """ Change the state of the given virtual machine """
     monitor = context.getMonitoringService().getVirtualMachineMonitor()
     print("Changing state of virtual machine %s to %s... "
         "This may take some time." % (vm.getName(), new_state.name()))
@@ -64,7 +64,7 @@ def change_state_vm(context, vm, new_state):
 
 
 def get_virtual_datacenter_for_template(context, template):
-    """ Get a virtual datacenter where the given template can be deployed. """
+    """ Get a virtual datacenter where the given template can be deployed """
     datacenter = template.getDatacenter()
     vdcs = find_compatible_virtual_datacenters(context,
             template.getDiskFormatType(), datacenter)

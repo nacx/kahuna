@@ -9,12 +9,12 @@ from org.jclouds.rest import AuthorizationException
 
 
 class TemplatePlugin(AbsPlugin):
-    """ Template plugin. """
+    """ Template plugin """
     def __init__(self):
         pass
 
     def list(self, args):
-        """ List all available templates. """
+        """ List all available templates """
         try:
             admin = self._context.getAdministrationService()
             user = admin.getCurrentUserInfo()
@@ -25,7 +25,7 @@ class TemplatePlugin(AbsPlugin):
             print "Error: %s" % ex.getMessage()
 
     def find(self, args):
-        """ Find a template given its name. """
+        """ Find a template given its name """
         # Parse user input to get the name of the template
         parser = OptionParser(usage="template find <options>")
         parser.add_option("-n", "--name", deswt="name",
@@ -52,5 +52,5 @@ class TemplatePlugin(AbsPlugin):
 
 
 def load():
-    """ Loads the current plugin. """
+    """ Loads the current plugin """
     return TemplatePlugin()

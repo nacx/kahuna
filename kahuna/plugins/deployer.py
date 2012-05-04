@@ -8,12 +8,12 @@ from kahuna.abstract import AbsPlugin
 
 
 class DeployerPlugin(AbsPlugin):
-    """ Massive deployer plugin. """
+    """ Massive deployer plugin """
     def __init__(self):
         pass
 
     def start(self, args):
-        """ Deploys and undeploys the first virtual appliance N times. """
+        """ Deploys and undeploys the first virtual appliance N times """
         # Parse user input to get the number of deployments and undeployments
         parser = OptionParser(usage="deployer start <options>")
         parser.add_option("-n", "--num", dest="num",
@@ -60,5 +60,5 @@ class DeployerPlugin(AbsPlugin):
 
 
 def load():
-    """ Loads the deployer plugin. """
+    """ Loads the deployer plugin """
     return DeployerPlugin()

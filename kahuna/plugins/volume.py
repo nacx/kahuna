@@ -13,12 +13,12 @@ log = logging.getLogger('kahuna')
 
 
 class VolumePlugin(AbsPlugin):
-    """ Volume plugin. """
+    """ Volume plugin """
     def __init__(self):
         pass
 
     def list(self, args):
-        """ List all available volumes. """
+        """ List all available volumes """
         try:
             cloud = self._context.getCloudService()
             vdcs = cloud.listVirtualDatacenters()
@@ -29,7 +29,7 @@ class VolumePlugin(AbsPlugin):
             print "Error: %s" % ex.getMessage()
 
     def find(self, args):
-        """ Find an available volume given its name. """
+        """ Find an available volume given its name """
         # Parse user input to get the name of the volume
         parser = OptionParser(usage="volume find <options>")
         parser.add_option("-n", "--name", dest="name",
@@ -51,7 +51,7 @@ class VolumePlugin(AbsPlugin):
             print "Error: %s" % ex.getMessage()
 
     def attach(self, args):
-        """ Attach a volume to the given virtual machine. """
+        """ Attach a volume to the given virtual machine """
         parser = OptionParser(usage="volume attach <options>")
         parser.add_option("-n", "--name", dest="name",
                 help="The name of the volume to attach")
@@ -87,7 +87,7 @@ class VolumePlugin(AbsPlugin):
             print "Error: %s" % ex.getMessage()
 
     def detach(self, args):
-        """ Detach a volume from the given virtual machine. """
+        """ Detach a volume from the given virtual machine """
         parser = OptionParser(usage="volume detach <options>")
         parser.add_option("-n", "--name", dest="name>",
                 help="The name of the volume to detach")
@@ -121,5 +121,5 @@ class VolumePlugin(AbsPlugin):
 
 
 def load():
-    """ Loads the current plugin. """
+    """ Loads the current plugin """
     return VolumePlugin()
