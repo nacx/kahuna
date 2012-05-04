@@ -127,3 +127,14 @@ def pprint_machines(machines):
                 str(machine.getVirtualRamInMb()) + " MB"]
         table.append(row)
     pprint_table(table)
+
+
+def pprint_task(task, jobs):
+    """ Pretty prints the given task with its job list """
+    table = [["task/job", "id", "type", "status", "rollback status"]]
+    table.append(["task", task['taskId'], task['type'], task['state'], "-"])
+    for job in jobs:
+        row = ["job", job['id'], job['type'], job['state'],
+                job['rollbackState']]
+        table.append(row)
+    pprint_table(table)
