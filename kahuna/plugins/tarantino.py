@@ -11,7 +11,7 @@
 #    ./easy_install redis
 
 from kahuna.abstract import AbsPlugin
-from kahuna.utils.prettyprint import pprint_task
+from kahuna.utils.prettyprint import pprint_tasks
 from optparse import OptionParser
 import redis
 
@@ -50,11 +50,13 @@ class TarantinoPlugin(AbsPlugin):
         range = -1 if options.all else 0
         task_keys = r.lrange("Owner:VirtualMachine:%s" % options.vm, 0, range)
 
+        tasks = []
         for task_key in task_keys:
             task = r.hgetall(task_key)
             job_keys = r.lrange(task['jobs'], 0, -1)
             jobs = map(lambda k: r.hgetall(k), job_keys)
-            pprint_task(task, jobs)
+            tasks.append((task, jobs))
+        pprint_tasks(tasks)
 
 
 def load():
