@@ -8,6 +8,7 @@ class PTable:
     def __init__(self, headers=[]):
         self._headers = headers
         self._rows = []
+        self._separators = []
 
     def headers(self, headers):
         """ Sets the table headers """
@@ -17,6 +18,14 @@ class PTable:
         """ Adds a row to the table """
         self._rows.append(row)
 
+    def separator(self, position=-1):
+        """ Appends a separator to the table """
+        # A None row is considered a separator
+        if position > 0:
+            self._rows.insert(position, None)
+        else:
+            self._rows.append(None)
+
     def pprint(self):
         """ Pretty printstable """
         # Get the column paddings
@@ -25,12 +34,18 @@ class PTable:
             col_paddings.append(self._max_width(column))
 
         self._pprint_header(col_paddings)
-        [self._pprint_row(row, col_paddings) for row in self._rows]
+        for row in self._rows:
+            if row:     # None rows are considered separators
+                self._pprint_row(row, col_paddings)
+            else:
+                self._pprint_separator(col_paddings)
 
     def _max_width(self, column):
         """ Get the maximum width of the given column index """
-        lengths = [len(str(row[column])) for row in self._rows]
-        lengths.append(len(str(self._headers[column])))
+        lengths = [len(str(self._headers[column]))]
+        for row in self._rows:
+            if row:     # Ignore separators
+                lengths.append(len(str(row[column])))
         return max(lengths)
 
     def _pprint_row(self, row, col_paddings):
@@ -44,6 +59,10 @@ class PTable:
     def _pprint_header(self, col_paddings):
         """ Pretty prints the table header """
         self._pprint_row(self._headers, col_paddings)
+        self._pprint_separator(col_paddings)
+
+    def _pprint_separator(self, col_paddings):
+        """ Prints a separator line """
         for column in range(len(self._headers)):
             print "-" * col_paddings[column], "",
         print
@@ -139,17 +158,19 @@ def pprint_machines(machines):
     table.pprint()
 
 
-def pprint_task(task, jobs):
+def pprint_tasks(tasks):
     """ Pretty prints the given task with its job list """
     date_format = "%d-%m-%Y %H:%M"
     table = PTable(["task/job", "id", "type", "status", "rollback status",
         "date"])
-    task_date = datetime.fromtimestamp(long(task['timestamp']))
-    table.add(["task", task['taskId'], task['type'], task['state'], "-",
-        task_date.strftime(date_format)])
-    for job in jobs:
-        job_date = datetime.fromtimestamp(long(job['timestamp']))
-        row = ["job", job['id'], job['type'], job['state'],
-                job['rollbackState'], job_date.strftime(date_format)]
-        table.add(row)
+    for task, jobs in tasks:
+        task_date = datetime.fromtimestamp(long(task['timestamp']))
+        table.add(["task", task['taskId'], task['type'], task['state'], "-",
+            task_date.strftime(date_format)])
+        for job in jobs:
+            job_date = datetime.fromtimestamp(long(job['timestamp']))
+            row = ["job", job['id'], job['type'], job['state'],
+                    job['rollbackState'], job_date.strftime(date_format)]
+            table.add(row)
+        table.separator()
     table.pprint()
