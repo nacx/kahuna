@@ -1,5 +1,7 @@
 #!/usr/bin/env jython
 
+from datetime import datetime
+
 
 class PTable:
     """ Table with pretty formatting """
@@ -139,10 +141,15 @@ def pprint_machines(machines):
 
 def pprint_task(task, jobs):
     """ Pretty prints the given task with its job list """
-    table = PTable(["task/job", "id", "type", "status", "rollback status"])
-    table.add(["task", task['taskId'], task['type'], task['state'], "-"])
+    date_format = "%d-%m-%Y %H:%M"
+    table = PTable(["task/job", "id", "type", "status", "rollback status",
+        "date"])
+    task_date = datetime.fromtimestamp(long(task['timestamp']))
+    table.add(["task", task['taskId'], task['type'], task['state'], "-",
+        task_date.strftime(date_format)])
     for job in jobs:
+        job_date = datetime.fromtimestamp(long(job['timestamp']))
         row = ["job", job['id'], job['type'], job['state'],
-                job['rollbackState']]
+                job['rollbackState'], job_date.strftime(date_format)]
         table.add(row)
     table.pprint()
