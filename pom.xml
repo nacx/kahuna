@@ -27,7 +27,7 @@
         <dependency>
             <groupId>org.jclouds.provider</groupId>
             <artifactId>jclouds-abiquo</artifactId>
-            <version>2.3-SNAPSHOT</version>
+            <version>LATEST</version>
         </dependency>
         <dependency>
             <groupId>org.jclouds.driver</groupId>
