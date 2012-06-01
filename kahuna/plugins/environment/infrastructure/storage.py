@@ -2,8 +2,8 @@
 
 import logging
 from ConfigParser import NoOptionError
-from com.abiquo.model.enumerator import StorageTechnologyType
 from org.jclouds.abiquo.domain.infrastructure import StorageDevice
+from org.jclouds.abiquo.predicates.infrastructure import StorageDevicePredicates
 from org.jclouds.abiquo.predicates.infrastructure import StoragePoolPredicates
 
 log = logging.getLogger('kahuna')
@@ -30,16 +30,18 @@ class InfrastructureStorage:
 
         return tiers[0]
 
-    def create_device(self, datacenter, devname, devtype, devaddress,
+    def create_device(self, datacenter, devname, devspec, devaddress,
             devmanaddress, user, password):
         """ Discovers and registers a storage device """
         log.info("Creating storage device %s at %s..." % (devname,
             devaddress))
         device = StorageDevice.builder(self.__context, datacenter) \
                  .name(devname) \
-                 .type(devtype) \
+                 .type(devspec.getType()) \
                  .iscsiIp(devaddress) \
+                 .iscsiPort(devspec.getIscsiPort()) \
                  .managementIp(devmanaddress) \
+                 .managementPort(devspec.getManagementPort()) \
                  .username(user) \
                  .password(password) \
                  .build()
@@ -67,8 +69,13 @@ def create_infrastructure_storage(config, context, dc):
     except NoOptionError:
         user = None
         password = None
+
+    device_type = config.get("device", "type")
+    device_spec = dc.findSupportedStorageDevice(
+            StorageDevicePredicates.type(device_type))
+
     device = storage.create_device(dc, config.get("device", "name"),
-        StorageTechnologyType.valueOf(config.get("device", "type")),
+        device_spec,
         config.get("device", "address"),
         config.get("device", "address"),
         user, password)
