@@ -16,7 +16,7 @@ cd $BASEDIR
 
 # Ensure the classpath file exist
 CPFILE=kahuna/abiquo-jars.pth
-! [ -f $CPFILE ] && mvn clean compile
+! [ -f $CPFILE ] && mvn clean compile -U
 
 # Export the classpath and run the command line script
 export CLASSPATH=`cat $CPFILE`
