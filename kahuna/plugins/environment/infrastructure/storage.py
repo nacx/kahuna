@@ -3,7 +3,7 @@
 import logging
 from ConfigParser import NoOptionError
 from org.jclouds.abiquo.domain.infrastructure import StorageDevice
-from org.jclouds.abiquo.predicates.infrastructure import StorageDevicePredicates
+from org.jclouds.abiquo.predicates.infrastructure import StorageDeviceMetadataPredicates
 from org.jclouds.abiquo.predicates.infrastructure import StoragePoolPredicates
 
 log = logging.getLogger('kahuna')
@@ -39,9 +39,9 @@ class InfrastructureStorage:
                  .name(devname) \
                  .type(devspec.getType()) \
                  .iscsiIp(devaddress) \
-                 .iscsiPort(devspec.getIscsiPort()) \
+                 .iscsiPort(devspec.getDefaultIscsiPort()) \
                  .managementIp(devmanaddress) \
-                 .managementPort(devspec.getManagementPort()) \
+                 .managementPort(devspec.getDefaultManagementPort()) \
                  .username(user) \
                  .password(password) \
                  .build()
@@ -72,7 +72,7 @@ def create_infrastructure_storage(config, context, dc):
 
     device_type = config.get("device", "type")
     device_spec = dc.findSupportedStorageDevice(
-            StorageDevicePredicates.type(device_type))
+            StorageDeviceMetadataPredicates.type(device_type))
 
     device = storage.create_device(dc, config.get("device", "name"),
         device_spec,
