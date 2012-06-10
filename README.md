@@ -13,26 +13,22 @@ look at the official Java client project page:
 Requirements
 ------------
 
-To run Kahuna you will need to install *Maven >= 2.2.1*, *JRE >= 1.6* and ***Jython >= 2.5.2***.
+To run Kahuna you will need to install *Maven >= 2.2.1*, *JRE >= 1.6*.
+***Jython >= 2.5.2*** is also required, but the setup script will install
+it for you.
 
 
-Configuration
--------------
+Installation
+------------
 
-Since this project is currently in development process and we don't have any egg 
-package ready, the *$JYHTONPATH* environment variable needs to be set manually:
+You can install Kahuna with the setup script:
 
-    export JYTHONPATH=$(YOUR_PROJECT_HOME_DIRECTORY)
+    sh setup.py
 
-You must also copy the **config/kahuna.conf** file to **$HOME/.kahuna/kahuna.conf**
-and edit it to configure the connection to your Abiquo Platform. It is also a good choice
-to add the script to your PATH. You could simply create a symlink to the kahuna script
-in */usr/local/bin*:
-
-    cd <kahuna source directory>
-    cp config/kahuna.conf ~/.kahuna/kahuna.conf  # Then edit the file accordingly
-    chmod u+x kahuna.sh
-    ln -s $(pwd)/kahuna.sh /usr/local/bin/kahuna
+This will install Jython 2.5.2 on your system and configure it to be used by Kahuna.
+If you have an existing Jython installation, prior to 2.5.2, Kahuna won't work. If you
+have a newer Jython version, you can just remove the link that the setup script will
+create in **/usr/local/bin/jython** to make sure your version will be used.
 
 
 Running
