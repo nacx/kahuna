@@ -23,7 +23,7 @@ Installation
 
 You can install Kahuna with the setup script:
 
-    sh setup.py
+    sh setup.sh
 
 This will install Jython 2.5.2 on your system and configure it to be used by Kahuna.
 If you have an existing Jython installation, prior to 2.5.2, Kahuna won't work. If you
