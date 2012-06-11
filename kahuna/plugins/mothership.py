@@ -182,7 +182,7 @@ class MothershipPlugin(AbsPlugin):
             self._upload_file_node(context, node, "/opt/abiquo/config",
                     options.props, True)
 
-            log.info("Restarting Abiquo...")
+            log.info("Restarting Abiquo Tomcat...")
             compute.runScriptOnNode(node.getId(),
                     "service abiquo-tomcat restart")
 
