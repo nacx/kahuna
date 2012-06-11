@@ -11,6 +11,7 @@ wget -q ${JYTHON_URL} -O ${JYTHON_TMP}
 echo "Installing Jython ${JYTHON_VERSION} to ${JYTHON_TARGET}..."
 java -jar ${JYTHON_TMP} -s -t standard -d ${JYTHON_TARGET}
 ln -s ${JYTHON_TARGET}/jython /usr/local/bin/jython
+chmow -R a+wx ${JYTHON_TARGET}/cachedir
 
 echo "Addind Easy Install for Jython..."
 wget -q http://peak.telecommunity.com/dist/ez_setup.py -O /tmp/ez_setup.py
