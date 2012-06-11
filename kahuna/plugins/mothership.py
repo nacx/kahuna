@@ -6,14 +6,18 @@ import os
 from java.io import File
 from kahuna.abstract import AbsPlugin
 from kahuna.config import ConfigLoader
+from kahuna.utils.prettyprint import pprint_templates
 from com.google.common.collect import Iterables
+from optparse import OptionParser
 from org.jclouds import ContextBuilder
 from org.jclouds.abiquo import AbiquoApiMetadata
 from org.jclouds.abiquo import AbiquoContext
+from org.jclouds.abiquo.domain.exception import AbiquoException
 from org.jclouds.compute import RunNodesException
 from org.jclouds.domain import LoginCredentials
 from org.jclouds.io import Payloads
 from org.jclouds.logging.config import NullLoggingModule
+from org.jclouds.rest import AuthorizationException
 from org.jclouds.util import Strings2
 from org.jclouds.ssh.jsch.config import JschSshClientModule
 
@@ -34,10 +38,24 @@ class MothershipPlugin(AbsPlugin):
     def _commands(self):
         """ Returns the provided commands, mapped to handler methods """
         commands = {}
+        commands['deploy-abiquo'] = self.deploy_abiquo
         commands['deploy-chef'] = self.deploy_chef
         commands['deploy-kvm'] = self.deploy_kvm
         commands['deploy-vbox'] = self.deploy_vbox
+        commands['list-templates'] = self.list_templates
         return commands
+
+    def list_templates(self, args):
+        """ List all available templates """
+        try:
+            context = self._create_context()
+            admin = context.getAdministrationService()
+            user = admin.getCurrentUser()
+            enterprise = user.getEnterprise()
+            templates = enterprise.listTemplates()
+            pprint_templates(templates)
+        except (AbiquoException, AuthorizationException), ex:
+            print "Error: %s" % ex.getMessage()
 
     def deploy_chef(self, args):
         """ Deploys and configures a Chef Server """
@@ -46,14 +64,14 @@ class MothershipPlugin(AbsPlugin):
 
         try:
             name = self.__config.get("deploy-chef", "template")
-            log.info("Loading template: %s" % name)
+            log.info("Loading template...")
             options = self._template_options(compute, "deploy-chef")
             template = compute.templateBuilder() \
                     .imageNameMatches(name) \
                     .options(options.blockOnPort(4000, 90)) \
                     .build()
 
-            log.info("Deploying node...")
+            log.info("Deploying %s..." % template.getImage().getName())
             node = Iterables.getOnlyElement(
                     compute.createNodesInGroup("kahuna-chef", 1, template))
 
@@ -93,14 +111,14 @@ class MothershipPlugin(AbsPlugin):
 
         try:
             name = self.__config.get(config_section, "template")
-            log.info("Loading template: %s" % name)
+            log.info("Loading template...")
             options = self._template_options(compute, config_section)
             template = compute.templateBuilder() \
                     .imageNameMatches(name) \
                     .options(options) \
                     .build()
 
-            log.info("Deploying node...")
+            log.info("Deploying %s..." % template.getImage().getName())
             node = Iterables.getOnlyElement(
                     compute.createNodesInGroup(vapp_name, 1, template))
 
@@ -124,6 +142,51 @@ class MothershipPlugin(AbsPlugin):
 
             log.info("Node configured!")
             log.info("You can access it at: ssh://%s" %
+                    Iterables.getOnlyElement(node.getPrivateAddresses()))
+
+        except RunNodesException, ex:
+            self._print_node_errors(ex)
+        finally:
+            context.close()
+
+    def deploy_abiquo(self, args):
+        """ Deploys and configures an Abiquo platform """
+        parser = OptionParser(usage="mothership deploy-abiquo <options>")
+        parser.add_option('-t', '--template-id',
+                help='The id of the template to deploy',
+                action='store', dest='template')
+        parser.add_option('-p', '--properties',
+                help='Path to the abiquo.properties file to use',
+                action='store', dest='props')
+        (options, args) = parser.parse_args(args)
+
+        if not options.template or not options.props:
+            parser.print_help()
+            return
+
+        context = self._create_context()
+        compute = context.getComputeService()
+
+        try:
+            log.info("Loading template...")
+            template_options = self._template_options(compute, "deploy-abiquo")
+            template = compute.templateBuilder() \
+                    .imageId(options.template) \
+                    .options(template_options) \
+                    .build()
+
+            log.info("Deploying %s..." % template.getImage().getName())
+            node = Iterables.getOnlyElement(
+                    compute.createNodesInGroup("kahuna-abiquo", 1, template))
+
+            self._upload_file_node(context, node, "/opt/abiquo/config",
+                    options.props, True)
+
+            log.info("Restarting Abiquo...")
+            compute.runScriptOnNode(node.getId(),
+                    "service abiquo-tomcat restart")
+
+            log.info("Abiquo configured at: %s" %
                     Iterables.getOnlyElement(node.getPrivateAddresses()))
 
         except RunNodesException, ex:
@@ -164,13 +227,15 @@ class MothershipPlugin(AbsPlugin):
             if ssh:
                 ssh.disconnect()
 
-    def _upload_file_node(self, context, node, destination, filename):
+    def _upload_file_node(self, context, node, destination, filename,
+            abs_path=False):
         ssh = context.getUtils().sshForNode().apply(node)
-        file = File(self.__scriptdir + "/" + filename + ".tmp")
-        tmpfile = True
-        if not file:
-            file = File(self.__scriptdir + "/" + filename)
-            tmpfile = False
+        path = filename if abs_path else self.__scriptdir + "/" + filename
+        tmpfile = os.path.exists(path + ".tmp")
+        file = File(path + ".tmp" if tmpfile else path)
+
+        if abs_path:
+            filename = os.path.basename(path)
 
         try:
             ssh.connect()
