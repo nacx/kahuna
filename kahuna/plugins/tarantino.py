@@ -18,8 +18,6 @@ import redis
 
 class TarantinoPlugin(AbsPlugin):
     """ Tarantino plugin """
-    def __init__(self):
-        pass
 
     def _commands(self):
         """ Get teh lsit of commands of the plugin """

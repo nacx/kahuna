@@ -18,8 +18,6 @@ log = logging.getLogger('kahuna')
 
 class VmPlugin(AbsPlugin):
     """ Virtual machine plugin """
-    def __init__(self):
-        pass
 
     def list(self, args):
         """ List all virtual machines """

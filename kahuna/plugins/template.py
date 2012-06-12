@@ -10,8 +10,6 @@ from org.jclouds.rest import AuthorizationException
 
 class TemplatePlugin(AbsPlugin):
     """ Template plugin """
-    def __init__(self):
-        pass
 
     def list(self, args):
         """ List all available templates """

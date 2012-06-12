@@ -9,17 +9,12 @@ from kahuna.config import ConfigLoader
 from kahuna.utils.prettyprint import pprint_templates
 from com.google.common.collect import Iterables
 from optparse import OptionParser
-from org.jclouds import ContextBuilder
-from org.jclouds.abiquo import AbiquoApiMetadata
-from org.jclouds.abiquo import AbiquoContext
 from org.jclouds.abiquo.domain.exception import AbiquoException
 from org.jclouds.compute import RunNodesException
 from org.jclouds.domain import LoginCredentials
 from org.jclouds.io import Payloads
-from org.jclouds.logging.config import NullLoggingModule
 from org.jclouds.rest import AuthorizationException
 from org.jclouds.util import Strings2
-from org.jclouds.ssh.jsch.config import JschSshClientModule
 
 log = logging.getLogger('kahuna')
 
@@ -29,9 +24,16 @@ class MothershipPlugin(AbsPlugin):
     def __init__(self):
         self.__config = ConfigLoader().load("mothership.conf",
                 "config/mothership.conf")
-        self.__endpoint = "http://%s/api" % \
-                self.__config.get("mothership", "host")
         self.__scriptdir = "kahuna/plugins/mothership"
+
+    # Override the endpoint address and credentials to create the
+    # context
+    def _config_overrides(self):
+        overrides = {}
+        overrides['address'] = self.__config.get("mothership", "host")
+        overrides['user'] = self.__config.get("mothership", "user")
+        overrides['password'] = self.__config.get("mothership", "password")
+        return overrides
 
     # Override the commands factory method because the command names we want
     # can not be used as valid python class method names
@@ -48,8 +50,7 @@ class MothershipPlugin(AbsPlugin):
     def list_templates(self, args):
         """ List all available templates """
         try:
-            context = self._create_context()
-            admin = context.getAdministrationService()
+            admin = self._context.getAdministrationService()
             user = admin.getCurrentUser()
             enterprise = user.getEnterprise()
             templates = enterprise.listTemplates()
@@ -59,8 +60,7 @@ class MothershipPlugin(AbsPlugin):
 
     def deploy_chef(self, args):
         """ Deploys and configures a Chef Server """
-        context = self._create_context()
-        compute = context.getComputeService()
+        compute = self._context.getComputeService()
 
         try:
             name = self.__config.get("deploy-chef", "template")
@@ -87,13 +87,12 @@ class MothershipPlugin(AbsPlugin):
                     % Iterables.getOnlyElement(node.getPrivateAddresses()))
 
             log.info("These are the certificates to access the API:")
-            self._print_node_file(context, node, "/etc/chef/validation.pem")
-            self._print_node_file(context, node, "/etc/chef/webui.pem")
+            self._print_node_file(self._context, node,
+                    "/etc/chef/validation.pem")
+            self._print_node_file(self._context, node, "/etc/chef/webui.pem")
 
         except RunNodesException, ex:
             self._print_node_errors(ex)
-        finally:
-            context.close()
 
     def deploy_kvm(self, args):
         """ Deploys and configures a KVM hypervisor """
@@ -103,11 +102,52 @@ class MothershipPlugin(AbsPlugin):
         """ Deploys and configures a VirtualBox hypervisor """
         self._deploy_aim("deploy-vbox", "kahuna-vbox")
 
+    def deploy_abiquo(self, args):
+        """ Deploys and configures an Abiquo platform """
+        parser = OptionParser(usage="mothership deploy-abiquo <options>")
+        parser.add_option('-t', '--template-id',
+                help='The id of the template to deploy',
+                action='store', dest='template')
+        parser.add_option('-p', '--properties',
+                help='Path to the abiquo.properties file to use',
+                action='store', dest='props')
+        (options, args) = parser.parse_args(args)
+
+        if not options.template or not options.props:
+            parser.print_help()
+            return
+
+        compute = self._context.getComputeService()
+
+        try:
+            log.info("Loading template...")
+            template_options = self._template_options(compute, "deploy-abiquo")
+            template = compute.templateBuilder() \
+                    .imageId(options.template) \
+                    .options(template_options) \
+                    .build()
+
+            log.info("Deploying %s..." % template.getImage().getName())
+            node = Iterables.getOnlyElement(
+                    compute.createNodesInGroup("kahuna-abiquo", 1, template))
+
+            self._upload_file_node(self._context, node, "/opt/abiquo/config",
+                    options.props, True)
+
+            log.info("Restarting Abiquo Tomcat...")
+            compute.runScriptOnNode(node.getId(),
+                    "service abiquo-tomcat restart")
+
+            log.info("Abiquo configured at: %s" %
+                    Iterables.getOnlyElement(node.getPrivateAddresses()))
+
+        except RunNodesException, ex:
+            self._print_node_errors(ex)
+
     # Utility functions
     def _deploy_aim(self, config_section, vapp_name):
         """ Deploys and configures an AIM based hypervisor """
-        context = self._create_context()
-        compute = context.getComputeService()
+        compute = self._context.getComputeService()
 
         try:
             name = self.__config.get(config_section, "template")
@@ -131,7 +171,8 @@ class MothershipPlugin(AbsPlugin):
             # abiquo-aim.ini
             self._complete_file("abiquo-aim.ini", {'redishost': redishost,
                 'redisport': redisport, 'nfsto': nfsto})
-            self._upload_file_node(context, node, "/etc/", "abiquo-aim.ini")
+            self._upload_file_node(self._context, node, "/etc/",
+                    "abiquo-aim.ini")
 
             # configure-aim-node.sh
             with open(self.__scriptdir + "/configure-aim-node.sh", "r") as f:
@@ -146,62 +187,6 @@ class MothershipPlugin(AbsPlugin):
 
         except RunNodesException, ex:
             self._print_node_errors(ex)
-        finally:
-            context.close()
-
-    def deploy_abiquo(self, args):
-        """ Deploys and configures an Abiquo platform """
-        parser = OptionParser(usage="mothership deploy-abiquo <options>")
-        parser.add_option('-t', '--template-id',
-                help='The id of the template to deploy',
-                action='store', dest='template')
-        parser.add_option('-p', '--properties',
-                help='Path to the abiquo.properties file to use',
-                action='store', dest='props')
-        (options, args) = parser.parse_args(args)
-
-        if not options.template or not options.props:
-            parser.print_help()
-            return
-
-        context = self._create_context()
-        compute = context.getComputeService()
-
-        try:
-            log.info("Loading template...")
-            template_options = self._template_options(compute, "deploy-abiquo")
-            template = compute.templateBuilder() \
-                    .imageId(options.template) \
-                    .options(template_options) \
-                    .build()
-
-            log.info("Deploying %s..." % template.getImage().getName())
-            node = Iterables.getOnlyElement(
-                    compute.createNodesInGroup("kahuna-abiquo", 1, template))
-
-            self._upload_file_node(context, node, "/opt/abiquo/config",
-                    options.props, True)
-
-            log.info("Restarting Abiquo Tomcat...")
-            compute.runScriptOnNode(node.getId(),
-                    "service abiquo-tomcat restart")
-
-            log.info("Abiquo configured at: %s" %
-                    Iterables.getOnlyElement(node.getPrivateAddresses()))
-
-        except RunNodesException, ex:
-            self._print_node_errors(ex)
-        finally:
-            context.close()
-
-    def _create_context(self):
-        user = self.__config.get("mothership", "user")
-        password = self.__config.get("mothership", "password")
-        return ContextBuilder.newBuilder(AbiquoApiMetadata()) \
-                .endpoint(self.__endpoint) \
-                .credentials(user, password) \
-                .modules([JschSshClientModule(), NullLoggingModule()]) \
-                .build(AbiquoContext)
 
     def _template_options(self, compute, deploycommand):
         login = LoginCredentials.builder() \

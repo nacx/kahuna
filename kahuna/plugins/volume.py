@@ -14,8 +14,6 @@ log = logging.getLogger('kahuna')
 
 class VolumePlugin(AbsPlugin):
     """ Volume plugin """
-    def __init__(self):
-        pass
 
     def list(self, args):
         """ List all available volumes """

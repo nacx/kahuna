@@ -10,8 +10,6 @@ from org.jclouds.rest import AuthorizationException
 
 class VirtualDatacenterPlugin(AbsPlugin):
     """ Virtual datacenter plugin """
-    def __init__(self):
-        pass
 
     def list(self, args):
         """ List all available virtual datacenters """

@@ -1,10 +1,10 @@
 #!/usr/bin/env jython
 
 from __future__ import with_statement  # jython 2.5.2 issue
-import logging
-from plugins import __all__
-from kahuna.session import ContextLoader
 from contextlib import contextmanager
+import logging
+from kahuna.session import ContextLoader
+from plugins import __all__
 
 log = logging.getLogger('kahuna')
 
@@ -30,22 +30,16 @@ class PluginManager:
         return plugin
 
     def call(self, plugin_name, command_name, args):
-        """ Encapsulate the call into a context already loaded.
-        """
-        with opencontext() as context:
-            return self._call(context, plugin_name, command_name, args)
-
-    def _call(self, context, plugin_name, command_name, args):
-        """ Calls the given command on the given plugin """
+        """ Encapsulate the call into a context already loaded. """
         try:
             plugin = self.load_plugin(plugin_name)
-            plugin._load_context(context)
             if not command_name:
                 self.help(plugin)
             else:
                 try:
                     command = plugin._commands()[command_name]
-                    return command(args)
+                    with opencontext(plugin):
+                        return command(args)
                 except KeyError:
                     # Command not found in plugin. Print only plugin help
                     self.help(plugin)
@@ -72,11 +66,12 @@ class PluginManager:
 
 
 @contextmanager
-def opencontext():
+def opencontext(plugin):
     """ Loads the context each plugin needs to be initialized
     in order to be executed """
     log.debug("Loading context for plugin execution")
-    context = ContextLoader().load()
-    yield context
+    context = ContextLoader(plugin._config_overrides()).load()
+    plugin._load_context(context)
+    yield
     log.debug("Context closed after plugin execution")
     context.close()

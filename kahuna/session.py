@@ -8,6 +8,7 @@ from java.util import Properties
 from org.jclouds import ContextBuilder
 from org.jclouds.abiquo import AbiquoApiMetadata, AbiquoContext
 from org.jclouds.logging.config import NullLoggingModule
+from org.jclouds.ssh.jsch.config import JschSshClientModule
 
 log = logging.getLogger('kahuna')
 
@@ -20,10 +21,14 @@ class ContextLoader:
     load() method.
     """
 
-    def __init__(self):
+    def __init__(self, overrides=None):
         """ Sets the properties and context builders """
         self.__context = None
         self.__config = Config()
+        if overrides:
+            log.debug("Overriding default config values")
+            for property in sorted(overrides.iterkeys()):
+                setattr(self.__config, property, overrides[property])
 
     def __del__(self):
         """ Closes the context before destroying """
@@ -42,7 +47,7 @@ class ContextLoader:
             self.__context = ContextBuilder.newBuilder(AbiquoApiMetadata()) \
                 .endpoint(endpoint) \
                 .credentials(self.__config.user, self.__config.password) \
-                .modules([NullLoggingModule()]) \
+                .modules([JschSshClientModule(), NullLoggingModule()]) \
                 .overrides(props) \
                 .build(AbiquoContext)
             # Close context automatically when exiting

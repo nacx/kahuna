@@ -15,6 +15,10 @@ class AbsPlugin:
             commands[attr] = method
         return commands
 
+    def _config_overrides(self):
+        """ Custom properties to override default configuration """
+        return {}
+
     def _load_context(self, context):
         """ Set the context of the execution.
 

@@ -8,8 +8,6 @@ EXIT_OPEN_SHELL = 10
 
 class ShellPlugin(AbsPlugin):
     """ Interactive shell plugin """
-    def __init__(self):
-        pass
 
     def open(self, args):
         """ Opens an interactive shell """
