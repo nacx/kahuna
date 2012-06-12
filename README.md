@@ -25,7 +25,7 @@ You can install Kahuna with the setup script:
 
     git clone git://github.com/nacx/kahuna.git
     cd kahuna
-    sh setup.sh
+    sudo sh setup.sh
 
 **This will install Jython 2.5.2** on your system and configure it to be used by Kahuna.
 
