@@ -18,6 +18,8 @@ log = logging.getLogger('kahuna')
 
 class VmPlugin(AbsPlugin):
     """ Virtual machine plugin """
+    def __init__(self):
+        pass
 
     def list(self, args):
         """ List all virtual machines """
@@ -27,6 +29,7 @@ class VmPlugin(AbsPlugin):
             pprint_vms(vms)
         except (AbiquoException, AuthorizationException), ex:
             print "Error: %s" % ex.getMessage()
+
 
     def find(self, args):
         """ Find a virtual machine given its name """
@@ -53,6 +56,37 @@ class VmPlugin(AbsPlugin):
                 print "No virtual machine found with name: %s" % name
         except (AbiquoException, AuthorizationException), ex:
             print "Error: %s" % ex.getMessage()
+
+    def find_by_template(self, args):
+        """ Find virtual machine(s) given a template """
+        # Parse user input to get the name of the virtual machine
+        parser = OptionParser(usage="vm find_by_template <options>")
+        parser.add_option("-t", "--template", dest="template",
+                help="The name of the template")
+        parser.add_option("-v", "--verbose", dest="verbose",
+                action="store_true",
+                help="Show virtual machine extended information")
+        (options, args) = parser.parse_args(args)
+        template = options.template
+        if not template:
+            parser.print_help()
+            return
+
+        # Once user input has been read, find the virtual machine
+        try:
+            cloud = self._context.getCloudService()
+            vms = cloud.listVirtualMachines()
+            vmts = []
+            for vm in vms:
+                if template in vm.getTemplate().getName():
+                    vmts.append(vm)
+            if not vmts:
+                print "No virtual machine found with template: %s" % template
+            else:
+                pprint_vms(vmts,options.verbose)
+        except (AbiquoException, AuthorizationException), ex:
+            print "Error: %s" % ex.getMessage()
+
 
     def deploy(self, args):
         """ Deploy an existing virtual machine given its name """
