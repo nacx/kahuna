@@ -7,7 +7,7 @@
     
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <jclouds.version>1.5.0-alpha.6</jclouds.version>
+        <jclouds.version>1.5.0-beta.3</jclouds.version>
     </properties>
 
     <repositories>
