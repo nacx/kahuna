@@ -3,6 +3,7 @@
 import logging
 from org.jclouds.abiquo.domain.network import ExternalNetwork
 from org.jclouds.abiquo.domain.network import PublicNetwork
+from org.jclouds.abiquo.domain.network import UnmanagedNetwork
 from org.jclouds.abiquo.predicates.enterprise import EnterprisePredicates
 
 log = logging.getLogger('kahuna')
@@ -48,6 +49,23 @@ class InfrastructureNetwork:
         network.save()
         return network
 
+    def create_unmanaged_network(self, datacenter, enterprise, netname,
+            netaddress, netmask, netgateway, nettag, netdns):
+        """ Creates a new unmanaged network  """
+        log.info(("Adding unmanaged network %s (%s) to "
+            "enterprise %s...") % (netname, netaddress, enterprise.getName()))
+        network = UnmanagedNetwork \
+                  .builder(self.__context, datacenter, enterprise) \
+                  .name(netname) \
+                  .address(netaddress) \
+                  .mask(netmask) \
+                  .gateway(netgateway) \
+                  .tag(nettag) \
+                  .primaryDNS(netdns) \
+                  .build()
+        network.save()
+        return network
+
 
 def create_infrastructure_network(config, context, dc):
     """ Creates the default infrastructure network entities """
@@ -69,6 +87,13 @@ def create_infrastructure_network(config, context, dc):
             config.get("external network", "gateway"),
             config.getint("external network", "tag"),
             config.get("external network", "dns"))
+    networking.create_unmanaged_network(dc, enterprise,
+            config.get("unmanaged network", "name"),
+            config.get("unmanaged network", "address"),
+            config.getint("unmanaged network", "mask"),
+            config.get("unmanaged network", "gateway"),
+            config.getint("unmanaged network", "tag"),
+            config.get("unmanaged network", "dns"))
     return pubnet
 
 

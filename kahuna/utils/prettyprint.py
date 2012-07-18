@@ -76,7 +76,8 @@ def pprint_vms(vms, verbose=False):
         table.headers.extend(["virtual appliance", "enterprise"])
     for vm in vms:
         state = vm.getState()
-        row = [vm.getId(), vm.getName(), vm.getCpu(), str(vm.getRam()) + " MB",
+        row = [vm.getId(), vm.getInternalName(), vm.getCpu(),
+                str(vm.getRam()) + " MB",
                 str(vm.getHdInBytes() / 1024 / 1024) + " MB", state]
         if not state.existsInHypervisor():
             row.append("-")
