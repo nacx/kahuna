@@ -68,7 +68,7 @@ class VolumePlugin(AbsPlugin):
                 return
             cloud = self._context.getCloudService()
             vm = cloud.findVirtualMachine(
-                    VirtualMachinePredicates.name(options.vm))
+                    VirtualMachinePredicates.internalName(options.vm))
             if not vm:
                 print "No virtual machine found with name: %s" % options.vm
                 return
@@ -107,7 +107,7 @@ class VolumePlugin(AbsPlugin):
                 return
 
             log.debug("Detaching volume %s from %s..." % (options.name,
-                vm.getName()))
+                vm.getInternalName()))
             if vm.getState().existsInHypervisor():
                 print "Detaching volume from a running virtual machine.",
                 print "This may take some time..."

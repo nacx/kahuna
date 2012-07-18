@@ -32,4 +32,4 @@ def get_attached_vm(context, volume):
     if link:
         name = link.getTitle()
         cloud = context.getCloudService()
-        return cloud.findVirtualMachine(VirtualMachinePredicates.name(name))
+        return cloud.findVirtualMachine(VirtualMachinePredicates.internalName(name))
