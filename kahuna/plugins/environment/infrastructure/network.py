@@ -101,4 +101,6 @@ def cleanup_infrastructure_network(config, dc):
     """ Cleans up previously created infrastructure networking resources """
     log.info("Removing networks in datacenter %s..." % dc.getName())
     for network in dc.listNetworks():
+        log.debug("Deleting %s network %s..." % (network.getType().name(),
+            network.getName()))
         network.delete()
