@@ -2,6 +2,7 @@
 
 from environment.cloud.compute import cleanup_cloud_compute
 from environment.cloud.compute import create_cloud_compute
+from environment.cloud.network import setup_cloud_network
 from environment.cloud.storage import create_cloud_storage
 from environment.config.sysconfig import apply_default_configuration
 from environment.infrastructure.compute import cleanup_infrastructure_compute
@@ -31,6 +32,7 @@ class EnvironmentPlugin(AbsPlugin):
             create_default_tenants(self.__config, self._context, dc)
             vdc = create_cloud_compute(self.__config, self._context, dc)
             create_cloud_storage(self.__config, self._context, vdc)
+            setup_cloud_network(self.__config, self._context, vdc)
         except (AbiquoException, AuthorizationException), ex:
             print "Error: %s" % ex.getMessage()
 
