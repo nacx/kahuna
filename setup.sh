@@ -4,8 +4,7 @@ JYTHON_VERSION=2.5.3
 PREFIX=/usr/local
 
 JYTHON=${PREFIX}/lib/jython-${JYTHON_VERSION}
-KAHUNA_VERSION=$(git log -1 --format=format:%h)
-KAHUNA=${PREFIX}/lib/kahuna-${KAHUNA_VERSION}
+KAHUNA=${PREFIX}/lib/kahuna
 
 function install_jython() {
     echo "Downloading Jython ${JYTHON_VERSION}..."
@@ -18,7 +17,6 @@ function install_jython() {
     mkdir -p ${PREFIX}/bin
     java -jar ${JYTHON_TMP} -s -t standard -d ${JYTHON}
     ln -s ${JYTHON}/bin/jython ${PREFIX}/bin/jython
-    JYTHON_DIR=${JYTHON}
 }
 
 function install_packages() {
@@ -50,9 +48,7 @@ function install_kahuna() {
     echo "Installing Kahuna..."
     chmod -R 777 ${KAHUNA}/cachedir
     chmod u+x kahuna.sh
-    [[ -L ${KAHUNA}/../kahuna ]] && unlink ${KAHUNA}/../kahuna
     [[ -L /usr/local/bin/kahuna ]] && unlink /usr/local/bin/kahuna
-    ln -s ${KAHUNA} ${KAHUNA}/../kahuna
     ln -s $(pwd)/kahuna.sh /usr/local/bin/kahuna
 }
 
@@ -60,7 +56,7 @@ function print_summary() {
     echo "Done!"
     echo 
     echo "To finish the installation, add the following line to the end of your ~/.bashrc:"
-    echo "export KAHUNA_HOME=${PREFIX}/lib/kahuna"
+    echo "export KAHUNA_HOME=${KAHUNA}"
     echo
     echo "Now you are ready to run 'kahuna'. This will print the available commands and copy"
     echo "all default configuration to ~/.kahuna/"
@@ -90,6 +86,7 @@ done
 if [[ -z ${JYTHON_DIR} ]]; then
     install_jython
     install_packages
+    JYTHON_DIR=${JYTHON}
 fi
 
 install_kahuna ${JYTHON_DIR}

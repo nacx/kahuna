@@ -29,7 +29,8 @@ You can install Kahuna with the setup script:
     sudo ./setup.sh
 
 By default the setup script will install Jython 2.5.3. on your system. If you already have a
-Jython runtime and want to install Kahuna in it, you can execute the setup script as follows:
+Jython runtime and want to install Kahuna in it, you can instead execute the setup script
+as follows:
 
     sudo ./setup.sh -j /your/jython/install/directory
 
