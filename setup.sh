@@ -1,11 +1,5 @@
 #!/bin/bash
 
-JYTHON_VERSION=2.5.3
-PREFIX=/usr/local
-
-JYTHON=${PREFIX}/lib/jython-${JYTHON_VERSION}
-KAHUNA=${PREFIX}/lib/kahuna
-
 function install_jython() {
     echo "Downloading Jython ${JYTHON_VERSION}..."
     JYTHON_URL=http://repo1.maven.org/maven2/org/python/jython-installer/${JYTHON_VERSION}/jython-installer-${JYTHON_VERSION}.jar
@@ -67,21 +61,32 @@ function print_summary() {
 
 function usage() {
 cat << EOF
-Usage: ${0} [-j <jython home>]
+Usage: ${0} [-p <install dir>] [-j <jython home>] [-h]
 Options:
-    -j: If set, Jython will not be installed and Kahuna will use
-        the provided Jython installation.
+    -p: Directory where Kahuna will be installed. If the -j option is not set
+        Jython will also be installed in this directory.
+    -j: If set, Jython will not be installed and Kahuna will use the provided
+        Jython installation.
+    -h: Prints this help.
 EOF
 exit 1
 }
 
+# Default values
+JYTHON_VERSION=2.5.3
+PREFIX=/usr/local
 
-while getopts "j:" OPT; do
+while getopts "j:p:h" OPT; do
     case ${OPT} in
+        p) PREFIX=${OPTARG} ;;
         j) JYTHON_DIR=${OPTARG} ;;
+        h) usage ;;
         ?) usage ;;
     esac
 done
+
+JYTHON=${PREFIX}/lib/jython-${JYTHON_VERSION}
+KAHUNA=${PREFIX}/lib/kahuna
 
 if [[ -z ${JYTHON_DIR} ]]; then
     install_jython
