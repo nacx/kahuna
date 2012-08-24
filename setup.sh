@@ -1,38 +1,97 @@
 #!/bin/bash
 
-JYTHON_VERSION=2.5.2
-JYTHON_TARGET=/opt/jython-${JYTHON_VERSION}
+JYTHON_VERSION=2.5.3
+PREFIX=/usr/local
 
-echo "Downloading Jython ${JYTHON_VERSION}..."
-JYTHON_URL=http://sourceforge.net/projects/jython/files/jython/${JYTHON_VERSION}/jython_installer-${JYTHON_VERSION}.jar/download
-JYTHON_TMP=/tmp/jython_installer-${JYTHON_VERSION}.jar
-wget -q ${JYTHON_URL} -O ${JYTHON_TMP}
+JYTHON=${PREFIX}/lib/jython-${JYTHON_VERSION}
+KAHUNA_VERSION=$(git log -1 --format=format:%h)
+KAHUNA=${PREFIX}/lib/kahuna-${KAHUNA_VERSION}
 
-echo "Installing Jython ${JYTHON_VERSION} to ${JYTHON_TARGET}..."
-java -jar ${JYTHON_TMP} -s -t standard -d ${JYTHON_TARGET}
-ln -s ${JYTHON_TARGET}/jython /usr/local/bin/jython
+function install_jython() {
+    echo "Downloading Jython ${JYTHON_VERSION}..."
+    JYTHON_URL=http://repo1.maven.org/maven2/org/python/jython-installer/${JYTHON_VERSION}/jython-installer-${JYTHON_VERSION}.jar
+    JYTHON_TMP=/tmp/jython_installer-${JYTHON_VERSION}.jar
+    wget -q ${JYTHON_URL} -O ${JYTHON_TMP}
 
-echo "Addind Easy Install for Jython..."
-wget -q http://peak.telecommunity.com/dist/ez_setup.py -O /tmp/ez_setup.py
-${JYTHON_TARGET}/jython /tmp/ez_setup.py
+    echo "Installing Jython ${JYTHON_VERSION} to ${JYTHON}..."
+    mkdir -p ${PREFIX}/lib
+    mkdir -p ${PREFIX}/bin
+    java -jar ${JYTHON_TMP} -s -t standard -d ${JYTHON}
+    ln -s ${JYTHON}/bin/jython ${PREFIX}/bin/jython
+    JYTHON_DIR=${JYTHON}
+}
 
-echo "Installing Redis egg..."
-${JYTHON_TARGET}/bin/easy_install --quiet redis
+function install_packages() {
+    echo "Adding Easy Install for Jython..."
+    wget -q http://peak.telecommunity.com/dist/ez_setup.py -O /tmp/ez_setup.py
+    ${JYTHON}/bin/jython /tmp/ez_setup.py
 
-echo "Installing Kahuna..."
-chmod -R 777 ${JYTHON_TARGET}/cachedir
-chmod u+x kahuna.sh
-ln -s $(pwd)/kahuna.sh /usr/local/bin/kahuna
-export JYTHONPATH=$(pwd)
+    echo "Installing virtualenv..."
+    ${JYTHON}/bin/easy_install --quiet virtualenv
+}
 
-echo "Done!"
-echo 
-echo "To finish the installation, add the following line to the end of your ~/.bashrc:"
-echo "export JYTHONPATH=$(pwd)"
-echo
-echo "Now you are ready to run 'kahuna'. This will print the available commands and copy"
-echo "all default configuration to ~/.kahuna/"
-echo "Feel free to edit those files to adapt them to your needs."
-echo
-echo "Have fun!"
+function install_kahuna() {
+    echo "Creating the Kahuna virtual environment..."
+    
+    if ! [[ -f ${1}/bin/easy_install ]]; then
+        echo "Missing easy_install. Please install it to continue."
+        exit 1
+    fi
+    if ! [[ -f ${1}/bin/virtualenv ]]; then
+        echo "Missing virtualenv. Please install it to continue."
+        exit 1
+    fi
+
+    ${1}/bin/virtualenv ${KAHUNA}
+
+    echo "Installing Redis egg..."
+    ${KAHUNA}/bin/easy_install --quiet redis
+
+    echo "Installing Kahuna..."
+    chmod -R 777 ${KAHUNA}/cachedir
+    chmod u+x kahuna.sh
+    [[ -L ${KAHUNA}/../kahuna ]] && unlink ${KAHUNA}/../kahuna
+    [[ -L /usr/local/bin/kahuna ]] && unlink /usr/local/bin/kahuna
+    ln -s ${KAHUNA} ${KAHUNA}/../kahuna
+    ln -s $(pwd)/kahuna.sh /usr/local/bin/kahuna
+}
+
+function print_summary() {
+    echo "Done!"
+    echo 
+    echo "To finish the installation, add the following line to the end of your ~/.bashrc:"
+    echo "export KAHUNA_HOME=${PREFIX}/lib/kahuna"
+    echo
+    echo "Now you are ready to run 'kahuna'. This will print the available commands and copy"
+    echo "all default configuration to ~/.kahuna/"
+    echo "Feel free to edit those files to adapt them to your needs."
+    echo
+    echo "Have fun!"
+}
+
+function usage() {
+cat << EOF
+Usage: ${0} [-j <jython home>]
+Options:
+    -j: If set, Jython will not be installed and Kahuna will use
+        the provided Jython installation.
+EOF
+exit 1
+}
+
+
+while getopts "j:" OPT; do
+    case ${OPT} in
+        j) JYTHON_DIR=${OPTARG} ;;
+        ?) usage ;;
+    esac
+done
+
+if [[ -z ${JYTHON_DIR} ]]; then
+    install_jython
+    install_packages
+fi
+
+install_kahuna ${JYTHON_DIR}
+print_summary
 

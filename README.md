@@ -25,15 +25,16 @@ You can install Kahuna with the setup script:
 
     git clone git://github.com/nacx/kahuna.git
     cd kahuna
-    sudo sh setup.sh
+    chmod u+x setup.sh
+    sudo ./setup.sh
 
-**This will install Jython 2.5.2** on your system and configure it to be used by Kahuna.
+By default the setup script will install Jython 2.5.3. on your system. If you already have a
+Jython runtime and want to install Kahuna in it, you can execute the setup script as follows:
 
-If you have an existing Jython installation <= 2.5.2, Kahuna won't work. If you
-have a newer Jython version and you want to keep it, you can just remove the */opt/jython-2.5.2*
-directory and the link that the setup script will create in */usr/local/bin/jython* to
-make sure your version will be used. You may also need to manually install the *redis*
-egg in your Jython runtime.
+    sudo ./setup.sh -j /your/jython/install/directory
+
+If you are installing Kahuna in an already existing Jython runtime, you may need to install
+**easy_install** and **virtualenv** in it.
 
 
 Running
