@@ -23,21 +23,16 @@ function install_packages() {
 }
 
 function install_kahuna() {
-    echo "Creating the Kahuna virtual environment..."
-    
-    if ! [[ -f ${1}/bin/easy_install ]]; then
-        echo "Missing easy_install. Please install it to continue."
-        exit 1
-    fi
     if ! [[ -f ${1}/bin/virtualenv ]]; then
         echo "Missing virtualenv. Please install it to continue."
         exit 1
     fi
 
+    echo "Creating the Kahuna virtual environment..."
     ${1}/bin/virtualenv ${KAHUNA}
 
     echo "Installing Redis egg..."
-    ${KAHUNA}/bin/easy_install --quiet redis
+    ${KAHUNA}/bin/pip install redis --quiet
 
     echo "Installing Kahuna..."
     chmod -R 777 ${KAHUNA}/cachedir

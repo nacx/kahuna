@@ -34,9 +34,8 @@ as follows:
 
     sudo ./setup.sh -j /your/jython/install/directory
 
-If you are installing Kahuna in an already existing Jython runtime, you may need to install
-**easy_install** and **virtualenv** in it. To see a complete list of installation options
-you can run:
+If you are installing Kahuna in an already existing Jython runtime, make sure **virtualenv**
+is already installed. To see a complete list of installation options you can run:
 
     ./setup.sh -h
 
