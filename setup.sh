@@ -42,16 +42,18 @@ function install_kahuna() {
 }
 
 function print_summary() {
-    echo "Done!"
-    echo 
-    echo "To finish the installation, add the following line to the end of your ~/.bashrc:"
-    echo "export KAHUNA_HOME=${KAHUNA}"
-    echo
-    echo "Now you are ready to run 'kahuna'. This will print the available commands and copy"
-    echo "all default configuration to ~/.kahuna/"
-    echo "Feel free to edit those files to adapt them to your needs."
-    echo
-    echo "Have fun!"
+cat << EOF
+Done!
+
+To finish the installation, add the following line to the end of your ~/.bashrc:
+export KAHUNA_HOME=${KAHUNA}
+
+Now you are ready to run 'kahuna'. This will print the available commands and copy
+all default configuration to ~/.kahuna/
+Feel free to edit those files to adapt them to your needs.
+
+Have fun!
+EOF
 }
 
 function usage() {
