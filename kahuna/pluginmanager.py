@@ -3,7 +3,6 @@
 from __future__ import with_statement  # jython 2.5.2 issue
 from contextlib import contextmanager
 import logging
-from kahuna.session import ContextLoader
 from plugins import __all__
 
 log = logging.getLogger('kahuna')
@@ -69,9 +68,6 @@ class PluginManager:
 def opencontext(plugin):
     """ Loads the context each plugin needs to be initialized
     in order to be executed """
-    log.debug("Loading context for plugin execution")
-    context = ContextLoader(plugin._config_overrides()).load()
-    plugin._load_context(context)
+    plugin._load_context()
     yield
-    log.debug("Context closed after plugin execution")
-    context.close()
+    plugin._close_context()

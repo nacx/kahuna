@@ -3,13 +3,6 @@
 # Plugin adapted from: https://gist.github.com/2586413
 # Original author: Enric Ruiz
 
-# You will need to install the Redis egg inm Jython to run this plugin.
-# To install it follow these steps:
-#    wget http://peak.telecommunity.com/dist/ez_setup.py
-#    jython ez_setup.py
-#    cd <your jython home directory>/bin
-#    ./easy_install redis
-
 from kahuna.abstract import AbsPlugin
 from kahuna.utils.prettyprint import pprint_tasks
 from optparse import OptionParser
@@ -24,6 +17,10 @@ class TarantinoPlugin(AbsPlugin):
         commands = {}
         commands['vm-tasks'] = self.vm_tasks
         return commands
+
+    def _load_context(self):
+        """ This plugin does not require an open context. """
+        pass
 
     def vm_tasks(self, args):
         """ Dumps the Tarantino status from Redis """
