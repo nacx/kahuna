@@ -18,10 +18,9 @@ class InfrastructureCompute:
         """ Initialize with an existent context """
         self.__context = context.getApiContext()
 
-    def create_datacenter(self, name, location):
+    def create_datacenter(self, name, location, rs_address):
         """ Creates a new datacenter """
         log.info("Creating datacenter %s at %s..." % (name, location))
-        rs_address = self.__context.getEndpoint().getHost()
         datacenter = Datacenter.builder(self.__context) \
                      .name(name) \
                      .location(location) \
@@ -69,8 +68,11 @@ def create_infrastructure_compute(config, context):
     """ Creates the default infrastructure compute entities. """
     log.info("### Configuring infrastructure ###")
     comp = InfrastructureCompute(context)
+    rs_address = config.get("datacenter", "rs") \
+            if config.has_option("datacenter", "rs") \
+            else context.getApiContext().getEndpoint().getHost()
     dc = comp.create_datacenter(config.get("datacenter", "name"),
-            config.get("datacenter", "location"))
+            config.get("datacenter", "location"), rs_address)
     rack = comp.create_rack(dc, config.get("rack", "name"),
             config.getint("rack", "vlan-min"),
             config.getint("rack", "vlan-max"),
