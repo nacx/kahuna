@@ -4,9 +4,9 @@ import logging
 from kahuna.plugins.environment.infrastructure.network import cleanup_infrastructure_network
 from kahuna.plugins.environment.infrastructure.storage import cleanup_infrastructure_storage
 from com.abiquo.model.enumerator import HypervisorType
+from org.jclouds.abiquo.config import AbiquoEdition
 from org.jclouds.abiquo.domain.infrastructure import Datacenter
 from org.jclouds.abiquo.domain.infrastructure import Rack
-from org.jclouds.abiquo.reference import AbiquoEdition
 
 log = logging.getLogger('kahuna')
 
@@ -50,6 +50,9 @@ class InfrastructureCompute:
         # Discover machine info with the Discovery Manager remote service
         machine = datacenter.discoverSingleMachine(address, hyp,
                 user, password)
+        for ds in machine.getDatastores():
+            log.debug("Datastore found: %s-%s" %
+                    (ds.getName(), ds.getRootPath()))
 
         # Verify that the desired datastore and virtual switch exist
         datastore = machine.findDatastore(datastore)
