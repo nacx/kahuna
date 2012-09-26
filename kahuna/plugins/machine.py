@@ -7,12 +7,12 @@ from kahuna.session import ContextLoader
 from kahuna.config import ConfigLoader
 from kahuna.utils.prettyprint import pprint_machines
 from optparse import OptionParser
+from org.jclouds.abiquo.config import AbiquoEdition
 from org.jclouds.abiquo.domain.exception import AbiquoException
 from org.jclouds.abiquo.domain.infrastructure import Datacenter, Rack
 from org.jclouds.abiquo.predicates.infrastructure import MachinePredicates
 from org.jclouds.abiquo.predicates.infrastructure import DatacenterPredicates
 from org.jclouds.abiquo.predicates.infrastructure import RackPredicates
-from org.jclouds.abiquo.reference import AbiquoEdition
 from org.jclouds.rest import AuthorizationException
 from org.jclouds.http import HttpResponseException
 from com.abiquo.model.enumerator import HypervisorType
