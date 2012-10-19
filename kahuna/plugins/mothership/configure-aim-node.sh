@@ -9,3 +9,7 @@ mount -a
 
 echo "Starting abiquo-aim"
 /etc/init.d/abiquo-aim restart
+
+echo "Fixing hostname"
+HN=`hostname`
+sed -i -e "s/127.0.0.1/127.0.0.1\t${HN}/" /etc/hosts
