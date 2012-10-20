@@ -2,12 +2,12 @@ Abiquo API Command Line Tool
 ============================
 
 This project is a simple command line tool for the Abiquo Cloud Platform API, using
-Jython as a wrapper to the [Official Java client](http://abiquo.github.com/jclouds-abiquo).
+Jython as a wrapper to the [jclouds](https://github.com/jclouds/jclouds) Abiquo provider.
 To understand the code and adapt it to your needs, you may want to take a
 look at the official Java client project page:
 
- * [jclouds-abiquo Source code](https://github.com/abiquo/jclouds-abiquo)
- * [jclouds-abiquo Documentation](https://github.com/abiquo/jclouds-abiquo/wiki)
+ * [Abiquo provider Source code](https://github.com/jclouds/jclouds/tree/master/labs/abiquo)
+ * [jclouds Documentation](http://www.jclouds.org)
 
 
 Requirements
@@ -98,8 +98,8 @@ Plugins are easy to create. Take a look at the [Project Wiki](https://github.com
 to see how to create and add your own plugins.
 
 
-Note on patches/pull requests
------------------------------
+How to contribute
+-----------------
 
  * Fork the project.
  * Create a topic branch for your feature or bug fix.
@@ -107,8 +107,6 @@ Note on patches/pull requests
  * Add tests for it. This is important so I don't break it in a future version unintentionally.
  * Commit.
  * Send me a pull request.
-
-You can take as an example the process explained in the [Diaspora Git workflow](https://github.com/diaspora/diaspora/wiki/Git-Workflow).
 
 
 Issue Tracking
