@@ -4,7 +4,7 @@ Abiquo API Command Line Tool
 This project is a simple command line tool for the Abiquo Cloud Platform API, using
 Jython as a wrapper to the [jclouds](https://github.com/jclouds/jclouds) Abiquo provider.
 To understand the code and adapt it to your needs, you may want to take a
-look at the official Java client project page:
+look at:
 
  * [Abiquo provider Source code](https://github.com/jclouds/jclouds/tree/master/labs/abiquo)
  * [jclouds Documentation](http://www.jclouds.org)
