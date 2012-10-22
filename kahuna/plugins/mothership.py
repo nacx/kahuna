@@ -68,7 +68,7 @@ class MothershipPlugin(AbsPlugin):
             options = self._template_options(compute, "deploy-chef")
             template = compute.templateBuilder() \
                     .imageNameMatches(name) \
-                    .options(options.blockOnPort(4000, 90)) \
+                    .options(options) \
                     .build()
 
             log.info("Deploying %s..." % template.getImage().getName())
@@ -82,9 +82,9 @@ class MothershipPlugin(AbsPlugin):
             log.info("Configuring node with cookbooks: %s..." % cookbooks)
             compute.runScriptOnNode(node.getId(), script)
 
-            log.info("Chef Server configured!")
-            log.info("You can access the admin console at: http://%s:4040"
-                    % Iterables.getOnlyElement(node.getPrivateAddresses()))
+            log.info("Done! You can access the admin console at: "
+                    "http://%s:4040"
+                    % Iterables.getOnlyElement(node.getPublicAddresses()))
 
             log.info("These are the certificates to access the API:")
             self._print_node_file(self._context, node,
@@ -138,8 +138,8 @@ class MothershipPlugin(AbsPlugin):
             compute.runScriptOnNode(node.getId(),
                     "service abiquo-tomcat restart")
 
-            log.info("Abiquo configured at: %s" %
-                    Iterables.getOnlyElement(node.getPrivateAddresses()))
+            log.info("Done! Abiquo configured at: %s" %
+                    Iterables.getOnlyElement(node.getPublicAddresses()))
 
         except RunNodesException, ex:
             self._print_node_errors(ex)
@@ -181,9 +181,8 @@ class MothershipPlugin(AbsPlugin):
             log.info("Configuring node...")
             compute.runScriptOnNode(node.getId(), script)
 
-            log.info("Node configured!")
-            log.info("You can access it at: ssh://%s" %
-                    Iterables.getOnlyElement(node.getPrivateAddresses()))
+            log.info("Done! You can access it at: %s" %
+                    Iterables.getOnlyElement(node.getPublicAddresses()))
 
         except RunNodesException, ex:
             self._print_node_errors(ex)
@@ -223,8 +222,10 @@ class MothershipPlugin(AbsPlugin):
             filename = os.path.basename(path)
 
         try:
+            log.info("Waiting for ssh access on node...")
             ssh.connect()
-            log.info("Uploading file %s..." % filename)
+
+            log.info("Uploading %s..." % filename)
             ssh.put(destination + "/" + filename,
                     Payloads.newFilePayload(file))
         finally:
@@ -239,7 +240,7 @@ class MothershipPlugin(AbsPlugin):
         content = content % dictionary
         with open(self.__scriptdir + "/" + filename + ".tmp", "w") as f:
             f.write(content)
-        log.info("File %s completed" % filename)
+        log.info("Configuration applied to %s" % filename)
 
     def _print_node_errors(self, ex):
         for error in ex.getExecutionErrors().values():
