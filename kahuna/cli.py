@@ -1,4 +1,5 @@
 #!/usr/bin/env jython
+
 from pluginmanager import PluginManager
 import sys
 

@@ -49,7 +49,7 @@ class ContextLoader:
                 .credentials(self.__config.user, self.__config.password) \
                 .modules([SshjSshClientModule(), SLF4JLoggingModule()]) \
                 .overrides(props) \
-                .build(AbiquoContext)
+                .buildView(AbiquoContext)
             # Close context automatically when exiting
             atexit.register(self.__del__)
             return self.__context

@@ -51,8 +51,7 @@ class MothershipPlugin(AbsPlugin):
         """ List all available templates """
         try:
             admin = self._context.getAdministrationService()
-            user = admin.getCurrentUser()
-            enterprise = user.getEnterprise()
+            enterprise = admin.getCurrentEnterprise()
             templates = enterprise.listTemplates()
             pprint_templates(templates)
         except (AbiquoException, AuthorizationException), ex:
