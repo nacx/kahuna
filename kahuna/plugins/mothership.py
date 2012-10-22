@@ -213,6 +213,7 @@ class MothershipPlugin(AbsPlugin):
 
     def _upload_file_node(self, context, node, destination, filename,
             abs_path=False):
+        log.info("Waiting for ssh access on node...")
         ssh = context.getUtils().sshForNode().apply(node)
         path = filename if abs_path else self.__scriptdir + "/" + filename
         tmpfile = os.path.exists(path + ".tmp")
@@ -222,10 +223,8 @@ class MothershipPlugin(AbsPlugin):
             filename = os.path.basename(path)
 
         try:
-            log.info("Waiting for ssh access on node...")
-            ssh.connect()
-
             log.info("Uploading %s..." % filename)
+            ssh.connect()
             ssh.put(destination + "/" + filename,
                     Payloads.newFilePayload(file))
         finally:
