@@ -186,10 +186,11 @@ class MachinePlugin(AbsPlugin):
             if not vs:
                 print "Missing virtual switch %s in machine" % vswitch
                 return
+            nst = dc.defaultNetworkServiceType()
+            vs.setNetworkServiceType(nst)
 
             # saving machine
             machine.setRack(rack)
-            machine.setVirtualSwitch(vs)
             machine.save()
             log.debug("Machine saved")
             pprint_machines([machine])

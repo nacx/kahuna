@@ -3,7 +3,8 @@
 from optparse import OptionParser
 from kahuna.abstract import AbsPlugin
 from kahuna.utils.prettyprint import pprint_templates
-from org.jclouds.abiquo.predicates.cloud import VirtualMachineTemplatePredicates
+from org.jclouds.abiquo.predicates.cloud \
+        import VirtualMachineTemplatePredicates
 from org.jclouds.abiquo.domain.exception import AbiquoException
 from org.jclouds.rest import AuthorizationException
 

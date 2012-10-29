@@ -3,7 +3,8 @@
 import logging
 from ConfigParser import NoOptionError
 from org.jclouds.abiquo.domain.infrastructure import StorageDevice
-from org.jclouds.abiquo.predicates.infrastructure import StorageDeviceMetadataPredicates
+from org.jclouds.abiquo.predicates.infrastructure \
+        import StorageDeviceMetadataPredicates
 from org.jclouds.abiquo.predicates.infrastructure import StoragePoolPredicates
 
 log = logging.getLogger('kahuna')

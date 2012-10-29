@@ -84,7 +84,8 @@ class VmPlugin(AbsPlugin):
         # Once user input has been read, find the VM
         try:
             cloud = self._context.getCloudService()
-            vm = cloud.findVirtualMachine(VirtualMachinePredicates.internalName(name))
+            vm = cloud.findVirtualMachine(
+                    VirtualMachinePredicates.internalName(name))
             if vm:
                 vm = helper.deploy_vm(self._context, vm)
                 pprint_vms([vm])
@@ -108,7 +109,8 @@ class VmPlugin(AbsPlugin):
         # Once user input has been read, find the virtual machine
         try:
             cloud = self._context.getCloudService()
-            vm = cloud.findVirtualMachine(VirtualMachinePredicates.internalName(name))
+            vm = cloud.findVirtualMachine(
+                    VirtualMachinePredicates.internalName(name))
             if vm:
                 vm = helper.undeploy_vm(self._context, vm)
                 pprint_vms([vm])
@@ -195,7 +197,8 @@ class VmPlugin(AbsPlugin):
 
         try:
             cloud = self._context.getCloudService()
-            vm = cloud.findVirtualMachine(VirtualMachinePredicates.internalName(name))
+            vm = cloud.findVirtualMachine(
+                    VirtualMachinePredicates.internalName(name))
             if vm:
                 state = vm.getState()
                 if not options.undeploy and state.existsInHypervisor():
@@ -236,7 +239,8 @@ class VmPlugin(AbsPlugin):
 
         try:
             cloud = self._context.getCloudService()
-            vm = cloud.findVirtualMachine(VirtualMachinePredicates.internalName(name))
+            vm = cloud.findVirtualMachine(
+                    VirtualMachinePredicates.internalName(name))
             if vm:
                 helper.change_state_vm(self._context, vm, new_state)
                 pprint_vms([vm])

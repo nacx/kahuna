@@ -5,7 +5,8 @@ from com.abiquo.model.enumerator import HypervisorType
 from org.jclouds.abiquo.domain.cloud import VirtualDatacenter
 from org.jclouds.abiquo.domain.network import PrivateNetwork
 from org.jclouds.abiquo.predicates.cloud import VirtualDatacenterPredicates
-from org.jclouds.abiquo.predicates.cloud import VirtualMachineTemplatePredicates
+from org.jclouds.abiquo.predicates.cloud \
+        import VirtualMachineTemplatePredicates
 from org.jclouds.abiquo.domain.exception import AbiquoException
 
 log = logging.getLogger('kahuna')

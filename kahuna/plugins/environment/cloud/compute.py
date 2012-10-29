@@ -8,7 +8,8 @@ from org.jclouds.abiquo.domain.cloud import VirtualDatacenter
 from org.jclouds.abiquo.domain.cloud import VirtualMachine
 from org.jclouds.abiquo.domain.network import PrivateNetwork
 from org.jclouds.abiquo.predicates.enterprise import EnterprisePredicates
-from org.jclouds.abiquo.predicates.cloud import VirtualMachineTemplatePredicates
+from org.jclouds.abiquo.predicates.cloud \
+        import VirtualMachineTemplatePredicates
 
 log = logging.getLogger('kahuna')
 

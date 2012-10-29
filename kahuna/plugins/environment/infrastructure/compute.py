@@ -1,8 +1,10 @@
 #!/usr/bin/env jython
 
 import logging
-from kahuna.plugins.environment.infrastructure.network import cleanup_infrastructure_network
-from kahuna.plugins.environment.infrastructure.storage import cleanup_infrastructure_storage
+from kahuna.plugins.environment.infrastructure.network \
+        import cleanup_infrastructure_network
+from kahuna.plugins.environment.infrastructure.storage \
+        import cleanup_infrastructure_storage
 from com.abiquo.model.enumerator import HypervisorType
 from org.jclouds.abiquo.config import AbiquoEdition
 from org.jclouds.abiquo.domain.infrastructure import Datacenter
@@ -56,10 +58,11 @@ class InfrastructureCompute:
 
         # Verify that the desired datastore and virtual switch exist
         datastore = machine.findDatastore(datastore)
+        nst = datacenter.defaultNetworkServiceType()
         vswitch = machine.findAvailableVirtualSwitch(vswitch)
 
         datastore.setEnabled(True)
-        machine.setVirtualSwitch(vswitch)
+        vswitch.setNetworkServiceType(nst)
         machine.setRack(rack)
 
         machine.save()
