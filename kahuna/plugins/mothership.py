@@ -4,16 +4,22 @@ from __future__ import with_statement  # jython 2.5.2 issue
 import logging
 import os
 from java.io import File
+from java.net import URI
 from kahuna.abstract import AbsPlugin
 from kahuna.config import ConfigLoader
 from kahuna.utils.prettyprint import pprint_templates
 from com.google.common.collect import Iterables
 from optparse import OptionParser
+from org.jclouds.abiquo.domain.cloud import VirtualAppliance
 from org.jclouds.abiquo.domain.exception import AbiquoException
+from org.jclouds.abiquo.predicates.cloud import VirtualAppliancePredicates
 from org.jclouds.compute import RunNodesException
+from org.jclouds.compute.predicates import NodePredicates
 from org.jclouds.domain import LoginCredentials
 from org.jclouds.io import Payloads
 from org.jclouds.rest import AuthorizationException
+from org.jclouds.scriptbuilder.domain import StatementList
+from org.jclouds.scriptbuilder.domain import Statements
 from org.jclouds.util import Strings2
 
 log = logging.getLogger('kahuna')
@@ -44,6 +50,7 @@ class MothershipPlugin(AbsPlugin):
         commands['deploy-chef'] = self.deploy_chef
         commands['deploy-kvm'] = self.deploy_kvm
         commands['deploy-vbox'] = self.deploy_vbox
+        commands['deploy-wars'] = self.deploy_wars
         commands['list-templates'] = self.list_templates
         return commands
 
@@ -64,15 +71,17 @@ class MothershipPlugin(AbsPlugin):
         try:
             name = self.__config.get("deploy-chef", "template")
             log.info("Loading template...")
-            options = self._template_options(compute, "deploy-chef")
+            vdc, options = self._template_options(compute, "deploy-chef")
             template = compute.templateBuilder() \
-                    .imageNameMatches(name) \
-                    .options(options) \
-                    .build()
+                .imageNameMatches(name) \
+                .locationId(vdc.getId()) \
+                .options(options) \
+                .build()
 
-            log.info("Deploying %s..." % template.getImage().getName())
+            log.info("Deploying %s to %s..." % (template.getImage().getName(),
+                vdc.getDescription()))
             node = Iterables.getOnlyElement(
-                    compute.createNodesInGroup("kahuna-chef", 1, template))
+                compute.createNodesInGroup("kahuna-chef", 1, template))
 
             cookbooks = self.__config.get("deploy-chef", "cookbooks")
             with open(self.__scriptdir + "/configure-chef.sh", "r") as f:
@@ -120,15 +129,18 @@ class MothershipPlugin(AbsPlugin):
 
         try:
             log.info("Loading template...")
-            template_options = self._template_options(compute, "deploy-abiquo")
+            vdc, template_options = self._template_options(compute,
+                    "deploy-abiquo")
             template = compute.templateBuilder() \
-                    .imageId(options.template) \
-                    .options(template_options) \
-                    .build()
+                .imageId(options.template) \
+                .locationId(vdc.getId()) \
+                .options(template_options) \
+                .build()
 
-            log.info("Deploying %s..." % template.getImage().getName())
+            log.info("Deploying %s to %s..." % (template.getImage().getName(),
+                vdc.getDescription()))
             node = Iterables.getOnlyElement(
-                    compute.createNodesInGroup("kahuna-abiquo", 1, template))
+                compute.createNodesInGroup("kahuna-abiquo", 1, template))
 
             self._upload_file_node(self._context, node, "/opt/abiquo/config",
                     options.props, True)
@@ -143,6 +155,67 @@ class MothershipPlugin(AbsPlugin):
         except RunNodesException, ex:
             self._print_node_errors(ex)
 
+    def deploy_wars(self, args):
+        """ Deploys and configures custom wars of the Abiquo platform """
+        parser = OptionParser(usage="mothership deploy-wars <options>")
+        parser.add_option('-l', '--local',
+                help='Path to a local war file to deploy',
+                action='store', dest='local')
+        parser.add_option('-r', '--remote',
+                help='Path to a remote file to deploy',
+                action='store', dest='remote')
+        parser.add_option('-n', '--number', type="int", default=1,
+                help='Number of nodes to deploy (default 1)',
+                action='store', dest='number')
+        (options, args) = parser.parse_args(args)
+
+        if not options.local and not options.remote:
+            parser.print_help()
+            return
+        options.number = 1  # FIXME Remove when the multiple deploy is fixed
+
+        compute = self._context.getComputeService()
+
+        try:
+            name = self.__config.get("deploy-wars", "template")
+            log.info("Loading template...")
+            vdc, template_options = self._template_options(compute,
+                "deploy-wars")
+            template = compute.templateBuilder() \
+                .imageNameMatches(name) \
+                .locationId(vdc.getId()) \
+                .options(template_options) \
+                .build()
+
+            # Manually create the vapp to bypass the race condition in
+            # AbiquoComputeSericeAdapter when creating multiple nodes
+            self._create_vapp(vdc.getId(), "kahuna-wars")
+
+            log.info("Deploying %s %s nodes to %s..." % (options.number,
+                template.getImage().getName(), vdc.getDescription()))
+            compute.createNodesInGroup("kahuna-wars",
+                    options.number, template)
+
+            log.info("Configuring nodes...")
+            tomcat_uri = URI.create(self.__config.get("deploy-wars", "tomcat"))
+            install_tomcat = Statements.extractTargzAndFlattenIntoDirectory(
+                tomcat_uri, "/opt/abiquo/tomcat")
+
+            bootstrap = StatementList(install_tomcat)
+            responses = compute.runScriptOnNodesMatching(
+                NodePredicates.inGroup("kahuna-wars"), bootstrap)
+
+            log.info("Done!")
+            for response in responses.entrySet():
+                log.info("Node configured at: %s" %
+                    Iterables.getOnlyElement(
+                        response.getKey().getPublicAddresses()))
+
+        except (AbiquoException, AuthorizationException), ex:
+            print "Error: %s" % ex.getMessage()
+        except RunNodesException, ex:
+            self._print_node_errors(ex)
+
     # Utility functions
     def _deploy_aim(self, config_section, vapp_name):
         """ Deploys and configures an AIM based hypervisor """
@@ -151,15 +224,17 @@ class MothershipPlugin(AbsPlugin):
         try:
             name = self.__config.get(config_section, "template")
             log.info("Loading template...")
-            options = self._template_options(compute, config_section)
+            vdc, options = self._template_options(compute, config_section)
             template = compute.templateBuilder() \
-                    .imageNameMatches(name) \
-                    .options(options) \
-                    .build()
+                .imageNameMatches(name) \
+                .locationId(vdc.getId()) \
+                .options(options) \
+                .build()
 
-            log.info("Deploying %s..." % template.getImage().getName())
+            log.info("Deploying %s to %s..." % (template.getImage().getName(),
+                vdc.getDescription()))
             node = Iterables.getOnlyElement(
-                    compute.createNodesInGroup(vapp_name, 1, template))
+                compute.createNodesInGroup(vapp_name, 1, template))
 
             # Configuration values
             redishost = self.__config.get(config_section, "redis_host")
@@ -171,7 +246,7 @@ class MothershipPlugin(AbsPlugin):
             self._complete_file("abiquo-aim.ini", {'redishost': redishost,
                 'redisport': redisport, 'nfsto': nfsto})
             self._upload_file_node(self._context, node, "/etc/",
-                    "abiquo-aim.ini")
+                "abiquo-aim.ini")
 
             # configure-aim-node.sh
             with open(self.__scriptdir + "/configure-aim-node.sh", "r") as f:
@@ -181,21 +256,26 @@ class MothershipPlugin(AbsPlugin):
             compute.runScriptOnNode(node.getId(), script)
 
             log.info("Done! You can access it at: %s" %
-                    Iterables.getOnlyElement(node.getPublicAddresses()))
+                Iterables.getOnlyElement(node.getPublicAddresses()))
 
         except RunNodesException, ex:
             self._print_node_errors(ex)
 
     def _template_options(self, compute, deploycommand):
+        locations = compute.listAssignableLocations()
+        vdc = self.__config.get("mothership", "vdc")
+        location = filter(lambda l: l.getDescription() == vdc, locations)[0]
+        log.debug("Found VDC %s %s" % (location.getId(),
+            location.getDescription()))
+
         login = LoginCredentials.builder() \
-                .authenticateSudo(self.__config.getboolean(deploycommand,
+            .authenticateSudo(self.__config.getboolean(deploycommand,
                     "requires_sudo")) \
-                .user(self.__config.get(deploycommand, "template_user")) \
-                .password(self.__config.get(deploycommand, "template_pass")) \
-                .build()
-        return compute.templateOptions() \
-                .overrideLoginCredentials(login) \
-                .virtualDatacenter(self.__config.get("mothership", "vdc"))
+            .user(self.__config.get(deploycommand, "template_user")) \
+            .password(self.__config.get(deploycommand, "template_pass")) \
+            .build()
+        return (location, compute.templateOptions()
+            .overrideLoginCredentials(login))
 
     def _print_node_file(self, context, node, file):
         ssh = context.getUtils().sshForNode().apply(node)
@@ -245,6 +325,17 @@ class MothershipPlugin(AbsPlugin):
             print "Error %s" % error.getMessage()
         for error in ex.getNodeErrors().values():
             print "Error %s" % error.getMessage()
+
+    def _create_vapp(self, vdc_id, vapp_name):
+        vdc = self._context.getCloudService().getVirtualDatacenter(int(vdc_id))
+        vapp = vdc.findVirtualAppliance(
+            VirtualAppliancePredicates.name(vapp_name))
+        if not vapp:
+            log.debug("Creating virtual appliance %s in %s..." % (vapp_name,
+                vdc.getName()))
+            vapp = VirtualAppliance.builder(self._context.getApiContext(),
+                vdc).name(vapp_name).build()
+            vapp.save()
 
 
 def load():
