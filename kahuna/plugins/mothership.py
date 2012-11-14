@@ -9,6 +9,7 @@ from kahuna.abstract import AbsPlugin
 from kahuna.config import ConfigLoader
 from kahuna.utils.prettyprint import pprint_templates
 from com.google.common.collect import Iterables
+from com.google.common.collect import ImmutableMultimap
 from optparse import OptionParser
 from org.jclouds.abiquo.domain.cloud import VirtualAppliance
 from org.jclouds.abiquo.domain.exception import AbiquoException
@@ -20,6 +21,7 @@ from org.jclouds.io import Payloads
 from org.jclouds.rest import AuthorizationException
 from org.jclouds.scriptbuilder.domain import StatementList
 from org.jclouds.scriptbuilder.domain import Statements
+from org.jclouds.scriptbuilder.statements.java import InstallJDK
 from org.jclouds.util import Strings2
 
 log = logging.getLogger('kahuna')
@@ -164,15 +166,19 @@ class MothershipPlugin(AbsPlugin):
         parser.add_option('-r', '--remote',
                 help='Path to a remote file to deploy',
                 action='store', dest='remote')
-        parser.add_option('-n', '--number', type="int", default=1,
+        parser.add_option('-d', '--datanode',
+                help='Ip address of the data node (with rabbit, '
+                'redis and zookeper)',
+                action='store', dest='datanode')
+        parser.add_option('-c', '--count', type="int", default=1,
                 help='Number of nodes to deploy (default 1)',
-                action='store', dest='number')
+                action='store', dest='count')
         (options, args) = parser.parse_args(args)
 
-        if not options.local and not options.remote:
+        if not options.local and not options.remote or not options.datanode:
             parser.print_help()
             return
-        options.number = 1  # FIXME Remove when the multiple deploy is fixed
+        options.count = 1  # FIXME Remove when the multiple deploy is fixed
 
         compute = self._context.getComputeService()
 
@@ -181,6 +187,10 @@ class MothershipPlugin(AbsPlugin):
             log.info("Loading template...")
             vdc, template_options = self._template_options(compute,
                 "deploy-wars")
+            template_options.overrideCores(
+                self.__config.getint("deploy-wars", "template_cores"))
+            template_options.overrideRam(
+                self.__config.getint("deploy-wars", "template_ram"))
             template = compute.templateBuilder() \
                 .imageNameMatches(name) \
                 .locationId(vdc.getId()) \
@@ -191,25 +201,63 @@ class MothershipPlugin(AbsPlugin):
             # AbiquoComputeSericeAdapter when creating multiple nodes
             self._create_vapp(vdc.getId(), "kahuna-wars")
 
-            log.info("Deploying %s %s nodes to %s..." % (options.number,
+            log.info("Deploying %s %s nodes to %s..." % (options.count,
                 template.getImage().getName(), vdc.getDescription()))
-            compute.createNodesInGroup("kahuna-wars",
-                    options.number, template)
+            nodes = compute.createNodesInGroup("kahuna-wars",
+                options.count, template)
 
-            log.info("Configuring nodes...")
+            # Upload local wars
+            if options.local:
+                for node in nodes:
+                    self._upload_file_node(self._context, node, "/tmp",
+                        options.local, True)
+
+            # Build the bootstrap scripts
+            log.info("Configuring nodes to connect to data node at %s..."
+                    % options.datanode)
+            bootstrap = []
+
             tomcat_uri = URI.create(self.__config.get("deploy-wars", "tomcat"))
-            install_tomcat = Statements.extractTargzAndFlattenIntoDirectory(
-                tomcat_uri, "/opt/abiquo/tomcat")
+            bootstrap.append(Statements.extractTargzAndFlattenIntoDirectory(
+                tomcat_uri, "/opt/abiquo/tomcat"))
 
-            bootstrap = StatementList(install_tomcat)
+            with open(self.__scriptdir + "/abiquo.properties", "r") as f:
+                abiquo_props = f.read() % {'datanode': options.datanode}
+            bootstrap.append(Statements.exec("{md} /opt/abiquo/config"))
+            bootstrap.append(Statements.createOrOverwriteFile(
+                "/opt/abiquo/config/abiquo.properties", [abiquo_props]))
+
+            with open(self.__scriptdir + "/context.xml", "r") as f:
+                context_config = f.read() % {'datanode': options.datanode}
+            bootstrap.append(Statements.createOrOverwriteFile(
+                "/opt/abiquo/tomcat/conf/context.xml", [context_config]))
+
+            if options.local:
+                # Extract previously uploaded wars
+                bootstrap.append(Statements.exec(
+                    "mv /tmp/*.war /opt/abiquo/tomcat/webapps"))
+                bootstrap.append(Statements.exec(
+                    "for f in /opt/abiquo/tomcat/webapps/*.war; "
+                    "do unzip -d ${f%.war} $f; done"))
+            if options.remote:
+                # Download and extract wars
+                rwar = options.remote
+                war = rwar[rwar.rindex("/") + 1:rwar.rindex(".war")]
+                bootstrap.append(Statements.extractZipIntoDirectory("GET",
+                    URI.create(options.remote), ImmutableMultimap.of(),
+                    "/opt/abiquo/tomcat/webapps/%s" % war))
+
+            # Install Java
+            bootstrap.append(InstallJDK.fromOpenJDK())
+
+            # Bootstrap all nodes
             responses = compute.runScriptOnNodesMatching(
-                NodePredicates.inGroup("kahuna-wars"), bootstrap)
+                NodePredicates.inGroup("kahuna-wars"),
+                StatementList(bootstrap))
 
-            log.info("Done!")
-            for response in responses.entrySet():
-                log.info("Node configured at: %s" %
-                    Iterables.getOnlyElement(
-                        response.getKey().getPublicAddresses()))
+            log.info("Done! Nodes deployed at:")
+            [log.info("- %s" % Iterables.getOnlyElement(
+                node.getPublicAddresses())) for node in nodes]
 
         except (AbiquoException, AuthorizationException), ex:
             print "Error: %s" % ex.getMessage()
@@ -245,7 +293,7 @@ class MothershipPlugin(AbsPlugin):
             # abiquo-aim.ini
             self._complete_file("abiquo-aim.ini", {'redishost': redishost,
                 'redisport': redisport, 'nfsto': nfsto})
-            self._upload_file_node(self._context, node, "/etc/",
+            self._upload_file_node(self._context, node, "/etc",
                 "abiquo-aim.ini")
 
             # configure-aim-node.sh
@@ -292,7 +340,8 @@ class MothershipPlugin(AbsPlugin):
 
     def _upload_file_node(self, context, node, destination, filename,
             abs_path=False):
-        log.info("Waiting for ssh access on node...")
+        ip = Iterables.getOnlyElement(node.getPublicAddresses())
+        log.info("Waiting for ssh access on node at %s..." % ip)
         ssh = context.getUtils().sshForNode().apply(node)
         path = filename if abs_path else self.__scriptdir + "/" + filename
         tmpfile = os.path.exists(path + ".tmp")
@@ -302,7 +351,7 @@ class MothershipPlugin(AbsPlugin):
             filename = os.path.basename(path)
 
         try:
-            log.info("Uploading %s..." % filename)
+            log.info("Uploading %s to %s..." % (filename, ip))
             ssh.connect()
             ssh.put(destination + "/" + filename,
                     Payloads.newFilePayload(file))
