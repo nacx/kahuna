@@ -1,7 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<Context>
-    <WatchedResource>WEB-INF/web.xml</WatchedResource>
-    <Resource name="jdbc/abiquoDB" auth="Container" type="javax.sql.DataSource" initialSize="10" suspectTimeout="60" timeBetweenEvictionRunsMillis="30000" minEvictableIdleTimeMillis="60000"
-        maxActive="100" minIdle="10" maxIdle="50" maxWait="10000" removeAbandoned="true" removeAbandonedTimeout="60" logAbandoned="false" username="root" password="root"
-        driverClassName="com.mysql.jdbc.Driver" url="jdbc:mysql://%(datanode)s:3306/kinton?autoReconnect=true&amp;useUnicode=true&amp;characterEncoding=UTF-8" />
-</Context>

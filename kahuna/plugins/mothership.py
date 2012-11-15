@@ -21,7 +21,11 @@ from org.jclouds.io import Payloads
 from org.jclouds.rest import AuthorizationException
 from org.jclouds.scriptbuilder.domain import StatementList
 from org.jclouds.scriptbuilder.domain import Statements
+from org.jclouds.scriptbuilder.domain.chef import RunList
 from org.jclouds.scriptbuilder.statements.java import InstallJDK
+from org.jclouds.scriptbuilder.statements.chef import ChefSolo
+from org.jclouds.scriptbuilder.statements.git import CloneGitRepo
+from org.jclouds.scriptbuilder.statements.git import InstallGit
 from org.jclouds.util import Strings2
 
 log = logging.getLogger('kahuna')
@@ -52,7 +56,7 @@ class MothershipPlugin(AbsPlugin):
         commands['deploy-chef'] = self.deploy_chef
         commands['deploy-kvm'] = self.deploy_kvm
         commands['deploy-vbox'] = self.deploy_vbox
-        commands['deploy-wars'] = self.deploy_wars
+        commands['deploy-api'] = self.deploy_api
         commands['list-templates'] = self.list_templates
         return commands
 
@@ -144,12 +148,16 @@ class MothershipPlugin(AbsPlugin):
             node = Iterables.getOnlyElement(
                 compute.createNodesInGroup("kahuna-abiquo", 1, template))
 
-            self._upload_file_node(self._context, node, "/opt/abiquo/config",
-                    options.props, True)
+            # Generate the bootstrap script
+            bootstrap = []
+            with open(options.props, "r") as f:
+                bootstrap.append(Statements.createOrOverwriteFile(
+                    "/opt/abiquo/config/abiquo.properties", [f.read()]))
+
+            bootstrap.append(Statements.exec("service abiquo-tomcat restart"))
 
             log.info("Restarting Abiquo Tomcat...")
-            compute.runScriptOnNode(node.getId(),
-                    "service abiquo-tomcat restart")
+            compute.runScriptOnNode(node.getId(), StatementList(bootstrap))
 
             log.info("Done! Abiquo configured at: %s" %
                     Iterables.getOnlyElement(node.getPublicAddresses()))
@@ -157,15 +165,12 @@ class MothershipPlugin(AbsPlugin):
         except RunNodesException, ex:
             self._print_node_errors(ex)
 
-    def deploy_wars(self, args):
-        """ Deploys and configures custom wars of the Abiquo platform """
-        parser = OptionParser(usage="mothership deploy-wars <options>")
+    def deploy_api(self, args):
+        """ Deploys and configures custom Abiquo APIs """
+        parser = OptionParser(usage="mothership deploy-apis <options>")
         parser.add_option('-l', '--local',
-                help='Path to a local war file to deploy',
+                help='Path to a local api file to deploy',
                 action='store', dest='local')
-        parser.add_option('-r', '--remote',
-                help='Path to a remote file to deploy',
-                action='store', dest='remote')
         parser.add_option('-d', '--datanode',
                 help='Ip address of the data node (with rabbit, '
                 'redis and zookeper)',
@@ -175,7 +180,7 @@ class MothershipPlugin(AbsPlugin):
                 action='store', dest='count')
         (options, args) = parser.parse_args(args)
 
-        if not options.local and not options.remote or not options.datanode:
+        if not options.local or not options.datanode:
             parser.print_help()
             return
         options.count = 1  # FIXME Remove when the multiple deploy is fixed
@@ -183,14 +188,14 @@ class MothershipPlugin(AbsPlugin):
         compute = self._context.getComputeService()
 
         try:
-            name = self.__config.get("deploy-wars", "template")
+            name = self.__config.get("deploy-api", "template")
             log.info("Loading template...")
             vdc, template_options = self._template_options(compute,
-                "deploy-wars")
+                "deploy-api")
             template_options.overrideCores(
-                self.__config.getint("deploy-wars", "template_cores"))
+                self.__config.getint("deploy-api", "template_cores"))
             template_options.overrideRam(
-                self.__config.getint("deploy-wars", "template_ram"))
+                self.__config.getint("deploy-api", "template_ram"))
             template = compute.templateBuilder() \
                 .imageNameMatches(name) \
                 .locationId(vdc.getId()) \
@@ -207,48 +212,72 @@ class MothershipPlugin(AbsPlugin):
                 options.count, template)
 
             # Upload local wars
-            if options.local:
-                for node in nodes:
-                    self._upload_file_node(self._context, node, "/tmp",
-                        options.local, True)
+            for node in nodes:
+                self._upload_binary_file(self._context, node, "/tmp",
+                    options.local)
 
             # Build the bootstrap scripts
             log.info("Configuring nodes to connect to data node at %s..."
                     % options.datanode)
-            bootstrap = []
 
-            tomcat_uri = URI.create(self.__config.get("deploy-wars", "tomcat"))
-            bootstrap.append(Statements.extractTargzAndFlattenIntoDirectory(
-                tomcat_uri, "/opt/abiquo/tomcat"))
+            # Install Tomcat
+            cloneTomcat = CloneGitRepo.builder() \
+                .repository("git://github.com/abiquo/tomcat.git") \
+                .branch("ajp") \
+                .directory("/var/chef/cookbooks/tomcat") \
+                .build()
+            cloneJava = CloneGitRepo.builder() \
+                .repository("git://github.com/opscode-cookbooks/java.git") \
+                .directory("/var/chef/cookbooks/java") \
+                .build()
 
-            with open(self.__scriptdir + "/abiquo.properties", "r") as f:
-                abiquo_props = f.read() % {'datanode': options.datanode}
+            javaopts = self.__config.get("deploy-api", "tomcat_opts")
+            with open("%s/api-node.json" % self.__scriptdir) as f:
+                attrs = f.read() % {
+                    'javaopts': javaopts,
+                    'ajpport': 8888,
+                    'jvmroute': 'node1',
+                    'dbhost': options.datanode
+                }
+
+            runlist = RunList.builder().recipe("java").recipe("tomcat").build()
+
+            chef = ChefSolo.builder() \
+                .jsonAttributes(attrs) \
+                .runlist(runlist) \
+                .build()
+
+            bootstrap = [InstallGit(), cloneTomcat, cloneJava, chef]
+            bootstrap.append(Statements.exec("service tomcat6 stop"))
+
+            # Copy wars to webapps directory
+            bootstrap.append(Statements.exec(
+                "mv /tmp/*.war /var/lib/tomcat6/webapps"))
+            bootstrap.append(Statements.exec(
+                "for f in /var/lib/tomcat6/webapps/*.war; "
+                "do unzip -d ${f%.war} $f; done"))
+
+            # Upload abiquo.properties
+            with open("%s/abiquo.properties" % self.__scriptdir, "r") as f:
+                abiquo_props = f.read() % {
+                    'rabbit': options.datanode,
+                    'redis': options.datanode,
+                    'zookeeper': options.datanode
+                }
             bootstrap.append(Statements.exec("{md} /opt/abiquo/config"))
             bootstrap.append(Statements.createOrOverwriteFile(
                 "/opt/abiquo/config/abiquo.properties", [abiquo_props]))
 
-            with open(self.__scriptdir + "/context.xml", "r") as f:
-                context_config = f.read() % {'datanode': options.datanode}
-            bootstrap.append(Statements.createOrOverwriteFile(
-                "/opt/abiquo/tomcat/conf/context.xml", [context_config]))
+            # Upload tomcat libraries
+            bootstrap.append(Statements.exec(
+                "wget -O /usr/share/tomcat6/lib/abiquo.jar "
+                "http://10.60.20.42/2.4/tomcat/abiquo-tomcat.jar"))
+            bootstrap.append(Statements.exec(
+                "wget -O /usr/share/tomcat6/lib/mysql.jar "
+                "http://repo1.maven.org/maven2/mysql/mysql-connector-java/"
+                "5.1.10/mysql-connector-java-5.1.10.jar"))
 
-            if options.local:
-                # Extract previously uploaded wars
-                bootstrap.append(Statements.exec(
-                    "mv /tmp/*.war /opt/abiquo/tomcat/webapps"))
-                bootstrap.append(Statements.exec(
-                    "for f in /opt/abiquo/tomcat/webapps/*.war; "
-                    "do unzip -d ${f%.war} $f; done"))
-            if options.remote:
-                # Download and extract wars
-                rwar = options.remote
-                war = rwar[rwar.rindex("/") + 1:rwar.rindex(".war")]
-                bootstrap.append(Statements.extractZipIntoDirectory("GET",
-                    URI.create(options.remote), ImmutableMultimap.of(),
-                    "/opt/abiquo/tomcat/webapps/%s" % war))
-
-            # Install Java
-            bootstrap.append(InstallJDK.fromOpenJDK())
+            bootstrap.append(Statements.exec("service tomcat6 start"))
 
             # Bootstrap all nodes
             responses = compute.runScriptOnNodesMatching(
@@ -290,18 +319,20 @@ class MothershipPlugin(AbsPlugin):
             nfsto = self.__config.get(config_section, "nfs_to")
             nfsfrom = self.__config.get(config_section, "nfs_from")
 
-            # abiquo-aim.ini
-            self._complete_file("abiquo-aim.ini", {'redishost': redishost,
-                'redisport': redisport, 'nfsto': nfsto})
-            self._upload_file_node(self._context, node, "/etc",
-                "abiquo-aim.ini")
+            bootstrap = []
 
-            # configure-aim-node.sh
+            with open(self.__scriptdir + "/abiquo-aim.ini", "r") as f:
+                aim_config = f.read() % {'redishost': redishost,
+                    'redisport': redisport, 'nfsto': nfsto}
+            bootstrap.append(Statements.createOrOverwriteFile(
+                "/etc/abiquo-adim.ini", [aim_config]))
+
             with open(self.__scriptdir + "/configure-aim-node.sh", "r") as f:
                 script = f.read() % {'nfsfrom': nfsfrom, 'nfsto': nfsto}
+            bootstrap.append(Statements.exec(script))
 
             log.info("Configuring node...")
-            compute.runScriptOnNode(node.getId(), script)
+            compute.runScriptOnNode(node.getId(), StatementList(bootstrap))
 
             log.info("Done! You can access it at: %s" %
                 Iterables.getOnlyElement(node.getPublicAddresses()))
@@ -338,17 +369,12 @@ class MothershipPlugin(AbsPlugin):
             if ssh:
                 ssh.disconnect()
 
-    def _upload_file_node(self, context, node, destination, filename,
-            abs_path=False):
+    def _upload_binary_file(self, context, node, destination, filepath):
         ip = Iterables.getOnlyElement(node.getPublicAddresses())
         log.info("Waiting for ssh access on node at %s..." % ip)
         ssh = context.getUtils().sshForNode().apply(node)
-        path = filename if abs_path else self.__scriptdir + "/" + filename
-        tmpfile = os.path.exists(path + ".tmp")
-        file = File(path + ".tmp" if tmpfile else path)
-
-        if abs_path:
-            filename = os.path.basename(path)
+        filename = os.path.basename(filepath)
+        file = File(filepath)
 
         try:
             log.info("Uploading %s to %s..." % (filename, ip))
@@ -358,16 +384,6 @@ class MothershipPlugin(AbsPlugin):
         finally:
             if ssh:
                 ssh.disconnect()
-            if tmpfile:
-                os.remove(file.getPath())
-
-    def _complete_file(self, filename, dictionary):
-        with open(self.__scriptdir + "/" + filename, "r") as f:
-            content = f.read()
-        content = content % dictionary
-        with open(self.__scriptdir + "/" + filename + ".tmp", "w") as f:
-            f.write(content)
-        log.info("Configuration applied to %s" % filename)
 
     def _print_node_errors(self, ex):
         for error in ex.getExecutionErrors().values():
