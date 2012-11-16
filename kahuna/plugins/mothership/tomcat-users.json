@@ -1,0 +1,5 @@
+{
+    "id": "abiquo",
+    "password": "abiquo",
+    "roles": ["manager", "admin"]
+}

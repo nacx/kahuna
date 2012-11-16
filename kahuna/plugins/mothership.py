@@ -17,6 +17,7 @@ from org.jclouds.io import Payloads
 from org.jclouds.rest import AuthorizationException
 from org.jclouds.scriptbuilder.domain import StatementList
 from org.jclouds.scriptbuilder.domain import Statements
+from org.jclouds.scriptbuilder.domain.chef import DataBag
 from org.jclouds.scriptbuilder.domain.chef import RunList
 from org.jclouds.scriptbuilder.statements.chef import ChefSolo
 from org.jclouds.scriptbuilder.statements.git import CloneGitRepo
@@ -283,9 +284,16 @@ class MothershipPlugin(AbsPlugin):
                 .build()
             repos = [cloneJava, cloneTomcat] + self._monitor_repos()
 
+            with open("%s/tomcat-users.json" % self.__scriptdir) as f:
+                tomcat_users = DataBag.builder() \
+                    .name("tomcat_users") \
+                    .item("abiquo", f.read()) \
+                    .build()
+
             runlist = RunList.builder() \
                 .recipe("java") \
                 .recipe("tomcat") \
+                .recipe("tomcat::users") \
                 .recipe("bprobe") \
                 .recipe("newrelic") \
                 .build()
@@ -303,6 +311,7 @@ class MothershipPlugin(AbsPlugin):
                     "dbhost": options.datanode
                 }
                 chef = ChefSolo.builder() \
+                    .defineDataBag(tomcat_users) \
                     .jsonAttributes(attrs) \
                     .runlist(runlist) \
                     .build()
