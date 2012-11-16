@@ -7,5 +7,14 @@
         "ajp_port": %(ajpport)d,
         "jvm_route": "%(jvmroute)s",
         "java_options": "%(javaopts)s"
+    },
+    "boundary": {
+        "api": {
+            "org_id": "6oB7sd7plXO2vVUe2TvcmJXZRl4",
+            "key": "HEcdpiTygBPLvMqNQmqOaxugvvE"
+        }
+    },
+    "newrelic": {
+        "license_key": "202f171ad6417808bacc34d5824a8fd8221d4df3"
     }
 }

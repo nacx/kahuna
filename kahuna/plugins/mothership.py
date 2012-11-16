@@ -170,12 +170,15 @@ class MothershipPlugin(AbsPlugin):
                 help='Ip address of the data node (with rabbit, '
                 'redis and zookeper)',
                 action='store', dest='datanode')
+        parser.add_option('-b', '--balancer',
+                help='Ip address of the load balancer node',
+                action='store', dest='balancer')
         parser.add_option('-c', '--count', type="int", default=1,
                 help='Number of nodes to deploy (default 1)',
                 action='store', dest='count')
         (options, args) = parser.parse_args(args)
 
-        if not options.local or not options.datanode:
+        if not options.local or not options.datanode or not options.balancer:
             parser.print_help()
             return
 
@@ -233,6 +236,13 @@ class MothershipPlugin(AbsPlugin):
             bootstrap.append(Statements.createOrOverwriteFile(
                 "/etc/tomcat6/Catalina/localhost/api.xml", [context_config]))
 
+            # Configure logs
+            with open("%s/logback.xml" % self.__scriptdir, "r") as f:
+                log_config = f.read() % {'sysloghost': options.balancer}
+            bootstrap.append(Statements.createOrOverwriteFile(
+                "/var/lib/tomcat6/webapps/api/WEB-INF/classes/logback.xml",
+                [log_config]))
+
             # Upload abiquo.properties
             with open("%s/abiquo.properties" % self.__scriptdir, "r") as f:
                 abiquo_props = f.read() % {
@@ -271,8 +281,14 @@ class MothershipPlugin(AbsPlugin):
                 .branch("ajp") \
                 .directory("/var/chef/cookbooks/tomcat") \
                 .build()
+            repos = [cloneJava, cloneTomcat] + self._monitor_repos()
 
-            runlist = RunList.builder().recipe("java").recipe("tomcat").build()
+            runlist = RunList.builder() \
+                .recipe("java") \
+                .recipe("tomcat") \
+                .recipe("bprobe") \
+                .recipe("newrelic") \
+                .build()
 
             javaopts = self.__config.get("deploy-api", "tomcat_opts")
             with open("%s/api-node.json" % self.__scriptdir) as f:
@@ -290,15 +306,19 @@ class MothershipPlugin(AbsPlugin):
                     .jsonAttributes(attrs) \
                     .runlist(runlist) \
                     .build()
+
                 # Bootstrap all nodes concurrently
-                boot = [InstallGit(), cloneJava, cloneTomcat, chef] + bootstrap
+                set_hostname = self._set_hostname(node)
+                boot = set_hostname + [InstallGit()] + repos + \
+                    [chef] + bootstrap
+
                 responses.append(compute.submitScriptOnNode(node.getId(),
                     StatementList(boot), RunScriptOptions.NONE))
 
             # Wait until all the bootstrao scripts finish
             for i, future in enumerate(responses):
                 result = future.get()
-                log.info("%s node at %s -> %s" % (node.getName(),
+                log.info("%s node at %s -> %s" % (nodes[i].getName(),
                     Iterables.getOnlyElement(nodes[i].getPublicAddresses()),
                     "OK" if result.getExitStatus() == 0 else "FAILED"))
             log.info("Done!")
@@ -307,6 +327,44 @@ class MothershipPlugin(AbsPlugin):
             print "Error: %s" % ex.getMessage()
         except RunNodesException, ex:
             self._print_node_errors(ex)
+
+    def _set_hostname(self, node):
+        """ Generates the script to set the hostname in a node """
+        script = []
+        script.append(Statements.exec("hostname %s" % node.getName()))
+        script.append(Statements.createOrOverwriteFile(
+                "/etc/hostname", [node.getName()]))
+        script.append(Statements.exec(
+            "sed -i 's/127.0.0.1/127.0.0.1\t%s/' /etc/hosts" % node.getName()))
+        return script
+
+    def _monitor_repos(self):
+        script = []
+        script.extend(self._clone_opscode_cookbooks(
+            ["build-essential", "apt", "xml", "mysql",
+            "php", "python", "apache2"]))
+        script.append(CloneGitRepo.builder() \
+            .repository("git://github.com/escapestudios/chef-newrelic.git") \
+            .directory("/var/chef/cookbooks/newrelic") \
+            .build())
+        script.append(CloneGitRepo.builder() \
+            .repository("git://github.com/boundary/boundary_cookbooks.git") \
+            .directory("/tmp/boundary") \
+            .build())
+        # Use only the bprobe cookbook
+        script.append(Statements.exec(
+            "mv /tmp/boundary/bprobe /var/chef/cookbooks/"))
+        return script
+
+    def _clone_opscode_cookbooks(self, cookbooks):
+        script = []
+        for cookbook in cookbooks:
+            script.append(CloneGitRepo.builder() \
+                .repository("git://github.com/opscode-cookbooks/%s.git"
+                    % cookbook) \
+                .directory("/var/chef/cookbooks/%s" % cookbook) \
+                .build())
+        return script
 
     # Utility functions
     def _deploy_aim(self, config_section, vapp_name):

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <appender name="SYSLOG" class="ch.qos.logback.classic.net.SyslogAppender">
+        <syslogHost>%(sysloghost)s</syslogHost>
+        <facility>LOCAL1</facility>
+        <suffixPattern>%%-5level %%logger{36} - %%msg%%n</suffixPattern>
+    </appender>
+    <logger name="com.abiquo">
+        <level value="DEBUG" />
+    </logger>
+    <root>
+        <level value="INFO" />
+        <appender-ref ref="SYSLOG" />
+    </root>
+</configuration>
