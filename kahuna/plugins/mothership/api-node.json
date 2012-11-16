@@ -6,9 +6,6 @@
         "port": 8080,
         "ajp_port": %(ajpport)d,
         "jvm_route": "%(jvmroute)s",
-        "java_options": "%(javaopts)s",
-        "db": {
-            "host": "%(dbhost)s"
-        }
+        "java_options": "%(javaopts)s"
     }
 }

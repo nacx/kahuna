@@ -15,7 +15,7 @@
         removeAbandonedTimeout="60"
         logAbandoned="false"
         username="root"
-        password="root"
+        password=""
         driverClassName="com.mysql.jdbc.Driver"
         url="jdbc:mysql://%(dbhost)s:3306/kinton?autoReconnect=true&amp;useUnicode=true&amp;characterEncoding=UTF-8" />
 </Context>

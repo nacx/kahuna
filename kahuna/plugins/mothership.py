@@ -4,26 +4,20 @@ from __future__ import with_statement  # jython 2.5.2 issue
 import logging
 import os
 from java.io import File
-from java.net import URI
 from kahuna.abstract import AbsPlugin
 from kahuna.config import ConfigLoader
 from kahuna.utils.prettyprint import pprint_templates
 from com.google.common.collect import Iterables
-from com.google.common.collect import ImmutableMultimap
 from optparse import OptionParser
-from org.jclouds.abiquo.domain.cloud import VirtualAppliance
 from org.jclouds.abiquo.domain.exception import AbiquoException
-from org.jclouds.abiquo.predicates.cloud import VirtualAppliancePredicates
 from org.jclouds.compute import RunNodesException
 from org.jclouds.compute.options import RunScriptOptions
-from org.jclouds.compute.predicates import NodePredicates
 from org.jclouds.domain import LoginCredentials
 from org.jclouds.io import Payloads
 from org.jclouds.rest import AuthorizationException
 from org.jclouds.scriptbuilder.domain import StatementList
 from org.jclouds.scriptbuilder.domain import Statements
 from org.jclouds.scriptbuilder.domain.chef import RunList
-from org.jclouds.scriptbuilder.statements.java import InstallJDK
 from org.jclouds.scriptbuilder.statements.chef import ChefSolo
 from org.jclouds.scriptbuilder.statements.git import CloneGitRepo
 from org.jclouds.scriptbuilder.statements.git import InstallGit
@@ -218,7 +212,7 @@ class MothershipPlugin(AbsPlugin):
                 nodes.append(node)
 
             # Build the bootstrap scripts
-            log.info("Configuring nodes to connect to data node at %s..."
+            log.info("Cooking nodes with Chef to join the cluster at %s..."
                     % options.datanode)
 
             bootstrap = []
