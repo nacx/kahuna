@@ -15,6 +15,7 @@ from org.jclouds.abiquo.domain.cloud import VirtualAppliance
 from org.jclouds.abiquo.domain.exception import AbiquoException
 from org.jclouds.abiquo.predicates.cloud import VirtualAppliancePredicates
 from org.jclouds.compute import RunNodesException
+from org.jclouds.compute.options import RunScriptOptions
 from org.jclouds.compute.predicates import NodePredicates
 from org.jclouds.domain import LoginCredentials
 from org.jclouds.io import Payloads
@@ -183,7 +184,6 @@ class MothershipPlugin(AbsPlugin):
         if not options.local or not options.datanode:
             parser.print_help()
             return
-        options.count = 1  # FIXME Remove when the multiple deploy is fixed
 
         compute = self._context.getComputeService()
 
@@ -202,60 +202,42 @@ class MothershipPlugin(AbsPlugin):
                 .options(template_options) \
                 .build()
 
-            # Manually create the vapp to bypass the race condition in
-            # AbiquoComputeSericeAdapter when creating multiple nodes
-            self._create_vapp(vdc.getId(), "kahuna-wars")
-
             log.info("Deploying %s %s nodes to %s..." % (options.count,
                 template.getImage().getName(), vdc.getDescription()))
-            nodes = compute.createNodesInGroup("kahuna-wars",
-                options.count, template)
 
-            # Upload local wars
-            for node in nodes:
+            # Due to the IpPoolManagement concurrency issue, we need to deploy
+            # the nodes one by one
+            nodes = []
+            for i in xrange(options.count):
+                node = Iterables.getOnlyElement(
+                    compute.createNodesInGroup("kahuna-apis", 1, template))
+                log.info("Created node %s at %s" % (node.getName(),
+                    Iterables.getOnlyElement(node.getPublicAddresses())))
                 self._upload_binary_file(self._context, node, "/tmp",
                     options.local)
+                nodes.append(node)
 
             # Build the bootstrap scripts
             log.info("Configuring nodes to connect to data node at %s..."
                     % options.datanode)
 
-            # Install Tomcat
-            cloneTomcat = CloneGitRepo.builder() \
-                .repository("git://github.com/abiquo/tomcat.git") \
-                .branch("ajp") \
-                .directory("/var/chef/cookbooks/tomcat") \
-                .build()
-            cloneJava = CloneGitRepo.builder() \
-                .repository("git://github.com/opscode-cookbooks/java.git") \
-                .directory("/var/chef/cookbooks/java") \
-                .build()
-
-            javaopts = self.__config.get("deploy-api", "tomcat_opts")
-            with open("%s/api-node.json" % self.__scriptdir) as f:
-                attrs = f.read() % {
-                    'javaopts': javaopts,
-                    'ajpport': 8888,
-                    'jvmroute': 'node1',
-                    'dbhost': options.datanode
-                }
-
-            runlist = RunList.builder().recipe("java").recipe("tomcat").build()
-
-            chef = ChefSolo.builder() \
-                .jsonAttributes(attrs) \
-                .runlist(runlist) \
-                .build()
-
-            bootstrap = [InstallGit(), cloneTomcat, cloneJava, chef]
+            bootstrap = []
             bootstrap.append(Statements.exec("service tomcat6 stop"))
 
             # Copy wars to webapps directory
+            bootstrap.append(Statements.exec(
+                "ensure_cmd_or_install_package_apt unzip unzip"))
             bootstrap.append(Statements.exec(
                 "mv /tmp/*.war /var/lib/tomcat6/webapps"))
             bootstrap.append(Statements.exec(
                 "for f in /var/lib/tomcat6/webapps/*.war; "
                 "do unzip -d ${f%.war} $f; done"))
+
+            # Configure the context
+            with open("%s/context.xml" % self.__scriptdir, "r") as f:
+                context_config = f.read() % {'dbhost': options.datanode}
+            bootstrap.append(Statements.createOrOverwriteFile(
+                "/etc/tomcat6/Catalina/localhost/api.xml", [context_config]))
 
             # Upload abiquo.properties
             with open("%s/abiquo.properties" % self.__scriptdir, "r") as f:
@@ -277,16 +259,55 @@ class MothershipPlugin(AbsPlugin):
                 "http://repo1.maven.org/maven2/mysql/mysql-connector-java/"
                 "5.1.10/mysql-connector-java-5.1.10.jar"))
 
+            # Configure the Abiquo Listener
+            bootstrap.append(Statements.exec("sed -i -e "
+                "'/GlobalResourcesLifecycleListener/a <Listener className="
+                "\"com.abiquo.listeners.AbiquoConfigurationListener\"/>' "
+                "/etc/tomcat6/server.xml"))
+
             bootstrap.append(Statements.exec("service tomcat6 start"))
 
-            # Bootstrap all nodes
-            responses = compute.runScriptOnNodesMatching(
-                NodePredicates.inGroup("kahuna-wars"),
-                StatementList(bootstrap))
+            # Prepare the Chef cookbooks in the node
+            cloneJava = CloneGitRepo.builder() \
+                .repository("git://github.com/opscode-cookbooks/java.git") \
+                .directory("/var/chef/cookbooks/java") \
+                .build()
+            cloneTomcat = CloneGitRepo.builder() \
+                .repository("git://github.com/abiquo/tomcat.git") \
+                .branch("ajp") \
+                .directory("/var/chef/cookbooks/tomcat") \
+                .build()
 
-            log.info("Done! Nodes deployed at:")
-            [log.info("- %s" % Iterables.getOnlyElement(
-                node.getPublicAddresses())) for node in nodes]
+            runlist = RunList.builder().recipe("java").recipe("tomcat").build()
+
+            javaopts = self.__config.get("deploy-api", "tomcat_opts")
+            with open("%s/api-node.json" % self.__scriptdir) as f:
+                node_config = f.read()
+
+            responses = []
+            for i, node in enumerate(nodes):
+                attrs = node_config % {
+                    "javaopts": javaopts,
+                    "ajpport": 10000 + i,
+                    "jvmroute": "node%s" % i,
+                    "dbhost": options.datanode
+                }
+                chef = ChefSolo.builder() \
+                    .jsonAttributes(attrs) \
+                    .runlist(runlist) \
+                    .build()
+                # Bootstrap all nodes concurrently
+                boot = [InstallGit(), cloneJava, cloneTomcat, chef] + bootstrap
+                responses.append(compute.submitScriptOnNode(node.getId(),
+                    StatementList(boot), RunScriptOptions.NONE))
+
+            # Wait until all the bootstrao scripts finish
+            for i, future in enumerate(responses):
+                result = future.get()
+                log.info("%s node at %s -> %s" % (node.getName(),
+                    Iterables.getOnlyElement(nodes[i].getPublicAddresses()),
+                    "OK" if result.getExitStatus() == 0 else "FAILED"))
+            log.info("Done!")
 
         except (AbiquoException, AuthorizationException), ex:
             print "Error: %s" % ex.getMessage()
@@ -346,7 +367,6 @@ class MothershipPlugin(AbsPlugin):
         location = filter(lambda l: l.getDescription() == vdc, locations)[0]
         log.debug("Found VDC %s %s" % (location.getId(),
             location.getDescription()))
-
         login = LoginCredentials.builder() \
             .authenticateSudo(self.__config.getboolean(deploycommand,
                     "requires_sudo")) \
@@ -370,14 +390,12 @@ class MothershipPlugin(AbsPlugin):
                 ssh.disconnect()
 
     def _upload_binary_file(self, context, node, destination, filepath):
-        ip = Iterables.getOnlyElement(node.getPublicAddresses())
-        log.info("Waiting for ssh access on node at %s..." % ip)
+        log.info("Waiting for ssh access on node %s..." % node.getName())
         ssh = context.getUtils().sshForNode().apply(node)
         filename = os.path.basename(filepath)
         file = File(filepath)
-
         try:
-            log.info("Uploading %s to %s..." % (filename, ip))
+            log.info("Uploading %s to %s..." % (filename, node.getName()))
             ssh.connect()
             ssh.put(destination + "/" + filename,
                     Payloads.newFilePayload(file))
@@ -390,17 +408,6 @@ class MothershipPlugin(AbsPlugin):
             print "Error %s" % error.getMessage()
         for error in ex.getNodeErrors().values():
             print "Error %s" % error.getMessage()
-
-    def _create_vapp(self, vdc_id, vapp_name):
-        vdc = self._context.getCloudService().getVirtualDatacenter(int(vdc_id))
-        vapp = vdc.findVirtualAppliance(
-            VirtualAppliancePredicates.name(vapp_name))
-        if not vapp:
-            log.debug("Creating virtual appliance %s in %s..." % (vapp_name,
-                vdc.getName()))
-            vapp = VirtualAppliance.builder(self._context.getApiContext(),
-                vdc).name(vapp_name).build()
-            vapp.save()
 
 
 def load():
