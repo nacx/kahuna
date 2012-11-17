@@ -10,11 +10,11 @@
     },
     "boundary": {
         "api": {
-            "org_id": "6oB7sd7plXO2vVUe2TvcmJXZRl4",
-            "key": "HEcdpiTygBPLvMqNQmqOaxugvvE"
+            "org_id": "%(bprobe_org)s",
+            "key": "%(bprobe_key)s"
         }
     },
     "newrelic": {
-        "license_key": "202f171ad6417808bacc34d5824a8fd8221d4df3"
+        "license_key": "%(newrelic_key)s"
     }
 }

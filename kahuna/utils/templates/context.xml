@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <Context>
-    <Resource name="jdbc/abiquoDB"
+    <Resource name="%(jndi)s"
         auth="Container"
         type="javax.sql.DataSource"
         initialSize="10"
@@ -14,8 +14,8 @@
         removeAbandoned="true"
         removeAbandonedTimeout="60"
         logAbandoned="false"
-        username="root"
-        password=""
+        username="%(dbuser)s"
+        password="%(dbpass)s"
         driverClassName="com.mysql.jdbc.Driver"
         url="jdbc:mysql://%(dbhost)s:3306/kinton?autoReconnect=true&amp;useUnicode=true&amp;characterEncoding=UTF-8" />
 </Context>

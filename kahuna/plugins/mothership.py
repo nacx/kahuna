@@ -2,27 +2,20 @@
 
 from __future__ import with_statement  # jython 2.5.2 issue
 import logging
-import os
-from java.io import File
 from kahuna.abstract import AbsPlugin
 from kahuna.config import ConfigLoader
 from kahuna.utils.prettyprint import pprint_templates
+from kahuna.utils import ssh
+from kahuna.utils.tomcat import TomcatScripts
 from com.google.common.collect import Iterables
 from optparse import OptionParser
 from org.jclouds.abiquo.domain.exception import AbiquoException
 from org.jclouds.compute import RunNodesException
 from org.jclouds.compute.options import RunScriptOptions
 from org.jclouds.domain import LoginCredentials
-from org.jclouds.io import Payloads
 from org.jclouds.rest import AuthorizationException
 from org.jclouds.scriptbuilder.domain import StatementList
 from org.jclouds.scriptbuilder.domain import Statements
-from org.jclouds.scriptbuilder.domain.chef import DataBag
-from org.jclouds.scriptbuilder.domain.chef import RunList
-from org.jclouds.scriptbuilder.statements.chef import ChefSolo
-from org.jclouds.scriptbuilder.statements.git import CloneGitRepo
-from org.jclouds.scriptbuilder.statements.git import InstallGit
-from org.jclouds.util import Strings2
 
 log = logging.getLogger('kahuna')
 
@@ -97,9 +90,11 @@ class MothershipPlugin(AbsPlugin):
                     % Iterables.getOnlyElement(node.getPublicAddresses()))
 
             log.info("These are the certificates to access the API:")
-            self._print_node_file(self._context, node,
-                    "/etc/chef/validation.pem")
-            self._print_node_file(self._context, node, "/etc/chef/webui.pem")
+            webui = ssh.get(self._context, node, "/etc/chef/webui.pem")
+            log.info("webui.pem: %s", webui)
+            validator = ssh.get(self._context, node,
+                "/etc/chef/validation.pem")
+            log.info("validation.pem: %s" % validator)
 
         except RunNodesException, ex:
             self._print_node_errors(ex)
@@ -163,7 +158,7 @@ class MothershipPlugin(AbsPlugin):
 
     def deploy_api(self, args):
         """ Deploys and configures custom Abiquo APIs """
-        parser = OptionParser(usage="mothership deploy-apis <options>")
+        parser = OptionParser(usage="mothership deploy-api <options>")
         parser.add_option('-l', '--local',
                 help='Path to a local api file to deploy',
                 action='store', dest='local')
@@ -200,131 +195,36 @@ class MothershipPlugin(AbsPlugin):
                 .options(template_options) \
                 .build()
 
+            java_opts = self.__config.get("deploy-api", "tomcat_opts")
+            boundary_org = self.__config.get("deploy-api", "boundary_org")
+            boundary_key = self.__config.get("deploy-api", "boundary_key")
+            newrelic_key = self.__config.get("deploy-api", "newrelic_key")
+            tomcat = TomcatScripts(boundary_org, boundary_key, newrelic_key)
+
             log.info("Deploying %s %s nodes to %s..." % (options.count,
                 template.getImage().getName(), vdc.getDescription()))
 
             # Due to the IpPoolManagement concurrency issue, we need to deploy
             # the nodes one by one
             nodes = []
+            responses = []
             for i in xrange(options.count):
                 node = Iterables.getOnlyElement(
                     compute.createNodesInGroup("kahuna-apis", 1, template))
                 log.info("Created node %s at %s" % (node.getName(),
                     Iterables.getOnlyElement(node.getPublicAddresses())))
-                self._upload_binary_file(self._context, node, "/tmp",
-                    options.local)
+                ssh.upload(self._context, node, "/tmp", options.local)
                 nodes.append(node)
 
-            # Build the bootstrap scripts
-            log.info("Cooking nodes with Chef to join the cluster at %s..."
-                    % options.datanode)
-
-            bootstrap = []
-            bootstrap.append(Statements.exec("service tomcat6 stop"))
-
-            # Copy wars to webapps directory
-            bootstrap.append(Statements.exec(
-                "ensure_cmd_or_install_package_apt unzip unzip"))
-            bootstrap.append(Statements.exec(
-                "mv /tmp/*.war /var/lib/tomcat6/webapps"))
-            bootstrap.append(Statements.exec(
-                "for f in /var/lib/tomcat6/webapps/*.war; "
-                "do unzip -d ${f%.war} $f; done"))
-
-            # Configure the context
-            with open("%s/context.xml" % self.__scriptdir, "r") as f:
-                context_config = f.read() % {'dbhost': options.datanode}
-            bootstrap.append(Statements.createOrOverwriteFile(
-                "/etc/tomcat6/Catalina/localhost/api.xml", [context_config]))
-
-            # Configure logs
-            with open("%s/logback.xml" % self.__scriptdir, "r") as f:
-                log_config = f.read() % {'sysloghost': options.balancer}
-            bootstrap.append(Statements.createOrOverwriteFile(
-                "/var/lib/tomcat6/webapps/api/WEB-INF/classes/logback.xml",
-                [log_config]))
-
-            # Upload abiquo.properties
-            with open("%s/abiquo.properties" % self.__scriptdir, "r") as f:
-                abiquo_props = f.read() % {
-                    'rabbit': options.datanode,
-                    'redis': options.datanode,
-                    'zookeeper': options.datanode
-                }
-            bootstrap.append(Statements.exec("{md} /opt/abiquo/config"))
-            bootstrap.append(Statements.createOrOverwriteFile(
-                "/opt/abiquo/config/abiquo.properties", [abiquo_props]))
-
-            # Upload tomcat libraries
-            bootstrap.append(Statements.exec(
-                "wget -O /usr/share/tomcat6/lib/abiquo.jar "
-                "http://10.60.20.42/2.4/tomcat/abiquo-tomcat.jar"))
-            bootstrap.append(Statements.exec(
-                "wget -O /usr/share/tomcat6/lib/mysql.jar "
-                "http://repo1.maven.org/maven2/mysql/mysql-connector-java/"
-                "5.1.10/mysql-connector-java-5.1.10.jar"))
-
-            # Configure the Abiquo Listener
-            bootstrap.append(Statements.exec("sed -i -e "
-                "'/GlobalResourcesLifecycleListener/a <Listener className="
-                "\"com.abiquo.listeners.AbiquoConfigurationListener\"/>' "
-                "/etc/tomcat6/server.xml"))
-
-            bootstrap.append(Statements.exec("service tomcat6 start"))
-
-            # Prepare the Chef cookbooks in the node
-            cloneJava = CloneGitRepo.builder() \
-                .repository("git://github.com/opscode-cookbooks/java.git") \
-                .directory("/var/chef/cookbooks/java") \
-                .build()
-            cloneTomcat = CloneGitRepo.builder() \
-                .repository("git://github.com/abiquo/tomcat.git") \
-                .branch("ajp") \
-                .directory("/var/chef/cookbooks/tomcat") \
-                .build()
-            repos = [cloneJava, cloneTomcat] + self._monitor_repos()
-
-            with open("%s/tomcat-users.json" % self.__scriptdir) as f:
-                tomcat_users = DataBag.builder() \
-                    .name("tomcat_users") \
-                    .item("abiquo", f.read()) \
-                    .build()
-
-            runlist = RunList.builder() \
-                .recipe("java") \
-                .recipe("tomcat") \
-                .recipe("tomcat::users") \
-                .recipe("bprobe") \
-                .recipe("newrelic") \
-                .build()
-
-            javaopts = self.__config.get("deploy-api", "tomcat_opts")
-            with open("%s/api-node.json" % self.__scriptdir) as f:
-                node_config = f.read()
-
-            responses = []
-            for i, node in enumerate(nodes):
-                attrs = node_config % {
-                    "javaopts": javaopts,
-                    "ajpport": 10000 + i,
-                    "jvmroute": "node%s" % i,
-                    "dbhost": options.datanode
-                }
-                chef = ChefSolo.builder() \
-                    .defineDataBag(tomcat_users) \
-                    .jsonAttributes(attrs) \
-                    .runlist(runlist) \
-                    .build()
-
-                # Bootstrap all nodes concurrently
-                set_hostname = self._set_hostname(node)
-                boot = set_hostname + [InstallGit()] + repos + \
-                    [chef] + bootstrap
-
+                log.info("Cooking %s with Chef in the background..." %
+                    node.getName())
+                bootstrap = tomcat.install_and_configure(options.datanode,
+                    options.balancer, node, "api", 10000 + i, java_opts,
+                    self._install_local_wars)
                 responses.append(compute.submitScriptOnNode(node.getId(),
-                    StatementList(boot), RunScriptOptions.NONE))
+                    StatementList(bootstrap), RunScriptOptions.NONE))
 
-            # Wait until all the bootstrao scripts finish
+            log.info("Waiting until all nodes are configured...")
             for i, future in enumerate(responses):
                 result = future.get()
                 log.info("%s node at %s -> %s" % (nodes[i].getName(),
@@ -336,44 +236,6 @@ class MothershipPlugin(AbsPlugin):
             print "Error: %s" % ex.getMessage()
         except RunNodesException, ex:
             self._print_node_errors(ex)
-
-    def _set_hostname(self, node):
-        """ Generates the script to set the hostname in a node """
-        script = []
-        script.append(Statements.exec("hostname %s" % node.getName()))
-        script.append(Statements.createOrOverwriteFile(
-                "/etc/hostname", [node.getName()]))
-        script.append(Statements.exec(
-            "sed -i 's/127.0.0.1/127.0.0.1\t%s/' /etc/hosts" % node.getName()))
-        return script
-
-    def _monitor_repos(self):
-        script = []
-        script.extend(self._clone_opscode_cookbooks(
-            ["build-essential", "apt", "xml", "mysql",
-            "php", "python", "apache2"]))
-        script.append(CloneGitRepo.builder() \
-            .repository("git://github.com/escapestudios/chef-newrelic.git") \
-            .directory("/var/chef/cookbooks/newrelic") \
-            .build())
-        script.append(CloneGitRepo.builder() \
-            .repository("git://github.com/boundary/boundary_cookbooks.git") \
-            .directory("/tmp/boundary") \
-            .build())
-        # Use only the bprobe cookbook
-        script.append(Statements.exec(
-            "mv /tmp/boundary/bprobe /var/chef/cookbooks/"))
-        return script
-
-    def _clone_opscode_cookbooks(self, cookbooks):
-        script = []
-        for cookbook in cookbooks:
-            script.append(CloneGitRepo.builder() \
-                .repository("git://github.com/opscode-cookbooks/%s.git"
-                    % cookbook) \
-                .directory("/var/chef/cookbooks/%s" % cookbook) \
-                .build())
-        return script
 
     # Utility functions
     def _deploy_aim(self, config_section, vapp_name):
@@ -437,32 +299,17 @@ class MothershipPlugin(AbsPlugin):
         return (location, compute.templateOptions()
             .overrideLoginCredentials(login))
 
-    def _print_node_file(self, context, node, file):
-        ssh = context.getUtils().sshForNode().apply(node)
-        try:
-            ssh.connect()
-            payload = ssh.get(file)
-            log.info(file)
-            log.info(Strings2.toStringAndClose(payload.getInput()))
-        finally:
-            if payload:
-                payload.release()
-            if ssh:
-                ssh.disconnect()
-
-    def _upload_binary_file(self, context, node, destination, filepath):
-        log.info("Waiting for ssh access on node %s..." % node.getName())
-        ssh = context.getUtils().sshForNode().apply(node)
-        filename = os.path.basename(filepath)
-        file = File(filepath)
-        try:
-            log.info("Uploading %s to %s..." % (filename, node.getName()))
-            ssh.connect()
-            ssh.put(destination + "/" + filename,
-                    Payloads.newFilePayload(file))
-        finally:
-            if ssh:
-                ssh.disconnect()
+    def _install_local_wars(self):
+        """ Copies uploaded wars in the tomcat webapps directory """
+        script = []
+        script.append(Statements.exec(
+            "ensure_cmd_or_install_package_apt unzip unzip"))
+        script.append(Statements.exec(
+            "mv /tmp/*.war /var/lib/tomcat6/webapps"))
+        script.append(Statements.exec(
+            "for f in /var/lib/tomcat6/webapps/*.war; "
+            "do unzip -d ${f%.war} $f; done"))
+        return script
 
     def _print_node_errors(self, ex):
         for error in ex.getExecutionErrors().values():
