@@ -1,6 +1,6 @@
 #!/usr/bin/env jython
 
-from __future__ import with_statement  # jython 2.5.2 issue
+from __future__ import with_statement
 import logging
 from kahuna.abstract import AbsPlugin
 from kahuna.config import ConfigLoader

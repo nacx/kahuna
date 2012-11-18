@@ -1,6 +1,6 @@
 #!/usr/bin/env jython
 
-from __future__ import with_statement  # jython 2.5.2 issue
+from __future__ import with_statement
 from contextlib import contextmanager
 import logging
 from plugins import __all__
