@@ -29,7 +29,7 @@ class TomcatScripts:
         """ Generates the stop command """
         return Statements.exec("service tomcat6 stop")
 
-    def configure_context(self, module, dbhost, dbuser="root", dbpass="root",
+    def configure_context(self, module, dbhost, dbuser="root", dbpass="",
             jndi="jdbc/abiquoDB"):
         """ Configures the context of a given module """
         with open("%s/context.xml" % self.__templatedir, "r") as f:
