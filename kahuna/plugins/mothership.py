@@ -78,8 +78,11 @@ class MothershipPlugin(AbsPlugin):
             node = Iterables.getOnlyElement(
                 compute.createNodesInGroup("kahuna-chef", 1, template))
 
+            log.info("Created %s at %s" % (node.getName(),
+                Iterables.getOnlyElement(node.getPublicAddresses())))
+
             cookbooks = self.__config.get("deploy-chef", "cookbooks")
-            with open(self.__scriptdir + "/configure-chef.sh", "r") as f:
+            with open("%s/configure-chef.sh" % self.__scriptdir, "r") as f:
                 script = f.read() % {'cookbooks': cookbooks}
 
             log.info("Configuring node with cookbooks: %s..." % cookbooks)
@@ -139,6 +142,9 @@ class MothershipPlugin(AbsPlugin):
             node = Iterables.getOnlyElement(
                 compute.createNodesInGroup("kahuna-abiquo", 1, template))
 
+            log.info("Created %s at %s" % (node.getName(),
+                Iterables.getOnlyElement(node.getPublicAddresses())))
+
             # Generate the bootstrap script
             bootstrap = []
             with open(options.props, "r") as f:
@@ -147,7 +153,7 @@ class MothershipPlugin(AbsPlugin):
 
             bootstrap.append(Statements.exec("service abiquo-tomcat restart"))
 
-            log.info("Restarting Abiquo Tomcat...")
+            log.info("Configuring node with the given properties...")
             compute.runScriptOnNode(node.getId(), StatementList(bootstrap))
 
             log.info("Done! Abiquo configured at: %s" %
@@ -159,9 +165,9 @@ class MothershipPlugin(AbsPlugin):
     def deploy_api(self, args):
         """ Deploys and configures custom Abiquo APIs """
         parser = OptionParser(usage="mothership deploy-api <options>")
-        parser.add_option('-l', '--local',
+        parser.add_option('-f', '--file',
                 help='Path to a local api file to deploy',
-                action='store', dest='local')
+                action='store', dest='file')
         parser.add_option('-d', '--datanode',
                 help='Ip address of the data node (with rabbit, '
                 'redis and zookeper)',
@@ -169,12 +175,12 @@ class MothershipPlugin(AbsPlugin):
         parser.add_option('-b', '--balancer',
                 help='Ip address of the load balancer node',
                 action='store', dest='balancer')
-        parser.add_option('-c', '--count', type="int", default=1,
+        parser.add_option('-n', '--number', type="int", default=1,
                 help='Number of nodes to deploy (default 1)',
-                action='store', dest='count')
+                action='store', dest='number')
         (options, args) = parser.parse_args(args)
 
-        if not options.local or not options.datanode or not options.balancer:
+        if not options.file or not options.datanode or not options.balancer:
             parser.print_help()
             return
 
@@ -201,19 +207,19 @@ class MothershipPlugin(AbsPlugin):
             newrelic_key = self.__config.get("deploy-api", "newrelic_key")
             tomcat = TomcatScripts(boundary_org, boundary_key, newrelic_key)
 
-            log.info("Deploying %s %s nodes to %s..." % (options.count,
+            log.info("Deploying %s %s nodes to %s..." % (options.number,
                 template.getImage().getName(), vdc.getDescription()))
 
             # Due to the IpPoolManagement concurrency issue, we need to deploy
             # the nodes one by one
             nodes = []
             responses = []
-            for i in xrange(options.count):
+            for i in xrange(options.number):
                 node = Iterables.getOnlyElement(
                     compute.createNodesInGroup("kahuna-apis", 1, template))
                 log.info("Created node %s at %s" % (node.getName(),
                     Iterables.getOnlyElement(node.getPublicAddresses())))
-                ssh.upload(self._context, node, "/tmp", options.local)
+                ssh.upload(self._context, node, "/tmp", options.file)
                 nodes.append(node)
 
                 log.info("Cooking %s with Chef in the background..." %
@@ -257,6 +263,9 @@ class MothershipPlugin(AbsPlugin):
             node = Iterables.getOnlyElement(
                 compute.createNodesInGroup(vapp_name, 1, template))
 
+            log.info("Created %s at %s" % (node.getName(),
+                Iterables.getOnlyElement(node.getPublicAddresses())))
+
             # Configuration values
             redishost = self.__config.get(config_section, "redis_host")
             redisport = self.__config.get(config_section, "redis_port")
@@ -265,13 +274,13 @@ class MothershipPlugin(AbsPlugin):
 
             bootstrap = []
 
-            with open(self.__scriptdir + "/abiquo-aim.ini", "r") as f:
+            with open("%s/abiquo-aim.ini" % self.__scriptdir, "r") as f:
                 aim_config = f.read() % {'redishost': redishost,
                     'redisport': redisport, 'nfsto': nfsto}
             bootstrap.append(Statements.createOrOverwriteFile(
-                "/etc/abiquo-adim.ini", [aim_config]))
+                "/etc/abiquo-aim.ini", [aim_config]))
 
-            with open(self.__scriptdir + "/configure-aim-node.sh", "r") as f:
+            with open("%s/configure-aim-node.sh" % self.__scriptdir, "r") as f:
                 script = f.read() % {'nfsfrom': nfsfrom, 'nfsto': nfsto}
             bootstrap.append(Statements.exec(script))
 
