@@ -119,6 +119,9 @@ class MothershipPlugin(AbsPlugin):
         parser.add_option('-p', '--properties',
                 help='Path to the abiquo.properties file to use',
                 action='store', dest='props')
+        parser.add_option('-j', '--jenkins-version',
+                help='Download the given version of the wars from Jenkins',
+                action='store', dest='jenkins')
         (options, args) = parser.parse_args(args)
 
         if not options.template or not options.props:
@@ -147,11 +150,22 @@ class MothershipPlugin(AbsPlugin):
 
             # Generate the bootstrap script
             bootstrap = []
+            bootstrap.append(Statements.exec("service abiquo-tomcat stop"))
+
             with open(options.props, "r") as f:
                 bootstrap.append(Statements.createOrOverwriteFile(
                     "/opt/abiquo/config/abiquo.properties", [f.read()]))
 
-            bootstrap.append(Statements.exec("service abiquo-tomcat restart"))
+            with open("%s/configure-abiquo.sh" % self.__scriptdir, "r") as f:
+                bootstrap.append(Statements.exec(f.read()))
+
+            if options.jenkins:
+                with open("%s/configure-from-jenkins.sh" %
+                        self.__scriptdir, "r") as f:
+                    jenkins_script = f.read() % {'version': options.jenkins}
+                bootstrap.append(Statements.exec(jenkins_script))
+
+            bootstrap.append(Statements.exec("service abiquo-tomcat start"))
 
             log.info("Configuring node with the given properties...")
             compute.runScriptOnNode(node.getId(), StatementList(bootstrap))

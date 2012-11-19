@@ -1,6 +1,6 @@
 echo "Umounting mounted nfs repository"
 umount /opt/vm_repository
-mkdir %(nfsto)s
+mkdir -p %(nfsto)s
 
 echo "Configuring new nfs repository"
 sed -i /nfs/d /etc/fstab
