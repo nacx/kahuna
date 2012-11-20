@@ -3,6 +3,7 @@
 from __future__ import with_statement
 import git
 import hostname
+import nfs
 from org.jclouds.scriptbuilder.domain import Statements
 from org.jclouds.scriptbuilder.domain.chef import DataBag
 from org.jclouds.scriptbuilder.domain.chef import RunList
@@ -29,8 +30,7 @@ class TomcatScripts:
         """ Generates the stop command """
         return Statements.exec("service tomcat6 stop")
 
-    def configure_context(self, module, dbhost, dbuser="root", dbpass="",
-            jndi="jdbc/abiquoDB"):
+    def configure_context(self, module, dbhost, dbuser, dbpass, jndi):
         """ Configures the context of a given module """
         with open("%s/context.xml" % self.__templatedir, "r") as f:
             context_config = f.read() % {
@@ -51,13 +51,17 @@ class TomcatScripts:
             "/var/lib/tomcat6/webapps/%s/WEB-INF/classes/logback.xml" % module,
             [log_config])
 
-    def configure_abiquo_props(self, rabbit, redis, zookeeper):
+    def configure_abiquo_props(self, rabbit, redis, zookeeper, datacenter,
+            nfs_share, nfs_directory):
         """ Configures the abiquo.properties file """
         with open("%s/abiquo.properties" % self.__templatedir, "r") as f:
             abiquo_props = f.read() % {
                 'rabbit': rabbit,
                 'redis': redis,
-                'zookeeper': zookeeper
+                'zookeeper': zookeeper,
+                'datacenter': datacenter,
+                'nfs': nfs_share,
+                'nfsmount': nfs_directory
             }
         script = []
         script.append(Statements.exec("{md} /opt/abiquo/config"))
@@ -68,6 +72,8 @@ class TomcatScripts:
     def upload_libs(self):
         """ Uploads necessary libraries to Tomcat lib dir """
         script = []
+        script.append(Statements.exec(
+            "ensure_cmd_or_install_package_apt wget wget"))
         script.append(Statements.exec(
             "wget -O /usr/share/tomcat6/lib/abiquo.jar %s" % self.__abiquojar))
         script.append(Statements.exec(
@@ -118,18 +124,42 @@ class TomcatScripts:
 
         return [git.install()] + self._clone_required_cookbooks() + [chef]
 
-    def install_and_configure(self, data_node, load_balancer, node, module,
-            ajp_port, java_opts, install_wars):
+    def install_and_configure(self, node, tomcat_config, install_wars):
         """ Installs and configures a Tomcat and the monitoring tools """
+        rabbit = tomcat_config.get("rabbit", "localhost")
+        redis = tomcat_config.get("redis", "localhost")
+        zookeeper = tomcat_config.get("zookeeper", "localhost")
+        nfs_share = tomcat_config.get("nfs", "10.60.1.104:/volume1/nfs-devel")
+        nfs_directory = tomcat_config.get("nfs-directory",
+            "/opt/vm_repository")
+        nfs_mount = tomcat_config.get("nfs-mount")
+        syslog = tomcat_config.get("syslog")
+        module = tomcat_config.get("module")
+        ajp_port = tomcat_config.get("ajp-port", 10000)
+        java_opts = tomcat_config.get("java-opts", "")
+        db_host = tomcat_config.get("db-host")
+        db_user = tomcat_config.get("db-user", "root")
+        db_pass = tomcat_config.get("db-pass", "")
+        db_jndi = tomcat_config.get("db-jndi", "jdbc/abiquoDB")
+
         script = []
         script.extend(hostname.configure(node))
         script.extend(self.install(node, ajp_port, java_opts))
         script.append(self.stop())
         script.extend(install_wars())
-        script.append(self.configure_context(module, data_node))
-        script.append(self.configure_logging(module, load_balancer))
-        script.extend(self.configure_abiquo_props(data_node, data_node,
-            data_node))
+
+        if module:
+            script.append(self.configure_context(module, db_host, db_user,
+                db_pass, db_jndi))
+            if syslog:
+                script.append(self.configure_logging(module, syslog))
+
+        script.extend(self.configure_abiquo_props(rabbit, redis, zookeeper,
+            node.getName(), nfs_share, nfs_directory))
+
+        if nfs_mount is True:
+            script.extend(nfs.mount(nfs_share, nfs_directory))
+
         script.append(self.configure_abiquo_listener())
         script.extend(self.upload_libs())
         script.append(self.start())

@@ -3,7 +3,8 @@
         "java_home": "/usr/lib/jvm/java-6-openjdk"
     },
     "tomcat": {
-        "port": 8080,
+        "port": 80,
+        "authbind": "yes",
         "ajp_port": %(ajpport)d,
         "jvm_route": "%(jvmroute)s",
         "java_options": "%(javaopts)s"
