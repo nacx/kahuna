@@ -6,6 +6,7 @@ JENKINS = 'http://10.60.20.42'
 
 def download_rs(version):
     script = []
+    # TODO fix dependency from setupPublicCurl
     script.append(Statements.exec(
         "ensure_cmd_or_install_package_apt wget wget"))
     script.append(download_war(version, "am"))

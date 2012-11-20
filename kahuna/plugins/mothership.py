@@ -6,6 +6,7 @@ from kahuna.abstract import AbsPlugin
 from kahuna.config import ConfigLoader
 from kahuna.utils.prettyprint import pprint_templates
 from kahuna.utils import jenkins
+from kahuna.utils import redis
 from kahuna.utils import ssh
 from kahuna.utils.tomcat import TomcatScripts
 from com.google.common.collect import Iterables
@@ -333,8 +334,9 @@ class MothershipPlugin(AbsPlugin):
                         "nfs-mount": True,
                         "java-opts": java_opts
                     }
-                bootstrap = tomcat.install_and_configure(node, tomcat_config,
-                    self._install_jenkins_rs(options.jenkins))
+                install_tomcat = tomcat.install_and_configure(node,
+                    tomcat_config, self._install_jenkins_rs(options.jenkins))
+                bootstrap = redis.install() + install_tomcat
                 responses.append(compute.submitScriptOnNode(node.getId(),
                     StatementList(bootstrap), RunScriptOptions.NONE))
 
