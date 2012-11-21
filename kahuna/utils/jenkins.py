@@ -17,7 +17,7 @@ def download_rs(version):
     script.append(_download_war(version, "nodecollector"))
     script.append(_download_war(version, "ssm"))
     script.append(_download_war(version, "virtualfactory"))
-    script.append(_download_war(version, "vsm.war"))
+    script.append(_download_war(version, "vsm"))
     script.append(_download_script(version, "v2v-diskmanager",
         "/usr/local/bin"))
     script.append(_download_script(version, "mechadora", "/usr/local/bin"))
