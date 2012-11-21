@@ -5,6 +5,7 @@ import logging
 from kahuna.abstract import AbsPlugin
 from kahuna.config import ConfigLoader
 from kahuna.utils.prettyprint import pprint_templates
+from kahuna.utils import hostname
 from kahuna.utils import jenkins
 from kahuna.utils import redis
 from kahuna.utils import ssh
@@ -242,16 +243,17 @@ class MothershipPlugin(AbsPlugin):
                 log.info("Cooking %s with Chef in the background..." %
                     node.getName())
                 tomcat_config = {
-                        "rabbit": options.datanode,
-                        "redis": options.datanode,
-                        "zookeeper": options.datanode,
-                        "module": "api",
-                        "db-host": options.datanode,
-                        "syslog": options.balancer,
-                        "ajp_port": 10000 + i,
-                        "java-opts": java_opts
-                    }
-                bootstrap = tomcat.install_and_configure(node, tomcat_config,
+                    "rabbit": options.datanode,
+                    "redis": options.datanode,
+                    "zookeeper": options.datanode,
+                    "module": "api",
+                    "db-host": options.datanode,
+                    "syslog": options.balancer,
+                    "ajp_port": 10000 + i,
+                    "java-opts": java_opts
+                }
+                bootstrap = hostname.configure(node) + \
+                    tomcat.install_and_configure(node, tomcat_config,
                     self._install_local_wars)
                 responses.append(compute.submitScriptOnNode(node.getId(),
                     StatementList(bootstrap), RunScriptOptions.NONE))
@@ -328,15 +330,16 @@ class MothershipPlugin(AbsPlugin):
                 log.info("Cooking %s with Chef in the background..." %
                     node.getName())
                 tomcat_config = {
-                        "rabbit": options.rabbit,
-                        "datacenter": node.getName(),
-                        "nfs": options.nfs,
-                        "nfs-mount": True,
-                        "java-opts": java_opts
-                    }
+                    "rabbit": options.rabbit,
+                    "datacenter": node.getName(),
+                    "nfs": options.nfs,
+                    "nfs-mount": True,
+                    "java-opts": java_opts
+                }
                 install_tomcat = tomcat.install_and_configure(node,
                     tomcat_config, self._install_jenkins_rs(options.jenkins))
-                bootstrap = redis.install() + install_tomcat
+                bootstrap = hostname.configure(node) + \
+                    redis.install("2.6.4") + install_tomcat
                 responses.append(compute.submitScriptOnNode(node.getId(),
                     StatementList(bootstrap), RunScriptOptions.NONE))
 

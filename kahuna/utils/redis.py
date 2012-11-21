@@ -4,17 +4,20 @@ from java.net import URI
 from org.jclouds.scriptbuilder.domain import Statements
 
 
-def install():
+# Before calling this function you may need to call
+# Statements.call("setupPublicCurl")
+def install(version):
+    """ Downloads and installs redis """
     script = []
-    # TODO fix dependency from setupPublicCurl
     script.append(Statements.exec("ensure_netutils_apt"))
     script.append(Statements.exec(
         "ensure_cmd_or_install_package_apt make build-essential"))
     script.append(Statements.extractTargzAndFlattenIntoDirectory(
-        URI.create("http://redis.googlecode.com/files/redis-2.6.4.tar.gz"),
+        URI.create("http://redis.googlecode.com/files/redis-%s.tar.gz" %
+            version),
         "/usr/local/src/redis"))
     script.append(Statements.exec(
-        "( cd /usr/local/src/redis && make && make install )"))
+        "(cd /usr/local/src/redis && make && make install)"))
     script.append(Statements.exec(
         "sed -i 's/^daemonize no/daemonize yes/' "
         "/usr/local/src/redis/redis.conf"))

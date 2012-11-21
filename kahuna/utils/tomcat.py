@@ -143,7 +143,6 @@ class TomcatScripts:
         db_jndi = tomcat_config.get("db-jndi", "jdbc/abiquoDB")
 
         script = []
-        script.extend(hostname.configure(node))
         script.extend(self.install(node, ajp_port, java_opts))
         script.append(self.stop())
         script.extend(install_wars())
