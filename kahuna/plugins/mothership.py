@@ -186,6 +186,9 @@ class MothershipPlugin(AbsPlugin):
         parser.add_option('-f', '--file',
                 help='Path to a local api file to deploy',
                 action='store', dest='file')
+        parser.add_option('-j', '--jenkins-version',
+                help='Download the api from the given version from Jenkins',
+                action='store', dest='jenkins')
         parser.add_option('-d', '--datanode',
                 help='Ip address of the data node (with rabbit, '
                 'redis and zookeper)',
@@ -198,7 +201,13 @@ class MothershipPlugin(AbsPlugin):
                 action='store', dest='count')
         (options, args) = parser.parse_args(args)
 
-        if not options.file or not options.datanode or not options.balancer:
+        if options.file and options.jenkins:
+            print "Cannot use -f and -j together"
+            parser.print_help()
+            return
+
+        if not options.file and not options.jenkins \
+                or not options.datanode or not options.balancer:
             parser.print_help()
             return
 
@@ -237,7 +246,8 @@ class MothershipPlugin(AbsPlugin):
                     compute.createNodesInGroup("kahuna-api", 1, template))
                 log.info("Created node %s at %s" % (node.getName(),
                     Iterables.getOnlyElement(node.getPublicAddresses())))
-                ssh.upload(self._context, node, "/tmp", options.file)
+                if options.file:
+                    ssh.upload(self._context, node, "/tmp", options.file)
                 nodes.append(node)
 
                 log.info("Cooking %s with Chef in the background..." %
@@ -252,9 +262,13 @@ class MothershipPlugin(AbsPlugin):
                     "ajp_port": 10000 + i,
                     "java-opts": java_opts
                 }
-                bootstrap = hostname.configure(node) + \
-                    tomcat.install_and_configure(node, tomcat_config,
-                    self._install_local_wars)
+                bootstrap = []
+                bootstrap.extend(hostname.configure(node))
+                if options.jenkins:
+                    bootstrap.append(jenkins._download_war(
+                        options.jenkins, "api"))
+                bootstrap.extend(tomcat.install_and_configure(node,
+                    tomcat_config, self._install_local_wars))
                 responses.append(compute.submitScriptOnNode(node.getId(),
                     StatementList(bootstrap), RunScriptOptions.NONE))
 
