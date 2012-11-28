@@ -51,6 +51,21 @@ class TomcatScripts:
             "/var/lib/tomcat6/webapps/%s/WEB-INF/classes/logback.xml" % module,
             [log_config])
 
+    def configure_user(self, user, group):
+        """ Configures tomcat to run as the given user """
+        # Even if the tomcat recipe is configured to use a different user,
+        # it fails to restart the service the first time, leaving the
+        # environment in an inconsistent state, so we will configure the
+        # users manually.
+        script = []
+        script.append(Statements.exec(
+            "sed -i s/TOMCAT6_USER=.*/TOMCAT6_USER=%s/ /etc/default/tomcat6"
+            % user))
+        script.append(Statements.exec(
+            "sed -i s/TOMCAT6_GROUP=.*/TOMCAT6_GROUP=%s/ /etc/default/tomcat6"
+            % group))
+        return script
+
     def configure_abiquo_props(self, rabbit, redis, zookeeper, datacenter,
             nfs_share, nfs_directory):
         """ Configures the abiquo.properties file """
@@ -161,6 +176,7 @@ class TomcatScripts:
 
         script.append(self.configure_abiquo_listener())
         script.extend(self.upload_libs())
+        script.extend(self.configure_user("root", "root"))
         script.append(self.start())
         return script
 

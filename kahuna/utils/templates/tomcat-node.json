@@ -16,6 +16,11 @@
         }
     },
     "newrelic": {
-        "license_key": "%(newrelic_key)s"
+        "server_monitoring": {
+            "license": "%(newrelic_key)s"
+        },
+        "application_monitoring": {
+            "license": "%(newrelic_key)s"
+        }
     }
 }
