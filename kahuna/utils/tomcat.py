@@ -67,7 +67,7 @@ class TomcatScripts:
         return script
 
     def configure_abiquo_props(self, rabbit, redis, zookeeper, datacenter,
-            nfs_share, nfs_directory):
+            nfs_share, nfs_directory, hypervisor_sessions):
         """ Configures the abiquo.properties file """
         with open("%s/abiquo.properties" % self.__templatedir, "r") as f:
             abiquo_props = f.read() % {
@@ -76,7 +76,8 @@ class TomcatScripts:
                 'zookeeper': zookeeper,
                 'datacenter': datacenter,
                 'nfs': nfs_share,
-                'nfsmount': nfs_directory
+                'nfsmount': nfs_directory,
+                'hypervisorsessions': hypervisor_sessions
             }
         script = []
         script.append(Statements.exec("{md} /opt/abiquo/config"))
@@ -156,6 +157,7 @@ class TomcatScripts:
         db_user = tomcat_config.get("db-user", "root")
         db_pass = tomcat_config.get("db-pass", "")
         db_jndi = tomcat_config.get("db-jndi", "jdbc/abiquoDB")
+        hypervisor_sessions = tomcat_config.get("hypervisor-sessions", 2)
 
         script = []
         script.extend(self.install(node, ajp_port, java_opts))
@@ -169,7 +171,7 @@ class TomcatScripts:
                 script.append(self.configure_logging(module, syslog))
 
         script.extend(self.configure_abiquo_props(rabbit, redis, zookeeper,
-            node.getName(), nfs_share, nfs_directory))
+            node.getName(), nfs_share, nfs_directory, hypervisor_sessions))
 
         if nfs_mount is True:
             script.extend(nfs.mount(nfs_share, nfs_directory))

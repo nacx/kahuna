@@ -298,6 +298,9 @@ class MothershipPlugin(AbsPlugin):
         parser.add_option('-c', '--count', type="int", default=1,
                 help='Number of nodes to deploy (default 1)',
                 action='store', dest='count')
+        parser.add_option('-h', '--hypervisor-sessions', type="int", default=2,
+                help='Number of concurrent hypervisor sessions (default 2)',
+                action='store', dest='hypervisorsessions')
         (options, args) = parser.parse_args(args)
 
         if not options.jenkins or not options.nfs or not options.rabbit:
@@ -348,7 +351,8 @@ class MothershipPlugin(AbsPlugin):
                     "datacenter": node.getName(),
                     "nfs": options.nfs,
                     "nfs-mount": True,
-                    "java-opts": java_opts
+                    "java-opts": java_opts,
+                    "hypervisor-sessions": options.hypervisorsessions
                 }
                 install_tomcat = tomcat.install_and_configure(node,
                     tomcat_config, self._install_jenkins_rs(options.jenkins))
