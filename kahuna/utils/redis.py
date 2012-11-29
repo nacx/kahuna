@@ -18,9 +18,21 @@ def install(version):
         "/usr/local/src/redis"))
     script.append(Statements.exec(
         "(cd /usr/local/src/redis && make && make install)"))
+    script.append(Statements.exec("{md} /var/lib/redis"))
     script.append(Statements.exec(
         "sed -i 's/^daemonize no/daemonize yes/' "
         "/usr/local/src/redis/redis.conf"))
+    script.append(Statements.exec(
+        "sed -i 's/^logfile .*/logfile \/var\/log\/redis.log/' "
+        "/usr/local/src/redis/redis.conf"))
+    script.append(Statements.exec(
+        "sed -i 's/^dbfilename .*/dbfilename redis.rdb/' "
+        "/usr/local/src/redis/redis.conf"))
+    script.append(Statements.exec(
+        "sed -i 's/^dir .*/dir \/var\/lib\/redis/' "
+        "/usr/local/src/redis/redis.conf"))
+    script.append(Statements.appendFile("/etc/sysctl.conf",
+        ["vm.overcommit_memory = 1"]))
     script.append(Statements.exec(
         "/usr/local/bin/redis-server /usr/local/src/redis/redis.conf"))
     return script

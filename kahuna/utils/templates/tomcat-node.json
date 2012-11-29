@@ -1,6 +1,10 @@
 {
     "java": {
-        "java_home": "/usr/lib/jvm/java-6-openjdk"
+        "install_flavor": "oracle",
+        "java_home": "/usr/lib/jvm/java-6-oraclejdk",
+        "oracle": {
+            "accept_oracle_download_terms": true
+        }
     },
     "tomcat": {
         "port": 80,
