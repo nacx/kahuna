@@ -7,6 +7,7 @@ from kahuna.config import ConfigLoader
 from kahuna.utils.prettyprint import pprint_templates
 from kahuna.utils import hostname
 from kahuna.utils import jenkins
+from kahuna.utils import ntp
 from kahuna.utils import redis
 from kahuna.utils import ssh
 from kahuna.utils.tomcat import TomcatScripts
@@ -125,12 +126,13 @@ class ScalabilityPlugin(AbsPlugin):
                     "zookeeper": options.datanode,
                     "module": "api",
                     "db-host": options.datanode,
-                    "syslog": options.balancer,
+                    #"syslog": options.balancer,
                     "ajp_port": 10000 + i,
                     "java-opts": java_opts
                 }
                 bootstrap = []
                 bootstrap.extend(hostname.configure(node))
+                bootstrap.append(ntp.install())
                 if options.jenkins:
                     bootstrap.append(jenkins._download_war(
                         options.jenkins, "api"))
@@ -224,7 +226,7 @@ class ScalabilityPlugin(AbsPlugin):
                 install_tomcat = tomcat.install_and_configure(node,
                     tomcat_config, self._install_jenkins_rs(options.jenkins))
                 bootstrap = hostname.configure(node) + \
-                    redis.install("2.6.4") + install_tomcat
+                    [ntp.install()] + redis.install("2.6.4") + install_tomcat
                 responses.append(compute.submitScriptOnNode(node.getId(),
                     StatementList(bootstrap), RunScriptOptions.NONE))
 
