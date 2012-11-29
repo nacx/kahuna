@@ -33,6 +33,7 @@ def install(version):
         "/usr/local/src/redis/redis.conf"))
     script.append(Statements.appendFile("/etc/sysctl.conf",
         ["vm.overcommit_memory = 1"]))
+    script.append(Statements.exec("sysctl vm.overcommit_memory=1"))
     script.append(Statements.exec(
         "/usr/local/bin/redis-server /usr/local/src/redis/redis.conf"))
     return script
