@@ -49,8 +49,7 @@ class PluginManager:
     def help(self, plugin):
         """ Prints the help for the given plugin """
         commands = plugin._commands()
-        tokens = plugin.__module__.split('.')
-        plugin_name = tokens[len(tokens) - 1]
+        plugin_name = plugin.__module__.split('.')[-1]
         print "%s" % plugin.__doc__
         for command in sorted(commands.iterkeys()):
             print "   %s %s\t%s" % (plugin_name, command,
