@@ -46,14 +46,14 @@ class ScalabilityPlugin(AbsPlugin):
     def _commands(self):
         """ Returns the provided commands, mapped to handler methods """
         commands = {}
-        commands['reset-db'] = self.reset_db
+        commands['reset-datanode'] = self.reset_datanode
         commands['deploy-api'] = self.deploy_api
         commands['deploy-rs'] = self.deploy_rs
         return commands
 
-    def reset_db(self, args):
-        """ Resets the database form the given datanode """
-        parser = OptionParser(usage="scalability reset-db <options>")
+    def reset_datanode(self, args):
+        """ Resets the datanode (database, redis and rabbitmq) """
+        parser = OptionParser(usage="scalability reset-datanode <options>")
         parser.add_option('-j', '--jenkins-version',
                 help='Download the database from the given version '
                 'from Jenkins', action='store', dest='jenkins')
