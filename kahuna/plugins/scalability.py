@@ -8,6 +8,7 @@ from kahuna.utils.prettyprint import pprint_templates
 from kahuna.utils import hostname
 from kahuna.utils import jenkins
 from kahuna.utils import ntp
+from kahuna.utils import rabbitmq
 from kahuna.utils import redis
 from kahuna.utils import ssh
 from kahuna.utils.tomcat import TomcatScripts
@@ -88,6 +89,7 @@ class ScalabilityPlugin(AbsPlugin):
                 'insert into license (data, version_c) values (\'%s\', 1)"' %
                 (options.user, license)))
             script.append(redis.run("flushall"))
+            script.extend(rabbitmq.reset())
             print "Cleaning database for datanode at: %s" % options.datanode
             options = RunScriptOptions.Builder \
                 .overrideLoginUser(options.user) \
