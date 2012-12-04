@@ -87,6 +87,7 @@ class ScalabilityPlugin(AbsPlugin):
                 'mysql -u %s kinton -e "'
                 'insert into license (data, version_c) values (\'%s\', 1)"' %
                 (options.user, license)))
+            script.append(redis.run("flushall"))
             print "Cleaning database for datanode at: %s" % options.datanode
             options = RunScriptOptions.Builder \
                 .overrideLoginUser(options.user) \

@@ -37,3 +37,8 @@ def install(version):
     script.append(Statements.exec(
         "/usr/local/bin/redis-server /usr/local/src/redis/redis.conf"))
     return script
+
+
+def run(command):
+    """ Runs the given Redis command """
+    return Statements.exec("redis-cli %s" % command)
