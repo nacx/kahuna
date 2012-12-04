@@ -11,6 +11,7 @@ from kahuna.utils import ntp
 from kahuna.utils import redis
 from kahuna.utils import ssh
 from kahuna.utils.tomcat import TomcatScripts
+from com.google.common.base import Predicate
 from com.google.common.collect import Iterables
 from optparse import OptionParser
 from org.jclouds.abiquo.domain.exception import AbiquoException
@@ -44,9 +45,56 @@ class ScalabilityPlugin(AbsPlugin):
     def _commands(self):
         """ Returns the provided commands, mapped to handler methods """
         commands = {}
+        commands['reset-db'] = self.reset_db
         commands['deploy-api'] = self.deploy_api
         commands['deploy-rs'] = self.deploy_rs
         return commands
+
+    def reset_db(self, args):
+        """ Resets the database form the given datanode """
+        parser = OptionParser(usage="scalability reset-db <options>")
+        parser.add_option('-j', '--jenkins-version',
+                help='Download the database from the given version '
+                'from Jenkins', action='store', dest='jenkins')
+        parser.add_option('-d', '--datanode',
+                help='Ip address of the data node (with rabbit, '
+                'redis and zookeper)', action='store', dest='datanode')
+        parser.add_option('-u', '--login-user',
+                help='Username used to access the datanode',
+                action='store', dest='user')
+        parser.add_option('-p', '--login-password',
+                help='Password used to access the datanode',
+                action='store', dest='password')
+
+        (options, args) = parser.parse_args(args)
+
+        if not options.datanode or not options.jenkins \
+                or not options.user or not options.password:
+            parser.print_help()
+            return
+
+        compute = self._context.getComputeService()
+        license = self.__config.get("reset-db", "license")
+        predicate = NodeHasIp(options.datanode)
+
+        try:
+            script = []
+            script.append(jenkins._download_database(options.jenkins))
+            script.append(Statements.exec(
+                "mysql -u %s kinton </tmp/kinton-schema-%s.sql" %
+                (options.user, options.jenkins)))
+            script.append(Statements.exec(
+                'mysql -u %s kinton -e "'
+                'insert into license (data, version_c) values (\'%s\', 1)"' %
+                (options.user, license)))
+            print "Cleaning database for datanode at: %s" % options.datanode
+            options = RunScriptOptions.Builder \
+                .overrideLoginUser(options.user) \
+                .overrideLoginPassword(options.password)
+            compute.runScriptOnNodesMatching(predicate,
+                StatementList(script), options)
+        except RunNodesException, ex:
+            self._print_node_errors(ex)
 
     def deploy_api(self, args):
         """ Deploys and configures custom Abiquo APIs """
@@ -284,6 +332,15 @@ class ScalabilityPlugin(AbsPlugin):
             print "Error %s" % error.getMessage()
         for error in ex.getNodeErrors().values():
             print "Error %s" % error.getMessage()
+
+
+class NodeHasIp(Predicate):
+    """ Implements a NodeMetadata predicate to find nodes by Ip """
+    def __init__(self, ip):
+        self.__ip = ip
+
+    def apply(self, node_metadata):
+        return node_metadata.getPublicAddresses().contains(self.__ip)
 
 
 def load():

@@ -35,3 +35,10 @@ def _download_script(version, file_name, destination="/tmp"):
     """ Downloads the given script from Jenkins """
     return Statements.exec("wget -O %s/%s %s/%s/scripts/%s" %
         (destination, file_name, JENKINS, version, file_name))
+
+
+def _download_database(version, destination="/tmp"):
+    """ Downloads the given database from Jenkins """
+    return Statements.exec("wget -O %s/kinton-schema-%s.sql "
+        "%s/%s/database/kinton-schema.sql" %
+        (destination, version, JENKINS, version))
