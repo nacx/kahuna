@@ -75,7 +75,7 @@ class ScalabilityPlugin(AbsPlugin):
             return
 
         compute = self._context.getComputeService()
-        license = self.__config.get("reset-db", "license")
+        license = self.__config.get("reset-datanode", "license")
         predicate = NodeHasIp(options.datanode)
 
         try:
