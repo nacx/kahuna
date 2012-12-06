@@ -13,22 +13,21 @@ def download_rs(version):
     script.append(Statements.exec(
         "ensure_cmd_or_install_package_apt wget wget"))
     script.append(_download_war(version, "am"))
-    script.append(_download_war(version, "bpm-async"))
     script.append(_download_war(version, "nodecollector"))
     script.append(_download_war(version, "ssm"))
     script.append(_download_war(version, "virtualfactory"))
     script.append(_download_war(version, "vsm"))
-    script.append(_download_script(version, "v2v-diskmanager",
-        "/usr/local/bin"))
-    script.append(_download_script(version, "mechadora", "/usr/local/bin"))
-    script.append(Statements.exec("chmod a+x /usr/local/bin/*"))
+    script.extend(_download_bpm(version))
     return script
 
 
 def _download_war(version, file_name, destination="/tmp"):
     """ Downloads a given war from Jenkins """
-    return Statements.exec("wget -O %s/%s.war %s/%s/%s.war" %
-        (destination, file_name, JENKINS, version, file_name))
+    if file_name == "rs":
+        return _download_rs(version)
+    else:
+        return [Statements.exec("wget -O %s/%s.war %s/%s/%s.war" %
+            (destination, file_name, JENKINS, version, file_name))]
 
 
 def _download_script(version, file_name, destination="/tmp"):
@@ -42,3 +41,14 @@ def _download_database(version, destination="/tmp"):
     return Statements.exec("wget -O %s/kinton-schema-%s.sql "
         "%s/%s/database/kinton-schema.sql" %
         (destination, version, JENKINS, version))
+
+def _download_bpm(version, destination="/tmp"):
+    """ Downloads a given war from Jenkins """
+    script = []
+    script.append(_download_war(version, "bpm-async", destination))
+    script.append(_download_script(version, "v2v-diskmanager",
+        "/usr/local/bin"))
+    script.append(_download_script(version, "mechadora", "/usr/local/bin"))
+    script.append(Statements.exec("chmod a+x /usr/local/bin/*"))
+    return script
+
