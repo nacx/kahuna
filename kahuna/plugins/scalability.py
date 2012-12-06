@@ -221,7 +221,8 @@ class ScalabilityPlugin(AbsPlugin):
         parser.add_option('-s', '--hypervisor-sessions', type="int", default=2,
                 help='Number of concurrent hypervisor sessions (default 2)',
                 action='store', dest='hypervisorsessions')
-        parser.add_option('-l', '--list', help='Upload only those wars (default all rs)',
+        parser.add_option('-l', '--list',
+                help='Upload only those wars (default all rs)',
                 default='rs', action='store', dest='wars')
         (options, args) = parser.parse_args(args)
 
@@ -277,7 +278,8 @@ class ScalabilityPlugin(AbsPlugin):
                     "hypervisor-sessions": options.hypervisorsessions
                 }
                 install_tomcat = tomcat.install_and_configure(node,
-                    tomcat_config, self._install_jenkins_wars(options.jenkins, options.wars))
+                    tomcat_config, self._install_jenkins_wars(options.jenkins,
+                        options.wars))
                 bootstrap = hostname.configure(node) + \
                     [ntp.install()] + redis.install("2.6.4") + install_tomcat
                 responses.append(compute.submitScriptOnNode(node.getId(),
@@ -323,7 +325,7 @@ class ScalabilityPlugin(AbsPlugin):
             "do unzip -d ${f%.war} $f; done"))
         return script
 
-    def _install_jenkins_wars(self, version, wars = "rs"):
+    def _install_jenkins_wars(self, version, wars="rs"):
         """ Downloads the Remote Services wars from Jenkins """
         def jenkins_download():
             script = []
@@ -338,6 +340,7 @@ class ScalabilityPlugin(AbsPlugin):
             print "Error %s" % error.getMessage()
         for error in ex.getNodeErrors().values():
             print "Error %s" % error.getMessage()
+
 
 class NodeHasIp(Predicate):
     """ Implements a NodeMetadata predicate to find nodes by Ip """

@@ -42,6 +42,7 @@ def _download_database(version, destination="/tmp"):
         "%s/%s/database/kinton-schema.sql" %
         (destination, version, JENKINS, version))
 
+
 def _download_bpm(version, destination="/tmp"):
     """ Downloads a given war from Jenkins """
     script = []
@@ -51,4 +52,3 @@ def _download_bpm(version, destination="/tmp"):
     script.append(_download_script(version, "mechadora", "/usr/local/bin"))
     script.append(Statements.exec("chmod a+x /usr/local/bin/*"))
     return script
-
