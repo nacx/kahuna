@@ -2,7 +2,7 @@
 
 import logging
 from org.jclouds.abiquo.predicates.cloud import VirtualMachinePredicates
-from org.jclouds.abiquo.predicates.cloud import VolumePredicates
+from org.jclouds.abiquo.predicates.cloud import VirtualDiskPredicates
 
 log = logging.getLogger('kahuna')
 
@@ -13,7 +13,7 @@ def find_volume(context, name):
     vdcs = cloud.listVirtualDatacenters()
     log.debug("Looking for volume: %s" % name)
     for vdc in vdcs:
-        volume = vdc.findVolume(VolumePredicates.name(name))
+        volume = vdc.findVolume(VirtualDiskPredicates.name(name))
         if volume:
             log.debug("Found volume in virtual datacenter: %s" % vdc.getName())
             return volume
