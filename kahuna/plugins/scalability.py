@@ -90,7 +90,7 @@ class ScalabilityPlugin(AbsPlugin):
                 (options.user, license)))
             script.append(redis.run("flushall"))
             script.extend(rabbitmq.reset())
-            print "Cleaning database for datanode at: %s" % options.datanode
+            print "Resetting datanode at: %s" % options.datanode
             options = RunScriptOptions.Builder \
                 .overrideLoginUser(options.user) \
                 .overrideLoginPassword(options.password)
@@ -221,7 +221,7 @@ class ScalabilityPlugin(AbsPlugin):
         parser.add_option('-s', '--hypervisor-sessions', type="int", default=2,
                 help='Number of concurrent hypervisor sessions (default 2)',
                 action='store', dest='hypervisorsessions')
-        parser.add_option('-l', '--list',
+        parser.add_option('-l', '--war-list',
                 help='Upload only those wars (default all rs)',
                 default='rs', action='store', dest='wars')
         (options, args) = parser.parse_args(args)
