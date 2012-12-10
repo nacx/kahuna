@@ -224,6 +224,9 @@ class ScalabilityPlugin(AbsPlugin):
         parser.add_option('-l', '--war-list',
                 help='Upload only those wars (default all rs)',
                 default='rs', action='store', dest='wars')
+        parser.add_option('-i', '--datacenter-id',
+                help='The datacenter id to set in the node', action='store',
+                dest='datacenterid')
         (options, args) = parser.parse_args(args)
 
         if not options.jenkins or not options.nfs or not options.rabbit:
@@ -269,9 +272,11 @@ class ScalabilityPlugin(AbsPlugin):
 
                 log.info("Cooking %s with Chef in the background..." %
                     node.getName())
+                dcid = options.datacenter if options.datacenter \
+                        else node.getName()
                 tomcat_config = {
                     "rabbit": options.rabbit,
-                    "datacenter": node.getName(),
+                    "datacenter": dcid,
                     "nfs": options.nfs,
                     "nfs-mount": True,
                     "java-opts": java_opts,
