@@ -330,7 +330,10 @@ class ScalabilityPlugin(AbsPlugin):
         def jenkins_download():
             script = []
             for war in wars.split(","):
-                script.extend(jenkins._download_war(version, war))
+                if war == "bpm-async":
+                    script.extend(jenkins._download_bpm(version))
+                else:
+                    script.extend(jenkins._download_war(version, war))
             script.extend(self._install_local_wars())
             return script
         return jenkins_download

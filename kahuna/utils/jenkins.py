@@ -25,8 +25,6 @@ def _download_war(version, file_name, destination="/tmp"):
     """ Downloads a given war from Jenkins """
     if file_name == "rs":
         return _download_rs(version)
-    elif file_name == "bpm-async":
-        return _download_bpm(version, destination)
     else:
         return [Statements.exec("wget -O %s/%s.war %s/%s/%s.war" %
             (destination, file_name, JENKINS, version, file_name))]
@@ -48,7 +46,7 @@ def _download_database(version, destination="/tmp"):
 def _download_bpm(version, destination="/tmp"):
     """ Downloads a given war from Jenkins """
     script = []
-    script.append(_download_war(version, "bpm-async", destination))
+    script.extend(_download_war(version, "bpm-async", destination))
     script.append(_download_script(version, "v2v-diskmanager",
         "/usr/local/bin"))
     script.append(_download_script(version, "mechadora", "/usr/local/bin"))
