@@ -25,7 +25,7 @@ def _download_war(version, file_name, destination="/tmp"):
     """ Downloads a given war from Jenkins """
     if file_name == "rs":
         return _download_rs(version)
-    else if file_name == "bpm-async":
+    elif file_name == "bpm-async":
         return _download_bpm(version, destination)
     else:
         return [Statements.exec("wget -O %s/%s.war %s/%s/%s.war" %
