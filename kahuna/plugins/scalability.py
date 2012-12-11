@@ -274,7 +274,7 @@ class ScalabilityPlugin(AbsPlugin):
                     node.getName())
                 tomcat_config = {
                     "rabbit": options.rabbit,
-                    "datacenter": options.dc if options.dc else node.getName()
+                    "datacenter": options.dc if options.dc else node.getName(),
                     "nfs": options.nfs,
                     "nfs-mount": True,
                     "java-opts": java_opts,
