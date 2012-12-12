@@ -157,6 +157,8 @@ class MothershipPlugin(AbsPlugin):
                 bootstrap.append(Statements.exec(f.read()))
 
             if options.jenkins:
+                log.info("Configuring node to download the %s version "
+                    "from Jenkins..." % options.jenkins)
                 with open("%s/configure-from-jenkins.sh" %
                         self.__scriptdir, "r") as f:
                     jenkins_script = f.read() % {'version': options.jenkins}
