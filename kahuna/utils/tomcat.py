@@ -145,6 +145,7 @@ class TomcatScripts:
         rabbit = tomcat_config.get("rabbit", "localhost")
         redis = tomcat_config.get("redis", "localhost")
         zookeeper = tomcat_config.get("zookeeper", "localhost")
+        datacenter = tomcat_config.get("datacenter", node.getName())
         nfs_share = tomcat_config.get("nfs", "10.60.1.104:/volume1/nfs-devel")
         nfs_directory = tomcat_config.get("nfs-directory",
             "/opt/vm_repository")
@@ -171,7 +172,7 @@ class TomcatScripts:
                 script.append(self.configure_logging(module, syslog))
 
         script.extend(self.configure_abiquo_props(rabbit, redis, zookeeper,
-            node.getName(), nfs_share, nfs_directory, hypervisor_sessions))
+            datacenter, nfs_share, nfs_directory, hypervisor_sessions))
 
         if nfs_mount is True:
             script.extend(nfs.mount(nfs_share, nfs_directory))
