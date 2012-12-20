@@ -82,7 +82,7 @@ class ScalabilityPlugin(AbsPlugin):
             script = []
             script.append(jenkins._download_database(options.jenkins))
             script.append(Statements.exec(
-                "mysql -u %s kinton </tmp/kinton-schema-%s.sql" %
+                "mysql -u %s </tmp/kinton-schema-%s.sql" %
                 (options.user, options.jenkins)))
             script.append(Statements.exec(
                 'mysql -u %s kinton -e "'
