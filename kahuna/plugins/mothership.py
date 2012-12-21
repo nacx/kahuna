@@ -72,8 +72,10 @@ class MothershipPlugin(AbsPlugin):
 
             log.info("Deploying %s to %s..." % (template.getImage().getName(),
                 vdc.getDescription()))
+            identity = self._context.getApiContext().getIdentity()
             node = Iterables.getOnlyElement(
-                compute.createNodesInGroup("kahuna-chef", 1, template))
+                compute.createNodesInGroup("kahuna-chef-%s" % identity,
+                    1, template))
 
             log.info("Created %s at %s" % (node.getName(),
                 Iterables.getOnlyElement(node.getPublicAddresses())))
@@ -139,8 +141,10 @@ class MothershipPlugin(AbsPlugin):
 
             log.info("Deploying %s to %s..." % (template.getImage().getName(),
                 vdc.getDescription()))
+            identity = self._context.getApiContext().getIdentity()
             node = Iterables.getOnlyElement(
-                compute.createNodesInGroup("kahuna-abiquo", 1, template))
+                compute.createNodesInGroup("kahuna-abiquo-%s" % identity,
+                    1, template))
 
             log.info("Created %s at %s" % (node.getName(),
                 Iterables.getOnlyElement(node.getPublicAddresses())))
@@ -192,8 +196,10 @@ class MothershipPlugin(AbsPlugin):
 
             log.info("Deploying %s to %s..." % (template.getImage().getName(),
                 vdc.getDescription()))
+            identity = self._context.getApiContext().getIdentity()
             node = Iterables.getOnlyElement(
-                compute.createNodesInGroup(vapp_name, 1, template))
+                compute.createNodesInGroup("%s-%s" % (vapp_name, identity),
+                    1, template))
 
             log.info("Created %s at %s" % (node.getName(),
                 Iterables.getOnlyElement(node.getPublicAddresses())))
