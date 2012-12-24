@@ -30,7 +30,8 @@ def find_compatible_virtual_datacenters(context, template):
         if not res:
             conv = template.listConversions(type, ConversionState.FINISHED)
             res = len(conv) > 0
-        log.debug("%s compatible with conversions: %s" % (vdc.getName(), res))
+            log.debug("%s compatible with conversions: %s" %
+                (vdc.getName(), res))
         return res
 
     return filter(compatible, all)
