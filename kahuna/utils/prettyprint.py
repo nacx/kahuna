@@ -132,7 +132,7 @@ def pprint_volumes(volumes):
     table = PTable(["id", "name", "size", "status", "virtual datacenter",
         "virtual machine"])
     for vol in volumes:
-        row = [vol.getId(), vol.getName(), str(vol.getSizeInMB()) + " MB",
+        row = [vol.getId(), vol.getName(), str(vol.getSizeInMb()) + " MB",
                 vol.getState(), vol.getVirtualDatacenter().getName()]
         link = vol.unwrap().searchLink("virtualmachine")
         if link:

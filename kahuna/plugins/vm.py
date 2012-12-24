@@ -146,12 +146,13 @@ class VmPlugin(AbsPlugin):
                 return
             log.debug("Using template: %s" % template.getName())
 
-            vdc = helper.get_virtual_datacenter_for_template(self._context,
+            vdcs = helper.find_compatible_virtual_datacenters(self._context,
                     template)
-            if not vdc:
-                print ("Could not create a compatible virtual datacenter "
+            if not vdcs:
+                print ("Could not find a compatible virtual datacenter "
                     "for %s") % template.getName()
                 return
+            vdc = vdcs[0]
             log.debug("Using virtual datacenter: %s" % vdc.getName())
 
             name = "Kahuna-" + api_context.getIdentity()

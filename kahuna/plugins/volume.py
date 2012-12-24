@@ -79,7 +79,10 @@ class VolumePlugin(AbsPlugin):
                 print "Attaching volume to a running virtual machine.",
                 print "This may take some time..."
 
-            vm.attachVolumes(volume)
+            disks = list(vm.listVirtualDisks())
+            disks.append(volume)
+            vm.setVirtualDisks(disks)
+
             pprint_volumes([helper.refresh_volume(self._context, volume)])
         except (AbiquoException, AuthorizationException), ex:
             print "Error: %s" % ex.getMessage()
@@ -112,7 +115,10 @@ class VolumePlugin(AbsPlugin):
                 print "Detaching volume from a running virtual machine.",
                 print "This may take some time..."
 
-            vm.detachVolumes(volume)
+            disks = [disk for disk in vm.listVirtualDisks()
+                    if disk.getId() != volume.getId()]
+            vm.setVirtualDisks(disks)
+
             pprint_volumes([helper.refresh_volume(self._context, volume)])
         except (AbiquoException, AuthorizationException), ex:
             print "Error: %s" % ex.getMessage()
