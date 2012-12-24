@@ -50,6 +50,9 @@ class ContextLoader:
                 .modules([SshjSshClientModule(), SLF4JLoggingModule()]) \
                 .overrides(props) \
                 .buildView(AbiquoContext)
+            api_version = self.__context.getApiContext() \
+                .getProviderMetadata().getApiMetadata().getVersion()
+            log.debug("Using Abiquo version: %s" % api_version)
             # Close context automatically when exiting
             atexit.register(self.__del__)
             return self.__context
