@@ -4,7 +4,9 @@ import logging
 from optparse import OptionParser
 from kahuna.abstract import AbsPlugin
 from kahuna.utils.prettyprint import pprint_volumes
+from org.jclouds.abiquo.predicates.cloud import VirtualDiskPredicates
 from org.jclouds.abiquo.predicates.cloud import VirtualMachinePredicates
+from org.jclouds.abiquo.domain.cloud import Volume
 from org.jclouds.abiquo.domain.exception import AbiquoException
 from org.jclouds.rest import AuthorizationException
 from storage import helper
@@ -26,25 +28,69 @@ class VolumePlugin(AbsPlugin):
         except (AbiquoException, AuthorizationException), ex:
             print "Error: %s" % ex.getMessage()
 
-    def find(self, args):
-        """ Find an available volume given its name """
-        # Parse user input to get the name of the volume
-        parser = OptionParser(usage="volume find <options>")
+    def create(self, args):
+        """ Create a volume in a given tier """
+        parser = OptionParser(usage="volume create <options>")
         parser.add_option("-n", "--name", dest="name",
-                help="The name of the volume to find")
+                help="The name of the volume to create")
+        parser.add_option("-v", "--vdc-id", dest="vdc", type="int",
+                help="The id of the virtual datacenter where the volume"
+                "will be created")
+        parser.add_option("-s", "--size", dest="size", type="int",
+                help=("The size in MB of the volume to create"))
+        parser.add_option("-t", "--tier-id", dest="tier", type="int",
+                help=("The id of the tier where the volume "
+                "should be created"))
         (options, args) = parser.parse_args(args)
-        name = options.name
-        if not name:
+        if not options.name or not options.vdc \
+            or not options.size or not options.tier:
             parser.print_help()
             return
 
-        # Once user input has been read, find the volume
         try:
-            volume = helper.find_volume(self._context, name)
-            if volume:
-                pprint_volumes([volume])
-            else:
-                print "No volume found with name: %s" % name
+            api_context = self._context.getApiContext()
+            cloud = self._context.getCloudService()
+            vdc = cloud.getVirtualDatacenter(options.vdc)
+            if not vdc:
+                print "Virtual datacenter %s does not exist" % options.vdc
+                return
+            tier = vdc.getStorageTier(options.tier)
+            if not tier:
+                print "Tier %s does not exist in the virtual datacenter" \
+                    % options.tier
+                return
+
+            volume = Volume.builder(api_context, vdc, tier) \
+                .name(options.name) \
+                .sizeInMb(options.size) \
+                .build()
+            volume.save()
+
+            pprint_volumes([volume])
+        except (AbiquoException, AuthorizationException), ex:
+            print "Error: %s" % ex.getMessage()
+
+    def delete(self, args):
+        """ Delete a given volume """
+        parser = OptionParser(usage="volume delete <options>")
+        parser.add_option("-n", "--name", dest="name",
+                help="The name of the volume to delete")
+        (options, args) = parser.parse_args(args)
+        if not options.name:
+            parser.print_help()
+            return
+
+        try:
+            cloud = self._context.getCloudService()
+            vdcs = cloud.listVirtualDatacenters()
+            for vdc in vdcs:
+                volume = vdc.findVolume(
+                    VirtualDiskPredicates.name(options.name))
+                if volume:
+                    volume.delete()
+                    return
+
+            print "No volume found with name: %s" % options.name
         except (AbiquoException, AuthorizationException), ex:
             print "Error: %s" % ex.getMessage()
 

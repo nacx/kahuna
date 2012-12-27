@@ -113,6 +113,13 @@ def pprint_vdcs(vdcs):
     table.pprint()
 
 
+def pprint_tiers(tiers):
+    """ Pretty prints the given tier list """
+    table = PTable(["id", "name"])
+    [table.add([t.getId(), t.getName()]) for t in tiers]
+    table.pprint()
+
+
 def pprint_vapps(vapps):
     """ Pretty prints the given virtual appliance list """
     table = PTable(["id", "name"])

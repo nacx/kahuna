@@ -2,6 +2,7 @@
 
 from optparse import OptionParser
 from kahuna.abstract import AbsPlugin
+from kahuna.utils.prettyprint import pprint_tiers
 from kahuna.utils.prettyprint import pprint_vdcs
 from org.jclouds.abiquo.predicates.cloud import VirtualDatacenterPredicates
 from org.jclouds.abiquo.domain.exception import AbiquoException
@@ -20,12 +21,11 @@ class VirtualDatacenterPlugin(AbsPlugin):
         except (AbiquoException, AuthorizationException), ex:
             print "Error: %s" % ex.getMessage()
 
-    def find(self, args):
-        """ Find a virtual datacenter given its name """
-        # Parse user input to get the name of the virtual datacenter
-        parser = OptionParser(usage="vdc find <options>")
+    def tiers(self, args):
+        """ List the tiers available in a virtual datacenter """
+        parser = OptionParser(usage="vdc tiers <options>")
         parser.add_option("-n", "--name",
-                help="The name of the virtual datacenter to find", dest="name")
+                help="The name of the virtual datacenter", dest="name")
         (options, args) = parser.parse_args(args)
         name = options.name
         if not name:
@@ -38,7 +38,8 @@ class VirtualDatacenterPlugin(AbsPlugin):
             vdc = cloud.findVirtualDatacenter(
                     VirtualDatacenterPredicates.name(name))
             if vdc:
-                pprint_vdcs([vdc])
+                tiers = vdc.listStorageTiers()
+                pprint_tiers(tiers)
             else:
                 print "No virtual datacenter found with name: %s" % name
         except (AbiquoException, AuthorizationException), ex:
