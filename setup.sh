@@ -34,6 +34,9 @@ function install_kahuna() {
     echo "Installing Redis egg..."
     ${KAHUNA}/bin/pip install redis --quiet
 
+    echo "Installing Simple Json egg..."
+    ${KAHUNA}/bin/pip install simplejson --quiet
+
     echo "Installing Kahuna..."
     chmod -R 777 ${KAHUNA}/cachedir
     chmod u+x kahuna.sh

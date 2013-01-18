@@ -1,5 +1,6 @@
 #!/usr/bin/env jython
 
+from __future__ import with_statement
 import logging
 import os
 import random
@@ -8,6 +9,7 @@ import shutil
 import string
 import SimpleHTTPServer
 import SocketServer
+from threading import Thread
 
 log = logging.getLogger("kahuna")
 
@@ -18,15 +20,18 @@ class TransientRepository:
         """ Sets the base directory to serve """
         rnd = ''.join(random.choice(string.letters) for i in xrange(5))
         self._repodir = basedir + '/repo-' + rnd
+        self.__templatedir = "kahuna/plugins/upload"
         self.__server = None
 
-    def create(self):
+    def create(self, disk, config):
         """ Creates the repository structure """
         if not os.path.exists(self._repodir):
             os.makedirs(self._repodir)
-
-        # TODO Add all required arguments to this method to populate
-        # the contents of the repository
+        shutil.copy(disk, self._repodir)
+        with open("%s/ovf.xml" % self.__templatedir, "r") as f:
+            ovf = f.read() % config
+        with open("%s/ovf.xml" % self._repodir, "w") as f:
+            f.write(ovf)
 
     def destroy(self):
         """ Destroys the repository and its contents """
@@ -34,14 +39,16 @@ class TransientRepository:
             self.stop()
         shutil.rmtree(self._repodir)
 
-    def start(self, port=8888):
+    def start(self, address="localhost", port=8888):
         """ Start serving the contents of the repository """
         handler = SimpleHTTPServer.SimpleHTTPRequestHandler
-        self.__server = RepositoryServer(("localhost", port), handler)
+        self.__server = RepositoryServer((address, port), handler)
         log.debug("Serving repository at %s in port %s" %
             (self._repodir, port))
         os.chdir(self._repodir)
-        self.__server.serve_until_stopped()
+        # Start in a new thread to avoid blocking
+        thread = Thread(target=self.__server.serve_until_stopped, args=[])
+        thread.start()
 
     def stop(self):
         """ Stop serving the contents of the repository """

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:vssd="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/CIM_VirtualSystemSettingData"
+    xmlns:rasd="http://schemas.dmtf.org/wbem/wscim/1/cim-schema/2/CIM_ResourceAllocationSettingData"
+    xmlns:ovf="http://schemas.dmtf.org/ovf/envelope/1"
+    xmlns="http://schemas.dmtf.org/ovf/envelope/1">
+
+    <References>
+        <File ovf:href="%(diskfilepath)s" ovf:id="file1" ovf:size="%(diskfilesize)d" />
+    </References>
+    
+    <DiskSection>
+        <Info>List of Virtual Disks</Info>
+        <Disk 
+            ovf:fileRef="file1"
+            ovf:diskId="disk1" 
+            ovf:capacity="%(hdinbytes)d"
+            ovf:format="%(diskfileformaturl)s" />
+    </DiskSection>
+    
+    
+    <VirtualSystem ovf:id="%(name)s">
+        <Info>A virtual machine</Info>
+        
+        <ProductSection>
+            <Product>%(name)s</Product>            
+            <Info>%(description)s</Info>
+            <Icon ovf:fileRef="%(iconpath)s" ovf:mimeType="image/jpeg" ovf:width="32" ovf:height="32" />        
+            <Property ovf:key="user" ovf:type="string" ovf:value="%(user)s">
+                <Description>Default login username</Description>
+            </Property>
+            <Property ovf:key="password" ovf:type="string" ovf:value="%(password)s">
+                <Description>Default login password</Description>
+            </Property>
+        </ProductSection>
+        
+        <OperatingSystemSection ovf:id="%(ostype)s" ovf:version="%(osversion)s">
+            <Info>The kind of installed guest operating system</Info>
+            <Description>%(osdescription)s</Description>
+        </OperatingSystemSection>
+    
+        <VirtualHardwareSection>
+            <System>
+                <vssd:VirtualSystemType>abiquo</vssd:VirtualSystemType>
+            </System>
+            <Item>
+                <rasd:Caption>%(cpu)d virtual CPUs</rasd:Caption>
+                <rasd:Description>Number of virtual CPUs</rasd:Description>
+                <rasd:InstanceId>1</rasd:InstanceId>
+                <rasd:ResourceType>3</rasd:ResourceType>
+                <rasd:VirtualQuantity>%(cpu)d</rasd:VirtualQuantity>
+            </Item>
+            <Item>
+                <rasd:Caption>%(ram)d %(ramunits)s of memory RAM</rasd:Caption>
+                <rasd:Description>Memory Size</rasd:Description>
+                <rasd:InstanceId>2</rasd:InstanceId>
+                <rasd:ResourceType>4</rasd:ResourceType>
+                <rasd:AllocationUnits>%(ramunits)s</rasd:AllocationUnits>
+                <rasd:VirtualQuantity>%(ram)d</rasd:VirtualQuantity>
+            </Item>
+            <Item>
+                <rasd:InstanceID>3</rasd:InstanceID>
+                <rasd:Address>0</rasd:Address>
+                <rasd:Description>Disk Controller</rasd:Description>
+                <rasd:ElementName>Disk controller 0</rasd:ElementName>
+                <rasd:ResourceType>%(controllertype)d</rasd:ResourceType>
+                <!--
+                <rasd:ResourceSubType>lsilogic</rasd:ResourceSubType>
+                -->
+            </Item>
+            <Item>
+                <rasd:Caption>Harddisk 0</rasd:Caption>
+                <rasd:InstanceId>11</rasd:InstanceId>
+                <rasd:ResourceType>17</rasd:ResourceType>
+                <rasd:HostResource>ovf:/disk/disk1</rasd:HostResource>
+                <rasd:Parent>3</rasd:Parent>
+            </Item>
+            <Item>
+                <rasd:Caption>vNic Driver %(ethernetdriver)s</rasd:Caption>
+                <rasd:Description>Ethernet Adapter</rasd:Description>
+                <rasd:InstanceId>4</rasd:InstanceId>
+                <rasd:ResourceType>10</rasd:ResourceType>
+                <rasd:Connection>bridged</rasd:Connection>
+                <rasd:ResourceSubType>%(ethernetdriver)s</rasd:ResourceSubType>
+            </Item>
+        </VirtualHardwareSection>
+    </VirtualSystem>
+</Envelope>
