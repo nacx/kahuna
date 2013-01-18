@@ -1,0 +1,16 @@
+{
+    "description": "",
+    "iconpath": "",
+    "os": {
+        "type": "",
+        "version": "",
+        "description": "",
+        "user": "",
+        "password": ""
+    },
+    "hardware": {
+        "ramunits": "MEGABYTE",
+        "diskcontroller": "IDE",
+        "ethernetdriver": "E1000"
+    }
+}

@@ -1,6 +1,7 @@
 #!/usr/bin/env jython
 
 from __future__ import with_statement
+from definition import DefinitionGenerator
 import logging
 import os
 import random
@@ -20,7 +21,6 @@ class TransientRepository:
         """ Sets the base directory to serve """
         rnd = ''.join(random.choice(string.letters) for i in xrange(5))
         self._repodir = basedir + '/repo-' + rnd
-        self.__templatedir = "kahuna/plugins/upload"
         self.__server = None
 
     def create(self, disk, config):
@@ -28,8 +28,7 @@ class TransientRepository:
         if not os.path.exists(self._repodir):
             os.makedirs(self._repodir)
         shutil.copy(disk, self._repodir)
-        with open("%s/ovf.xml" % self.__templatedir, "r") as f:
-            ovf = f.read() % config
+        ovf = DefinitionGenerator().generate(config)
         with open("%s/ovf.xml" % self._repodir, "w") as f:
             f.write(ovf)
 

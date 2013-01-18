@@ -37,8 +37,8 @@ class PluginManager:
             else:
                 try:
                     command = plugin._commands()[command_name]
-                    with opencontext(plugin):
-                        return command(args)
+                    #with opencontext(plugin):
+                    return command(args)
                 except KeyError:
                     # Command not found in plugin. Print only plugin help
                     self.help(plugin)
