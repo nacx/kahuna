@@ -59,8 +59,7 @@ class TemplatePlugin(AbsPlugin):
         except (AbiquoException, AuthorizationException), ex:
             print "Error: %s" % ex.getMessage()
         finally:
-            #repo.destroy()
-            repo.stop()
+            repo.destroy()
 
 
 def load():
