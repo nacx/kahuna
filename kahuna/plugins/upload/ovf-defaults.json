@@ -1,16 +1,12 @@
 {
     "description": "",
-    "iconpath": "",
-    "os": {
-        "type": "",
-        "version": "",
-        "description": "",
-        "user": "",
-        "password": ""
-    },
-    "hardware": {
-        "ramunits": "MEGABYTE",
-        "diskcontroller": "IDE",
-        "ethernetdriver": "E1000"
-    }
+    "icon": "",
+    "ostype": "OTHER",
+    "osversion": "",
+    "osdescription": "",
+    "user": "",
+    "password": "",
+    "ramunits": "MEGABYTE",
+    "diskcontroller": "IDE",
+    "ethernetdriver": "E1000"
 }

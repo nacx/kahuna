@@ -32,19 +32,19 @@ class PluginManager:
         """ Encapsulate the call into a context already loaded. """
         try:
             plugin = self.load_plugin(plugin_name)
-            if not command_name:
-                self.help(plugin)
-            else:
-                try:
-                    command = plugin._commands()[command_name]
-                    #with opencontext(plugin):
-                    return command(args)
-                except KeyError:
-                    # Command not found in plugin. Print only plugin help
-                    self.help(plugin)
         except KeyError:
             # Plugin not found, pring generic help
             self.help_all()
+        if not command_name:
+            self.help(plugin)
+        else:
+            try:
+                command = plugin._commands()[command_name]
+            except KeyError:
+                # Command not found in plugin. Print only plugin help
+                self.help(plugin)
+            with opencontext(plugin):
+                return command(args)
 
     def help(self, plugin):
         """ Prints the help for the given plugin """

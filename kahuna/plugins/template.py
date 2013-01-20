@@ -48,10 +48,12 @@ class TemplatePlugin(AbsPlugin):
         with open(options.config, "r") as f:
             config = json.loads(f.read())
 
-        repo = TransientRepository()
+        repo = TransientRepository(options.address, options.port)
         try:
-            repo.create(options.disk, config)
-            repo.start(options.address, options.port)
+            repo.create()
+            definition = repo.add_definition(self._context, options.disk, config)
+            print definition
+            repo.start()
 
             # TODO: Once the server is listening, call the API to download
             # the necessary files.

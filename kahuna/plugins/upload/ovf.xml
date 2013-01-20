@@ -15,7 +15,7 @@
             ovf:fileRef="file1"
             ovf:diskId="disk1" 
             ovf:capacity="%(hdinbytes)d"
-            ovf:format="%(diskfileformaturl)s" />
+            ovf:format="%(diskformaturl)s" />
     </DiskSection>
     
     
@@ -25,7 +25,7 @@
         <ProductSection>
             <Product>%(name)s</Product>            
             <Info>%(description)s</Info>
-            <Icon ovf:fileRef="%(iconpath)s" ovf:mimeType="image/jpeg" ovf:width="32" ovf:height="32" />        
+            <Icon ovf:fileRef="%(icon)s" ovf:mimeType="image/jpeg" ovf:width="32" ovf:height="32" />        
             <Property ovf:key="user" ovf:type="string" ovf:value="%(user)s">
                 <Description>Default login username</Description>
             </Property>
@@ -63,7 +63,7 @@
                 <rasd:Address>0</rasd:Address>
                 <rasd:Description>Disk Controller</rasd:Description>
                 <rasd:ElementName>Disk controller 0</rasd:ElementName>
-                <rasd:ResourceType>%(controllertype)d</rasd:ResourceType>
+                <rasd:ResourceType>%(diskcontroller)d</rasd:ResourceType>
                 <!--
                 <rasd:ResourceSubType>lsilogic</rasd:ResourceSubType>
                 -->

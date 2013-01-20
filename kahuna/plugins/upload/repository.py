@@ -17,20 +17,28 @@ log = logging.getLogger("kahuna")
 
 class TransientRepository:
     """ A transient tempalte repository """
-    def __init__(self, basedir="/tmp"):
+    def __init__(self, address="localhost", port=8888, basedir="/tmp"):
         """ Sets the base directory to serve """
         rnd = ''.join(random.choice(string.letters) for i in xrange(5))
         self._repodir = basedir + '/repo-' + rnd
         self.__server = None
+        self._address = address
+        self._port = port
 
-    def create(self, disk, config):
+    def create(self):
         """ Creates the repository structure """
         if not os.path.exists(self._repodir):
             os.makedirs(self._repodir)
+
+    def add_definition(self, context, disk, config):
+        """ Adds a template definition to the repository """
         shutil.copy(disk, self._repodir)
-        ovf = DefinitionGenerator().generate(config)
+        definition_generator = DefinitionGenerator(config)
+        ovf = definition_generator.generate_ovf()
         with open("%s/ovf.xml" % self._repodir, "w") as f:
             f.write(ovf)
+        return definition_generator.generate_definition(context,
+            self._address, self._port)
 
     def destroy(self):
         """ Destroys the repository and its contents """
@@ -38,12 +46,12 @@ class TransientRepository:
             self.stop()
         shutil.rmtree(self._repodir)
 
-    def start(self, address="localhost", port=8888):
+    def start(self):
         """ Start serving the contents of the repository """
         handler = SimpleHTTPServer.SimpleHTTPRequestHandler
-        self.__server = RepositoryServer((address, port), handler)
+        self.__server = RepositoryServer((self._address, self._port), handler)
         log.debug("Serving repository at %s in port %s" %
-            (self._repodir, port))
+            (self._repodir, self._port))
         os.chdir(self._repodir)
         # Start in a new thread to avoid blocking
         thread = Thread(target=self.__server.serve_until_stopped, args=[])
