@@ -43,6 +43,10 @@ class DefinitionGenerator:
                     self.__values['ethernetdriver'])) \
                 .diskFileSize(self.__values['diskfilesize']) \
                 .osVersion(self.__values['osversion']) \
+                .productName("") \
+                .productUrl("") \
+                .productVersion("") \
+                .productVendor("") \
                 .build()
             if self.__values['diskcontroller'] == 5:
                 definition.setDiskControllerType(DiskControllerType.IDE)

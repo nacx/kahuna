@@ -4,9 +4,10 @@
     "ostype": "OTHER",
     "osversion": "",
     "osdescription": "",
-    "user": "",
-    "password": "",
+    "user": "abiquo",
+    "password": "abiquo",
     "ramunits": "MEGABYTE",
     "diskcontroller": "IDE",
+    "diskformaturl": "http://unknown",
     "ethernetdriver": "E1000"
 }
