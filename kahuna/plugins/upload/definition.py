@@ -6,13 +6,17 @@ from com.abiquo.model.enumerator import DiskControllerType
 from com.abiquo.model.enumerator import DiskFormatType
 from com.abiquo.model.enumerator import EthernetDriverType
 from com.abiquo.model.enumerator import OSType
+from subprocess import PIPE
+from subprocess import Popen
 import simplejson as json  # JSON module is available from Python 2.6
 
 
 class DefinitionGenerator:
     """ Generates a template definition given a configuration """
-    def __init__(self, config):
+    def __init__(self, disk, config):
+        self.__diskid = "http://diskid.frameos.org/?format=json"
         self.__templatedir = "kahuna/plugins/upload"
+        self.__disk = disk
         self.__values = self._read_defaults()
         self.__values.update(config)
         try:
@@ -23,7 +27,7 @@ class DefinitionGenerator:
 
     def generate_ovf(self):
         """ Generates a template definition given a configuration """
-        with open("%s/ovf.xml" % self.__templatedir, "r") as f:
+        with open("%s/ovf.ovf" % self.__templatedir, "r") as f:
             ovf = f.read() % self.__values
         return ovf
 
@@ -33,7 +37,7 @@ class DefinitionGenerator:
             definition = TemplateDefinition.builder(context.getApiContext()) \
                 .name(self.__values['name']) \
                 .description(self.__values['description']) \
-                .url("http://%s:%s/ovf.xml" % (address, port)) \
+                .url("http://%s:%s/ovf.ovf" % (address, port)) \
                 .loginUser(self.__values['user']) \
                 .loginPassword(self.__values['password']) \
                 .osType(OSType.valueOf(self.__values['ostype'])) \
@@ -43,7 +47,7 @@ class DefinitionGenerator:
                     self.__values['ethernetdriver'])) \
                 .diskFileSize(self.__values['diskfilesize']) \
                 .osVersion(self.__values['osversion']) \
-                .productName("") \
+                .productName(self.__values['name']) \
                 .productUrl("") \
                 .productVersion("") \
                 .productVendor("") \
@@ -65,6 +69,24 @@ class DefinitionGenerator:
         return json.loads(defaults)
 
     def _parse_template_values(self):
-        # TODO: Extract disk info from http://diskid.frameos.org/
+        """ Parses the special template values """
         diskcontroller = self.__values['diskcontroller']
         self.__values['diskcontroller'] = 5 if diskcontroller == 'IDE' else 6
+        disk_info = self._read_disk_file()
+        # TODO Parse disk info and fill the values with the appropriate values
+        print disk_info
+
+    def _read_disk_file(self):
+        """ Reads the information from the given disk file """
+        with open(self.__disk, "r") as f:
+            head = ''.join([f.next() for i in xrange(20)])
+        with open("/tmp/chunk", "w") as chunk:
+            chunk.write(head)
+        # Use local curl, because pycurl can not be installed in Jython
+        # and regular http modules don't support well the multipart upload
+        # curl -X POST -F chunk=@/tmp/chunk <target url>
+        with open('/dev/null', 'w') as devnull:
+            out = Popen(["/usr/bin/curl", "-X", "POST", "-F",
+                "chunk=@/tmp/chunk", self.__diskid], stdout=PIPE,
+                stderr=devnull).communicate()[0]
+        return json.loads(out)

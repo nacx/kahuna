@@ -67,23 +67,23 @@ class TemplatePlugin(AbsPlugin):
             repo.start()
 
             log.info("Loading destination repository: %s" % options.datacenter)
-            admin = self._context.getAdministrationService()
-            dc = admin.findDatacenter(
-                DatacenterPredicates.name(options.datacenter))
+            #admin = self._context.getAdministrationService()
+            #dc = admin.findDatacenter(
+            #    DatacenterPredicates.name(options.datacenter))
 
             log.info("Uploading template. This may take some time...")
             #definition.save()
 
             # FIXME Add enterprise to TemplateDefinition builder in jclouds
             # in order to be able to call definition.save()
-            api = self._context.getApiContext().getApi()
-            enterprise = admin.getCurrentEnterprise()
-            dto = api.getEnterpriseApi().createTemplateDefinition(
-                enterprise.unwrap(), definition.unwrap())
-            definition = DomainWrapper.wrap(self._context.getApiContext(),
-                TemplateDefinition, dto)
+            #api = self._context.getApiContext().getApi()
+            #enterprise = admin.getCurrentEnterprise()
+            #dto = api.getEnterpriseApi().createTemplateDefinition(
+            #    enterprise.unwrap(), definition.unwrap())
+            #definition = DomainWrapper.wrap(self._context.getApiContext(),
+            #    TemplateDefinition, dto)
 
-            definition.downloadToRepository(dc)
+            #definition.downloadToRepository(dc)
 
             log.info("Done!")
         except (AbiquoException, AuthorizationException), ex:

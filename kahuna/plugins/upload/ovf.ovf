@@ -18,14 +18,13 @@
             ovf:format="%(diskformaturl)s" />
     </DiskSection>
     
-    
     <VirtualSystem ovf:id="%(name)s">
         <Info>A virtual machine</Info>
         
         <ProductSection>
-            <Product>%(name)s</Product>            
+            <Product>%(name)s</Product>
             <Info>%(description)s</Info>
-            <Icon ovf:fileRef="%(icon)s" ovf:mimeType="image/jpeg" ovf:width="32" ovf:height="32" />        
+            <Icon ovf:fileRef="%(icon)s" ovf:mimeType="image/jpeg" ovf:width="32" ovf:height="32" />
             <Property ovf:key="user" ovf:type="string" ovf:value="%(user)s">
                 <Description>Default login username</Description>
             </Property>

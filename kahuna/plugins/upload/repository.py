@@ -33,9 +33,9 @@ class TransientRepository:
     def add_definition(self, context, disk, config):
         """ Adds a template definition to the repository """
         shutil.copy(disk, self._repodir)
-        definition_generator = DefinitionGenerator(config)
+        definition_generator = DefinitionGenerator(disk, config)
         ovf = definition_generator.generate_ovf()
-        with open("%s/ovf.xml" % self._repodir, "w") as f:
+        with open("%s/ovf.ovf" % self._repodir, "w") as f:
             f.write(ovf)
         return definition_generator.generate_definition(context,
             self._address, self._port)
