@@ -48,8 +48,8 @@ class TransientRepository:
 
     def start(self):
         """ Start serving the contents of the repository """
-        handler = SimpleHTTPServer.SimpleHTTPRequestHandler
-        self.__server = RepositoryServer((self._address, self._port), handler)
+        self.__server = RepositoryServer((self._address, self._port),
+            QuietHTTPHandler)
         log.debug("Serving repository at %s in port %s" %
             (self._repodir, self._port))
         os.chdir(self._repodir)
@@ -63,6 +63,12 @@ class TransientRepository:
             log.debug("Shutting down repository server")
             self.__server.shutdown()
             self.__server = None
+
+
+class QuietHTTPHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
+    """ Handler that skips output """
+    def log_message(self, format, *args):
+        pass
 
 
 class RepositoryServer(SocketServer.TCPServer):
