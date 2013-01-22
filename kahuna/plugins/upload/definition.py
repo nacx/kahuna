@@ -8,6 +8,7 @@ from com.abiquo.model.enumerator import EthernetDriverType
 from com.abiquo.model.enumerator import OSType
 from subprocess import PIPE
 from subprocess import Popen
+import os
 import simplejson as json  # JSON module is available from Python 2.6
 
 
@@ -33,6 +34,7 @@ class DefinitionGenerator:
 
     def generate_definition(self, context, address, port):
         """ Generates the tempalte definition object """
+        return None
         try:
             definition = TemplateDefinition.builder(context.getApiContext()) \
                 .name(self.__values['name']) \
@@ -41,8 +43,7 @@ class DefinitionGenerator:
                 .loginUser(self.__values['user']) \
                 .loginPassword(self.__values['password']) \
                 .osType(OSType.valueOf(self.__values['ostype'])) \
-                .diskFormatType(DiskFormatType.fromURI(
-                    self.__values['diskformaturl']).name()) \
+                .diskFormatType(self.__values['diskformat']) \
                 .ethernetDriverType(EthernetDriverType.valueOf(
                     self.__values['ethernetdriver'])) \
                 .diskFileSize(self.__values['diskfilesize']) \
@@ -70,11 +71,19 @@ class DefinitionGenerator:
 
     def _parse_template_values(self):
         """ Parses the special template values """
+        disk_info = self._read_disk_file()
+        file_size = os.path.getsize(self.__disk)
+        file_name, extension = os.path.splitext(self.__disk)
+        virtual_size = self.__get_hd_in_bytes(disk_info)
+        disk_format_type = self.__get_disk_format_type(disk_info, file_size,
+            virtual_size, extension)
+
         diskcontroller = self.__values['diskcontroller']
         self.__values['diskcontroller'] = 5 if diskcontroller == 'IDE' else 6
-        disk_info = self._read_disk_file()
-        # TODO Parse disk info and fill the values with the appropriate values
-        print disk_info
+        self.__values['diskfilesize'] = file_size
+        self.__values['hdinbytes'] = virtual_size
+        self.__values['diskformaturl'] = disk_format_type.getUri()
+        self.__values['diskfilepath'] = os.path.basename(self.__disk)
 
     def _read_disk_file(self):
         """ Reads the information from the given disk file """
@@ -90,3 +99,47 @@ class DefinitionGenerator:
                 "chunk=@/tmp/chunk", self.__diskid], stdout=PIPE,
                 stderr=devnull).communicate()[0]
         return json.loads(out)
+
+    def __get_disk_format_type(self, disk_info, file_size, virtual_size,
+            extension):
+        """ Gets the disk format type of the disk """
+        format = disk_info['format']
+        same_size = file_size >= virtual_size
+
+        if format == "vpc":
+            type = DiskFormatType.VHD_FLAT if same_size \
+                else DiskFormatType.VHD_SPARSE
+        elif format == "vdi":
+            type = DiskFormatType.VDI_FLAT if same_size \
+                else DiskFormatType.VDI_SPARSE
+        elif format.startswith("qcow"):
+            type = DiskFormatType.QCOW2_FLAT if same_size \
+                else DiskFormatType.QCOW2_SPARSE
+        elif format == "vmdk":
+            if disk_info['variant'] == "streamOptimized":
+                type = DiskFormatType.VMDK_STREAM_OPTIMIZED
+            else:
+                type = DiskFormatType.VMDK_FLAT if same_size \
+                    else DiskFormatType.VMDK_SPARSE
+        elif format == "raw":
+
+            type = DiskFormatType.VMDF_FLAT if extension == "vmdk" \
+                else DiskFormatType.RAW
+        else:
+            type = DiskFormatType.UNKNOWN
+
+        return type
+
+    def __get_hd_in_bytes(self, disk_info):
+        """ Transform the given size to bytes """
+        virtual_size = long(float(disk_info['virtual_size'][:-1]))
+        unit = disk_info['virtual_size'][-1:]
+        if unit == "K":
+            virtual_size *= 1024
+        elif unit == "M":
+            virtual_size *= 1024 * 1024
+        elif unit == "G":
+            virtual_size *= 1024 * 1024 * 1024
+        elif unit == "T":
+            virtual_size *= 1024 * 1024 * 1024 * 1024
+        return virtual_size

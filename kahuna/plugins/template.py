@@ -12,6 +12,7 @@ from org.jclouds.abiquo.predicates.infrastructure import DatacenterPredicates
 from org.jclouds.rest import AuthorizationException
 from optparse import OptionParser
 from upload.repository import TransientRepository
+from time import sleep
 
 log = logging.getLogger('kahuna')
 
@@ -49,14 +50,16 @@ class TemplatePlugin(AbsPlugin):
                 'will be downloaded', action='store', dest='datacenter')
         (options, args) = parser.parse_args(args)
 
-        if not options.disk or not options.config \
-                or not options.datacenter:
+        if not options.disk or not options.datacenter:
             parser.print_help()
             return
 
         # Read OVF values from json file
-        with open(options.config, "r") as f:
-            config = json.loads(f.read())
+        if options.config:
+            with open(options.config, "r") as f:
+                config = json.loads(f.read())
+        else:
+            config = {}
 
         repo = TransientRepository(options.address, options.port)
         try:
@@ -84,7 +87,7 @@ class TemplatePlugin(AbsPlugin):
             #    TemplateDefinition, dto)
 
             #definition.downloadToRepository(dc)
-
+            sleep(60)
             log.info("Done!")
         except (AbiquoException, AuthorizationException), ex:
             print "Error: %s" % ex.getMessage()

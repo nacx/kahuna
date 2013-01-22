@@ -1,4 +1,7 @@
 {
+    "name": "Kahuna upload template",
+    "cpu": 1,
+    "ram": 1024,
     "description": "",
     "icon": "",
     "ostype": "OTHER",
@@ -8,6 +11,6 @@
     "password": "abiquo",
     "ramunits": "MEGABYTE",
     "diskcontroller": "IDE",
-    "diskformaturl": "http://unknown",
+    "diskformat": "UNKNOWN",
     "ethernetdriver": "E1000"
 }
