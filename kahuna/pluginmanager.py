@@ -43,8 +43,8 @@ class PluginManager:
             except KeyError:
                 # Command not found in plugin. Print only plugin help
                 self.help(plugin)
-            #with opencontext(plugin):
-            return command(args)
+            with opencontext(plugin):
+                return command(args)
 
     def help(self, plugin):
         """ Prints the help for the given plugin """

@@ -34,7 +34,6 @@ class DefinitionGenerator:
 
     def generate_definition(self, context, address, port):
         """ Generates the tempalte definition object """
-        return None
         try:
             definition = TemplateDefinition.builder(context.getApiContext()) \
                 .name(self.__values['name']) \
@@ -42,7 +41,7 @@ class DefinitionGenerator:
                 .url("http://%s:%s/ovf.ovf" % (address, port)) \
                 .loginUser(self.__values['user']) \
                 .loginPassword(self.__values['password']) \
-                .osType(OSType.valueOf(self.__values['ostype'])) \
+                .osType(OSType.fromCode(self.__values['ostype'])) \
                 .diskFormatType(self.__values['diskformat']) \
                 .ethernetDriverType(EthernetDriverType.valueOf(
                     self.__values['ethernetdriver'])) \
@@ -84,6 +83,9 @@ class DefinitionGenerator:
         self.__values['hdinbytes'] = virtual_size
         self.__values['diskformaturl'] = disk_format_type.getUri()
         self.__values['diskfilepath'] = os.path.basename(self.__disk)
+
+        ostype = self.__values['ostype']
+        self.__values['ostype'] = OSType.valueOf(ostype).getCode()
 
     def _read_disk_file(self):
         """ Reads the information from the given disk file """
