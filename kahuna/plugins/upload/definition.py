@@ -81,6 +81,7 @@ class DefinitionGenerator:
         self.__values['diskcontroller'] = 5 if diskcontroller == 'IDE' else 6
         self.__values['diskfilesize'] = file_size
         self.__values['hdinbytes'] = virtual_size
+        self.__values['diskformat'] = disk_format_type.name()
         self.__values['diskformaturl'] = disk_format_type.getUri()
         self.__values['diskfilepath'] = os.path.basename(self.__disk)
 

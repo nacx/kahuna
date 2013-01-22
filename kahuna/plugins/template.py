@@ -90,6 +90,7 @@ class TemplatePlugin(AbsPlugin):
             monitor.awaitCompletion(task)
 
             log.info("Done!")
+            #pprint_templates([task.getResult()])
         except (AbiquoException, AuthorizationException), ex:
             print "Error: %s" % ex.getMessage()
         finally:
