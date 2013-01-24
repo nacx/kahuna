@@ -2,6 +2,7 @@
 
 from __future__ import with_statement
 import logging
+import re
 import simplejson as json  # JSON module is available from Python 2.6
 from kahuna.abstract import AbsPlugin
 from kahuna.utils.prettyprint import pprint_templates
@@ -12,6 +13,7 @@ from org.jclouds.abiquo.predicates.infrastructure import DatacenterPredicates
 from org.jclouds.rest import AuthorizationException
 from optparse import OptionParser
 from upload.repository import TransientRepository
+from urllib import urlopen
 
 log = logging.getLogger('kahuna')
 
@@ -33,8 +35,9 @@ class TemplatePlugin(AbsPlugin):
         """ Upload a template to a repository """
         parser = OptionParser(usage="template upload <options>")
         parser.add_option('-a', '--bind-address',
-                help='The bind address fot the local repository',
-                action='store', dest='address', default='localhost')
+                help='The bind address fot the local repository'
+                'By default the public IP will be detected and used',
+                action='store', dest='address')
         parser.add_option('-p', '--port',
                 help='The port to open locally for the repository',
                 action='store', dest='port', type='int', default=8888)
@@ -59,6 +62,10 @@ class TemplatePlugin(AbsPlugin):
                 config = json.loads(f.read())
         else:
             config = {}
+
+        # Find the public bind address if not provided
+        if not options.address:
+            options.address = self._get_public_address()
 
         repo = TransientRepository(options.address, options.port)
         try:
@@ -95,6 +102,12 @@ class TemplatePlugin(AbsPlugin):
             print "Error: %s" % ex.getMessage()
         finally:
             repo.destroy()
+
+    def _get_public_address(self):
+        """ Gets the bind address """
+        data = str(urlopen('http://checkip.dyndns.com/').read())
+        return re.compile(r'Address: (\d+\.\d+\.\d+\.\d+)') \
+            .search(data).group(1)
 
 
 def load():
