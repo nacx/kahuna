@@ -6,8 +6,6 @@ import re
 import simplejson as json  # JSON module is available from Python 2.6
 from kahuna.abstract import AbsPlugin
 from kahuna.utils.prettyprint import pprint_templates
-from org.jclouds.abiquo.domain import DomainWrapper
-from org.jclouds.abiquo.domain.cloud import TemplateDefinition
 from org.jclouds.abiquo.domain.exception import AbiquoException
 from org.jclouds.abiquo.predicates.infrastructure import DatacenterPredicates
 from org.jclouds.rest import AuthorizationException
@@ -81,23 +79,14 @@ class TemplatePlugin(AbsPlugin):
                 DatacenterPredicates.name(options.datacenter))
 
             log.info("Uploading template. This may take some time...")
-            # FIXME Add enterprise to TemplateDefinition builder in jclouds
-            # in order to be able to call definition.save()
-            # definition.save()
-            api = self._context.getApiContext().getApi()
-            enterprise = admin.getCurrentEnterprise()
-            dto = api.getEnterpriseApi().createTemplateDefinition(
-                enterprise.unwrap(), definition.unwrap())
-            definition = DomainWrapper.wrap(self._context.getApiContext(),
-                TemplateDefinition, dto)
+            definition.save()
 
             monitor = self._context.getMonitoringService() \
                 .getAsyncTaskMonitor()
             task = definition.downloadToRepository(dc)
             monitor.awaitCompletion(task)
 
-            log.info("Done!")
-            #pprint_templates([task.getResult()])
+            pprint_templates([task.getResult()])
         except (AbiquoException, AuthorizationException), ex:
             print "Error: %s" % ex.getMessage()
         finally:
