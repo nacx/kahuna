@@ -25,6 +25,7 @@ class ContextLoader:
         """ Sets the properties and context builders """
         self.__context = None
         self.__config = Config()
+        self.__endpoint = "http://" + self.__config.address + "/api"
         if overrides:
             log.debug("Overriding default config values")
             for property in sorted(overrides.iterkeys()):
@@ -33,19 +34,17 @@ class ContextLoader:
     def __del__(self):
         """ Closes the context before destroying """
         if self.__context:
-            log.debug("Disconnecting from %s" % self.__context. \
-                    getApiContext().getEndpoint())
+            log.debug("Disconnecting from %s" % self.__endpoint)
             self.__context.close()
 
     def load(self):
         """ Creates and configures the context """
         if not self.__context:     # Avoid loading the same context twice
             props = self._load_config()
-            endpoint = "http://" + self.__config.address + "/api"
-            log.debug("Connecting to %s as %s" % (endpoint,
+            log.debug("Connecting to %s as %s" % (self.__endpoint,
                 self.__config.user))
             self.__context = ContextBuilder.newBuilder(AbiquoApiMetadata()) \
-                .endpoint(endpoint) \
+                .endpoint(self.__endpoint) \
                 .credentials(self.__config.user, self.__config.password) \
                 .modules([SshjSshClientModule(), SLF4JLoggingModule()]) \
                 .overrides(props) \
